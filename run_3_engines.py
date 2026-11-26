@@ -162,16 +162,15 @@ def _build_organic_site_polygon(
     boundary_xy: Optional[Any] = None,
     terrain_class: str = "Dry Land",
 ) -> Polygon:
-    """Create a 50–70 feddan (~210k–294k m²) site boundary by polygonizing and merging real GIS street blocks."""
+    """Create a 50–70 feddan (~210k–294k m²) site boundary by splitting along real GIS roads/water and merging adjacent blocks."""
     from shapely.affinity import scale as shp_scale
     from shapely.geometry import box as shp_box
-    from shapely.ops import polygonize
 
-    win = shp_box(cx - 600.0, cy - 600.0, cx + 600.0, cy + 600.0)
+    win = shp_box(cx - 550.0, cy - 550.0, cx + 550.0, cy + 550.0)
     if boundary_xy is not None and not boundary_xy.is_empty:
         win = win.intersection(boundary_xy)
 
-    lines: List[Any] = [win.boundary]
+    r_lines: List[Any] = []
     if road_feats:
         wminx, wminy, wmaxx, wmaxy = win.bounds
         for rf in road_feats:
@@ -183,23 +182,23 @@ def _build_organic_site_polygon(
                 continue
             clipped = g.intersection(win)
             if not clipped.is_empty:
-                lines.append(clipped)
+                r_lines.append(clipped)
 
-    if terrain_class == "Dry Land" and water_polys:
-        for wp in water_polys:
-            if not wp.is_empty and wp.intersects(win):
-                lines.append(wp.boundary.intersection(win))
+    region = win
+    if r_lines:
+        rbuf = unary_union(r_lines).buffer(6.0)
+        region = region.difference(rbuf)
 
-    blocks = [b for b in polygonize(unary_union(lines)) if b.area >= 2000.0]
     if terrain_class == "Dry Land" and water_polys:
         w_union = unary_union([wp for wp in water_polys if wp.intersects(win)])
         if not w_union.is_empty:
-            blocks = [b.difference(w_union) for b in blocks]
-            blocks = [b for b in blocks if not b.is_empty and b.area >= 2000.0]
+            region = region.difference(w_union)
+
+    raw_parts = list(region.geoms) if region.geom_type == "MultiPolygon" else ([region] if region.geom_type == "Polygon" else [])
+    blocks = [b for b in raw_parts if not b.is_empty and b.area >= 3000.0]
 
     pt = Point(cx, cy)
     if blocks:
-        # Start from the block containing/nearest (cx, cy) and merge adjacent blocks up to 50–70 feddans
         blocks.sort(key=lambda b: (0.0 if b.contains(pt) else b.distance(pt), b.centroid.distance(pt)))
         chosen = [blocks[0]]
         remaining = blocks[1:]
@@ -208,27 +207,27 @@ def _build_organic_site_polygon(
         max_target = 290000.0  # ~69.0 feddans
 
         while cur.area < min_target and remaining:
-            # Prefer blocks touching or within 25m of current union, closest to (cx, cy)
-            adj = [b for b in remaining if cur.distance(b) <= 25.0]
+            # Prefer blocks across the 12m street gap (within 20m) closest to (cx, cy)
+            adj = [b for b in remaining if cur.distance(b) <= 20.0]
             if not adj:
                 adj = remaining
             adj.sort(key=lambda b: (cur.distance(b), b.centroid.distance(pt)))
             nxt = adj[0]
-            if cur.area + nxt.area > max_target and cur.area >= 180000.0:
+            if cur.area + nxt.area > max_target and cur.area >= 165000.0:
                 break
             chosen.append(nxt)
             remaining.remove(nxt)
-            cur = unary_union(chosen)
+            cur = unary_union([g.buffer(7.0) for g in chosen]).buffer(-7.0)
 
         if cur.geom_type == "MultiPolygon":
             cur = max(cur.geoms, key=lambda g: g.area)
-        if cur.area >= 120000.0:
-            if cur.area < min_target:
+        if cur.area >= 100000.0:
+            if cur.area < min_target or cur.area > max_target:
                 sf = math.sqrt(target_area_m2 / cur.area)
                 cur = shp_scale(cur, xfact=sf, yfact=sf, origin="centroid")
             return cur
 
-    # Fallback: rotated rectangular parcel clipped to window
+    # Fallback: rectangular parcel clipped to window
     poly = shp_box(cx - 250.0, cy - 250.0, cx + 250.0, cy + 250.0)
     if boundary_xy is not None and not boundary_xy.is_empty:
         poly = poly.intersection(boundary_xy)
