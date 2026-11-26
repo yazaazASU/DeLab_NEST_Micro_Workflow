@@ -115,27 +115,28 @@ def render_satellite_lock(project: dict, out_path: Path, out_w: int = 1280, out_
     c_lat = (min(all_lats) + max(all_lats)) / 2.0
     c_lon = (min(all_lons) + max(all_lons)) / 2.0
 
-    # Choose zoom level so the site + ~500 m surrounding context fits comfortably in 1280x720
-    lat_span = max(max(all_lats) - min(all_lats), 0.004)
-    lon_span = max(max(all_lons) - min(all_lons), 0.006)
-    z = 15
-    for cand_z in (15, 14):
-        x0, y0 = latlon_to_tile_xy(max(all_lats), min(all_lons), cand_z)
-        x1, y1 = latlon_to_tile_xy(min(all_lats), max(all_lons), cand_z)
-        px_w = abs(x1 - x0) * 256.0
-        px_h = abs(y1 - y0) * 256.0
-        if px_w <= out_w * 0.44 and px_h <= out_h * 0.48:
-            z = cand_z
-            break
+    # Use high-res tiles (z=16) and crop/scale smoothly so the site fills ~70% of the 16:9 frame
+    z = 16
+    tx0, ty0 = latlon_to_tile_xy(max(all_lats), min(all_lons), z)
+    tx1, ty1 = latlon_to_tile_xy(min(all_lats), max(all_lons), z)
+    poly_tw = max(abs(tx1 - tx0), 0.2)
+    poly_th = max(abs(ty1 - ty0), 0.2)
+
+    target_aspect = out_w / float(out_h)
+    # Site fills ~70% of height (or width if wide), leaving ~15% context margin around it
+    crop_th = max(poly_th / 0.70, (poly_tw / 0.70) / target_aspect)
+    crop_tw = crop_th * target_aspect
 
     cx, cy = latlon_to_tile_xy(c_lat, c_lon, z)
-    half_tx = (out_w / 2.0) / 256.0
-    half_ty = (out_h / 2.0) / 256.0
+    left_t = cx - crop_tw / 2.0
+    top_t = cy - crop_th / 2.0
+    right_t = cx + crop_tw / 2.0
+    bottom_t = cy + crop_th / 2.0
 
-    min_tx = int(math.floor(cx - half_tx))
-    max_tx = int(math.floor(cx + half_tx))
-    min_ty = int(math.floor(cy - half_ty))
-    max_ty = int(math.floor(cy + half_ty))
+    min_tx = int(math.floor(left_t))
+    max_tx = int(math.floor(right_t))
+    min_ty = int(math.floor(top_t))
+    max_ty = int(math.floor(bottom_t))
 
     stitched_w = (max_tx - min_tx + 1) * 256
     stitched_h = (max_ty - min_ty + 1) * 256
@@ -146,10 +147,13 @@ def render_satellite_lock(project: dict, out_path: Path, out_w: int = 1280, out_
             tile_img = fetch_tile(z, tx, ty)
             canvas.paste(tile_img, ((tx - min_tx) * 256, (ty - min_ty) * 256))
 
-    # Crop exact 16:9 viewport centered on site centroid
-    left = int(round((cx - half_tx - min_tx) * 256.0))
-    top = int(round((cy - half_ty - min_ty) * 256.0))
-    crop = canvas.crop((left, top, left + out_w, top + out_h)).convert("RGBA")
+    crop_box = (
+        int(round((left_t - min_tx) * 256.0)),
+        int(round((top_t - min_ty) * 256.0)),
+        int(round((right_t - min_tx) * 256.0)),
+        int(round((bottom_t - min_ty) * 256.0)),
+    )
+    crop = canvas.crop(crop_box).resize((out_w, out_h), Image.Resampling.LANCZOS).convert("RGBA")
 
     # Overlay subtle translucent fill + crisp dashed boundary outline
     overlay = Image.new("RGBA", crop.size, (0, 0, 0, 0))
@@ -161,8 +165,8 @@ def render_satellite_lock(project: dict, out_path: Path, out_w: int = 1280, out_
         pts = []
         for lat, lon in ring:
             tx, ty = latlon_to_tile_xy(lat, lon, z)
-            px = (tx - min_tx) * 256.0 - left
-            py = (ty - min_ty) * 256.0 - top
+            px = (tx - left_t) / crop_tw * out_w
+            py = (ty - top_t) / crop_th * out_h
             pts.append((px, py))
         if len(pts) >= 3:
             odraw.polygon(pts, fill=fill_col)
@@ -363,6 +367,8 @@ def main():
 
     pack_dir = run_dir / "renders" / "render_pack"
     pack_dir.mkdir(parents=True, exist_ok=True)
+    for stale in pack_dir.glob("*massing_lock*.png"):
+        stale.unlink()
 
     consolidated_sections = [
         f"# Consolidated Architectural Render Prompts — {run_dir.name}",

@@ -152,16 +152,48 @@ def score_cliques(force_arrays: Dict[str, np.ndarray], cliques: List[Tuple[str, 
     return best, best_lbl
 
 
-def _build_organic_site_polygon(cx: float, cy: float, active_xy: np.ndarray, target_area_m2: float = 250000.0) -> Polygon:
-    """Create a 50–70 feddan (~250,000 m²) GIS-snapped organic site boundary around (cx, cy)."""
-    r = math.sqrt(target_area_m2 / math.pi)
-    angles = np.linspace(0, 2 * math.pi, 24, endpoint=False)
-    # Slight organic modulation while keeping area near target_area_m2
+def _build_organic_site_polygon(
+    cx: float,
+    cy: float,
+    active_xy: np.ndarray,
+    target_area_m2: float = 250000.0,
+    barrier_union: Optional[Any] = None,
+    boundary_xy: Optional[Any] = None,
+) -> Polygon:
+    """Create a 50–70 feddan (~250,000 m²) GIS-snapped site boundary clipped to roads, water, and plot edges."""
+    from shapely.affinity import scale as shp_scale
+
+    # Start with a slightly rotated parcel-like rounded polygon
+    r = math.sqrt(target_area_m2 / math.pi) * 1.25
+    angles = np.linspace(0, 2 * math.pi, 16, endpoint=False)
+    rot = ((abs(cx) + abs(cy)) % 7) * 0.25
     pts = []
-    for i, a in enumerate(angles):
-        mod = 1.0 + 0.08 * math.sin(3 * a + 0.4) + 0.05 * math.cos(2 * a - 0.3)
+    for a in angles:
+        mod = 1.0 + 0.14 * math.cos(2 * (a + rot)) + 0.07 * math.sin(3 * a)
         pts.append((cx + r * mod * math.cos(a), cy + r * mod * math.sin(a)))
     poly = Polygon(pts)
+
+    if boundary_xy is not None and not boundary_xy.is_empty:
+        clipped = poly.intersection(boundary_xy)
+        if not clipped.is_empty:
+            poly = clipped
+
+    if barrier_union is not None and not barrier_union.is_empty:
+        diff = poly.difference(barrier_union)
+        if diff.geom_type == "MultiPolygon":
+            pt = Point(cx, cy)
+            containing = [g for g in diff.geoms if g.contains(pt) or g.distance(pt) < 40.0]
+            poly = max(containing, key=lambda g: g.area) if containing else max(diff.geoms, key=lambda g: g.area)
+        elif diff.geom_type == "Polygon" and diff.area > 20000.0:
+            poly = diff
+
+    if poly.geom_type == "MultiPolygon":
+        poly = max(poly.geoms, key=lambda g: g.area)
+
+    if poly.area > 1000.0:
+        sf = math.sqrt(target_area_m2 / poly.area)
+        sf = max(0.75, min(1.35, sf))
+        poly = shp_scale(poly, xfact=sf, yfact=sf, origin="centroid")
     return poly
 
 
@@ -379,6 +411,11 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                 f.write(f"- **Hidden Potential Score:** {hidden[pi]:.1f}/100\n")
                 f.write(f"- **Efficiency Ratio (NSF/GSF):** {eff*100:.0f}%\n")
 
+    # Prebuild road + water barrier union for GIS-snapped site boundaries
+    road_polys = [f["geometry"].buffer(14.0) for f in road_feats[:200] if not f["geometry"].is_empty]
+    barrier_geoms = road_polys + ([water_union] if water_polys else [])
+    barrier_union = unary_union(barrier_geoms) if barrier_geoms else None
+
     # Build Stratified Top 15 Candidate Pool & detect cross-engine convergence (<=350m)
     rank_counter = 1
     for eng_key, eng_label, _, _, posture in ENGINE_SPECS:
@@ -398,7 +435,11 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
 
             fscores = {fn: round(float(res["force_scores"][fn][idx]), 1) for fn in FORCE_NAMES}
             dom_force = FORCE_NAMES[int(res["dom_idx"][idx])]
-            poly_xy = _build_organic_site_polygon(cx, cy, active_xy, target_area_m2=250000.0)
+            poly_xy = _build_organic_site_polygon(
+                cx, cy, active_xy, target_area_m2=250000.0,
+                barrier_union=barrier_union if terrain_classes[idx] == "Dry Land" else None,
+                boundary_xy=boundary_xy,
+            )
             poly_ll = proj.geom_to_ll(poly_xy)
             b = poly_ll.bounds
 
