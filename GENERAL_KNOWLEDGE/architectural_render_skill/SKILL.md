@@ -29,6 +29,7 @@ Produces photorealistic, editorial-grade **aerial architectural conceptual rende
 Before writing a single word of the prompt, inspect all available visual and geographic context:
 - **User visuals** (sketches, massing/viewport screenshots, site plans, site photos, moodboards): inspect with `read_file`.
 - **GIS / Satellite Site Context** (for NEST / site-based runs): read `*_site_context.md` and, whenever possible, capture/export a clean **satellite image crop** of the exact site boundary + immediate surroundings to pass to `image-generator` as a spatial/landscape anchor.
+- **Regional Knowledge Grounding (`EGYPT_KNOWLEDGE/`)**: for Egyptian plots, look up the plot's governorate and nearest special place in `EGYPT_KNOWLEDGE/egypt_index.json` + its regional `.md` atlas to pull authentic local stone/earth hues, native vegetation, prevailing wind/mist cues, and regional lighting—while strictly obeying the Site-Reality Honesty rule above (never invent landforms or water absent from the satellite crop).
 
 ### Step 2: Structured Intake Checklist (Required Before Generating)
 Lock in 5 items before generating (for autonomous NEST runs, self-answer all 5 from `*_site_context.md`, GIS layers, and the architectural program; for interactive runs, use `ask_question` for any missing items):

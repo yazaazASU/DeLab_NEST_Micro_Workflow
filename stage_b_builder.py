@@ -333,6 +333,7 @@ def build_project_from_seed(seed: dict, stage_a: dict) -> dict:
             "hero_threshold_scene": seed["thesis_summary"].get("hook", ""),
             "lighting_mood": seed.get("experience_arc", {}).get("atmosphere", "Warm late-afternoon directional light with crisp shadow relief."),
             "materials_palette": "Regionally authentic stone, desert-aggregate concrete, weathered timber, and native arid planting.",
+            "camera_cue": "",
         },
         "activities": seed.get("activities", []),
         "spaces": seed.get("spaces", []),

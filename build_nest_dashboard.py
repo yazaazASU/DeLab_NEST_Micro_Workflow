@@ -66,13 +66,11 @@ def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str
     # Detect whether optional external editorial renders exist & ensure asset paths
     for p in projects:
         rk = p["rank"]
-        p.setdefault("massing_lock", f"renders/render_pack/site_{rk}_massing_lock.png")
-        p.setdefault("massing_lock_clean", f"renders/render_pack/site_{rk}_massing_lock_clean.png")
-        p.setdefault("satellite_lock", f"renders/render_pack/site_{rk}_satellite_lock.png")
+        p.setdefault("satellite_lock", f"renders/render_pack/site_{rk}/satellite_lock.png")
         p.setdefault("rhino_3dm", f"models/site_{rk}_massing.3dm")
         p.setdefault("rhino_3dm_path", f"models/site_{rk}_massing.3dm")
-        p.setdefault("render_prompt", f"renders/render_pack/site_{rk}_prompt.md")
-        p.setdefault("render_prompt_path", f"renders/render_pack/site_{rk}_prompt.md")
+        p.setdefault("render_prompt", f"renders/render_pack/site_{rk}/prompt.md")
+        p.setdefault("render_prompt_path", f"renders/render_pack/site_{rk}/prompt.md")
         ext_render = run_dir / "renders" / f"site_{rk}.jpg"
         hero_render = run_dir / "renders" / f"site_{rk}_hero.jpg"
         p["has_editorial_render"] = ext_render.exists()
@@ -306,7 +304,7 @@ body.print-all .full-brief-drawer {{ display: block !important; }}
     <div id="jump-bar" class="jump-bar"><span style="font-size:11.5px;font-weight:800;color:#625753;margin-right:4px">JUMP TO SITE:</span></div>
     <div class="tb-actions">
       <button type="button" id="btn-detail-toggle" class="btn-outline" onclick="toggleDetailed()">Story Mode | Full Dossiers</button>
-      <a class="btn-outline" href="renders/render_pack/ALL_PROMPTS_CONSOLIDATED.md" target="_blank">Render Pack Prompts ↗</a>
+      <a class="btn-outline" href="renders/render_pack/AGENT_INSTRUCTIONS.md" target="_blank">Render Pack Guide ↗</a>
       <button type="button" class="btn-coral" onclick="exportProposalsPdf()">⬇ Export Proposals PDF</button>
     </div>
   </div>

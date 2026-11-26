@@ -300,6 +300,17 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
         vd.get("materials_palette")
         or "Regionally authentic stone, desert-aggregate concrete, weathered timber, and native arid planting."
     )
+    camera_cue = _clean_prompt_text(vd.get("camera_cue") or "")
+    aerial_cam = (
+        f"Camera & framing tailored to architecture: {camera_cue}."
+        if camera_cue
+        else "Choose an elevated oblique pitch (~35–50°) and rectilinear focal length that best showcases the masterplan geometry and surrounding fabric."
+    )
+    hero_cam = (
+        f"human-threshold low-oblique perspective (~10–25°, {camera_cue})"
+        if camera_cue
+        else "human-threshold low-oblique perspective (~10–25°, lens chosen to fit the threshold depth)"
+    )
 
     journey_items = exp.get("journey") or []
     hero_moments_str = " | ".join(
@@ -310,7 +321,7 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
     side_m = int(round(math.sqrt(max(10000.0, float(project.get("area_m2", 250000))))))
 
     aerial_prompt = f"""1. OPTICAL & COMPOSITION (WHOLE-SITE SCALE AERIAL):
-Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, 35mm rectilinear lens, ~42° oblique pitch, deep f/11 focus across the entire frame. Frame the ENTIRE {feddans}-feddan (~{side_m} m x {side_m} m) red dashed polygon of `{sat_filename}` (Top = North) with generous surrounding Egyptian context.
+Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, deep f/11 focus across the entire frame. {aerial_cam} Frame the ENTIRE {feddans}-feddan (~{side_m} m x {side_m} m) red dashed polygon of `{sat_filename}` (Top = North) with generous surrounding Egyptian context.
 
 2. LIGHT, SHADOW & ATMOSPHERE:
 {lighting_mood} — natural atmospheric depth toward the horizon, crisp shadow reveals beneath roof overhangs and cantilevers.
@@ -327,7 +338,7 @@ Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 cra
 - Forbidden: {region_cfg['forbidden']}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
 
     hero_prompt = f"""1. OPTICAL & COMPOSITION (CLOSE HERO EXPERIENCE):
-Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, 24mm rectilinear architectural lens, ~18° low-oblique human-threshold view with clear foreground (path/steps/planting), midground (hero threshold & soffits), and flat distant horizon.
+Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, {hero_cam} with clear foreground (path/steps/planting), midground (hero threshold & soffits), and flat distant horizon.
 
 2. LIGHT, SHADOW & ATMOSPHERE:
 {lighting_mood} — rich interplay of directional light, deep shadow reveals, warm interior-to-exterior glow, and sensory mist or water reflections where warranted.
@@ -367,21 +378,17 @@ def main():
 
     pack_dir = run_dir / "renders" / "render_pack"
     pack_dir.mkdir(parents=True, exist_ok=True)
-    for stale in pack_dir.glob("*massing_lock*.png"):
-        stale.unlink()
-
-    consolidated_sections = [
-        f"# Consolidated Architectural Render Prompts — {run_dir.name}",
-        "",
-        "> **How to use:** Pair each prompt below with its matching `site_<N>_satellite_lock.png` in this folder. Generate at `16:9` widescreen and save final QC-passed renders to `../site_<N>.jpg`.",
-        "",
-    ]
+    for pattern in ("*massing_lock*.png", "site_*_satellite_lock.png", "site_*_prompt.md", "ALL_PROMPTS_CONSOLIDATED.md"):
+        for stale in pack_dir.glob(pattern):
+            stale.unlink()
 
     for p in projects:
         rank = p["rank"]
-        sat_name = f"site_{rank}_satellite_lock.png"
-        sat_path = pack_dir / sat_name
-        print(f"Fetching Esri satellite lock for Site #{rank} -> {sat_path.name} ...")
+        site_dir = pack_dir / f"site_{rank}"
+        site_dir.mkdir(parents=True, exist_ok=True)
+        sat_name = "satellite_lock.png"
+        sat_path = site_dir / sat_name
+        print(f"Fetching Esri satellite lock for Site #{rank} -> site_{rank}/{sat_path.name} ...")
         render_satellite_lock(p, sat_path)
 
         region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
@@ -390,53 +397,34 @@ def main():
 
         site_md = f"""# Site #{rank} Render Brief — {p['title']}
 
-- **Target 1 (Whole-Site Scale Aerial):** `../site_{rank}.jpg` (`16:9` widescreen · attach `./{sat_name}`)
-- **Target 2 (Close Hero Experience):** `../site_{rank}_hero.jpg` (`16:9` widescreen · attach `./{sat_name}` for context)
+- **Target 1 (Whole-Site Scale Aerial):** `../../site_{rank}.jpg` (`16:9` widescreen · attach `./{sat_name}`)
+- **Target 2 (Close Hero Experience):** `../../site_{rank}_hero.jpg` (`16:9` widescreen · attach `./{sat_name}` for context)
 - **Coordinates:** `{p['lat']:.5f}, {p['lon']:.5f}` · **Boundary:** `{p.get('footprint_type', 'Contiguous')}` ({p.get('area_m2', 0)/10000:.2f} ha)
 
-## 1. Whole-Site Scale Aerial Prompt (`../site_{rank}.jpg`)
+## 1. Whole-Site Scale Aerial Prompt (`../../site_{rank}.jpg`)
 
 ```text
 {aerial_prompt}
 ```
 
-## 2. Hero Experience Shot Prompt (`../site_{rank}_hero.jpg`)
+## 2. Hero Experience Shot Prompt (`../../site_{rank}_hero.jpg`)
 
 ```text
 {hero_prompt}
 ```
 """
-        (pack_dir / f"site_{rank}_prompt.md").write_text(site_md, encoding="utf-8")
-
-        consolidated_sections.extend([
-            "---",
-            f"## IMAGE {rank}A (Whole-Site Scale) — Save as: `renders/site_{rank}.jpg` (Attach `./{sat_name}`)",
-            f"**Project:** {p['title']}",
-            "",
-            "```text",
-            aerial_prompt,
-            "```",
-            "",
-            f"## IMAGE {rank}B (Hero Experience) — Save as: `renders/site_{rank}_hero.jpg` (Attach `./{sat_name}`)",
-            "",
-            "```text",
-            hero_prompt,
-            "```",
-            "",
-        ])
-
-    (pack_dir / "ALL_PROMPTS_CONSOLIDATED.md").write_text("\n".join(consolidated_sections), encoding="utf-8")
+        (site_dir / "prompt.md").write_text(site_md, encoding="utf-8")
 
     agent_instructions = f"""# Render Outsourcing & Agent Instructions — NEST 2-Render Pair
 
-This self-contained `{pack_dir.name}/` package contains everything needed to produce **2 `16:9` renders per site** (`{len(projects)}` sites = `{len(projects) * 2}` images total):
-- **`site_<N>.jpg` (Whole-Site Scale Aerial, `~40–45°`):** Must span the **entire ~500 m × 500 m (`50–70 feddan`) dashed polygon** in `site_<N>_satellite_lock.png`, keeping surrounding 2-story rural houses and fields at true small real-world scale.
-- **`site_<N>_hero.jpg` (Close Hero Experience, `~15–25°`):** Threshold/human-scale shot capturing the signature architectural idea, tectonics, atmosphere, lighting, and people up close.
+This self-contained `{pack_dir.name}/` package isolates each site into its own **`site_<N>/`** subfolder (`{len(projects)}` sites = `{len(projects) * 2}` images total) so each site is rendered independently with zero cross-site bleed:
+- **`site_<N>.jpg` (Whole-Site Scale Aerial, `~35–50°`):** Must span the **entire ~500 m × 500 m (`50–70 feddan`) dashed polygon** in `site_<N>/satellite_lock.png`, keeping surrounding 2-story rural houses and fields at true small real-world scale.
+- **`site_<N>_hero.jpg` (Close Hero Experience, `~10–25°`):** Threshold/human-scale shot capturing the signature architectural idea, tectonics, atmosphere, lighting, and people up close.
 
 ## Step-by-Step Execution (For Each Site `1` to `{len(projects)}`)
-1. Open **`site_<N>_satellite_lock.png`** (`z=15`, `Top = North`) and **`site_<N>_prompt.md`**.
-2. Generate **Prompt 1 (Whole-Site Scale Aerial)** attaching `site_<N>_satellite_lock.png` as the strict geographic & scale reference → save to `../site_<N>.jpg`.
-3. Generate **Prompt 2 (Hero Experience Shot)** attaching `site_<N>_satellite_lock.png` for regional context → save to `../site_<N>_hero.jpg`.
+1. Open **`site_<N>/satellite_lock.png`** (`z=15`, `Top = North`) and **`site_<N>/prompt.md`**.
+2. Generate **Prompt 1 (Whole-Site Scale Aerial)** attaching `site_<N>/satellite_lock.png` as the strict geographic & scale reference → save to `renders/site_<N>.jpg`.
+3. Generate **Prompt 2 (Hero Experience Shot)** attaching `site_<N>/satellite_lock.png` for regional context → save to `renders/site_<N>_hero.jpg`.
 4. **Visual QC:** Verify true `50–70 feddan` scale vs. surrounding houses/roads (on `site_<N>.jpg`), flat/real topography, native flora, zero tilt-shift blur, and zero text/watermarks.
 """
     (pack_dir / "AGENT_INSTRUCTIONS.md").write_text(agent_instructions, encoding="utf-8")
@@ -444,9 +432,9 @@ This self-contained `{pack_dir.name}/` package contains everything needed to pro
     import zipfile
     zip_path = run_dir / "renders" / "render_pack.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for fp in sorted(pack_dir.iterdir()):
+        for fp in sorted(pack_dir.rglob("*")):
             if fp.is_file():
-                zf.write(fp, fp.name)
+                zf.write(fp, fp.relative_to(pack_dir).as_posix())
     print(f"Render pack complete -> {pack_dir} (+ {zip_path.name})")
 
 

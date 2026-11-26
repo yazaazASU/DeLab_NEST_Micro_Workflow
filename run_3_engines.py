@@ -159,14 +159,16 @@ def _build_organic_site_polygon(
     target_area_m2: float = 250000.0,
     road_feats: Optional[Sequence[Dict[str, Any]]] = None,
     water_polys: Optional[Sequence[Any]] = None,
+    built_polys: Optional[Sequence[Any]] = None,
     boundary_xy: Optional[Any] = None,
     terrain_class: str = "Dry Land",
 ) -> Polygon:
-    """Create a 50–70 feddan (~210k–294k m²) site boundary by splitting along real GIS roads/water and merging adjacent blocks."""
+    """Create a 50–70 feddan (~210k–294k m²) site boundary by splitting along real GIS roads/water/built-up areas and merging adjacent open blocks."""
     from shapely.affinity import scale as shp_scale
     from shapely.geometry import box as shp_box
 
-    win = shp_box(cx - 550.0, cy - 550.0, cx + 550.0, cy + 550.0)
+    win_box = shp_box(cx - 900.0, cy - 900.0, cx + 900.0, cy + 900.0)
+    win = win_box
     if boundary_xy is not None and not boundary_xy.is_empty:
         win = win.intersection(boundary_xy)
 
@@ -190,12 +192,28 @@ def _build_organic_site_polygon(
         region = region.difference(rbuf)
 
     if terrain_class == "Dry Land" and water_polys:
-        w_union = unary_union([wp for wp in water_polys if wp.intersects(win)])
-        if not w_union.is_empty:
-            region = region.difference(w_union)
+        w_list = [wp for wp in water_polys if wp.intersects(win)]
+        if w_list:
+            w_union = unary_union(w_list)
+            if not w_union.is_empty:
+                region_land = region.difference(w_union)
+                if not region_land.is_empty and region_land.area >= 3000.0:
+                    region = region_land
+
+    if built_polys:
+        b_list = [bp for bp in built_polys if bp.intersects(win)]
+        if b_list:
+            b_union = unary_union(b_list).buffer(8.0)
+            if not b_union.is_empty:
+                region_unbuilt = region.difference(b_union)
+                if not region_unbuilt.is_empty and region_unbuilt.area >= 3000.0:
+                    region = region_unbuilt
 
     raw_parts = list(region.geoms) if region.geom_type == "MultiPolygon" else ([region] if region.geom_type == "Polygon" else [])
     blocks = [b for b in raw_parts if not b.is_empty and b.area >= 3000.0]
+    interior_blocks = [b for b in blocks if b.distance(win_box.boundary) > 2.0]
+    if sum(b.area for b in interior_blocks) >= 120000.0:
+        blocks = interior_blocks
 
     pt = Point(cx, cy)
     if blocks:
@@ -221,6 +239,13 @@ def _build_organic_site_polygon(
 
         if cur.geom_type == "MultiPolygon":
             cur = max(cur.geoms, key=lambda g: g.area)
+        # Smooth out narrow (<16m) sliver spikes from road/building cutouts
+        smoothed = cur.buffer(-8.0).buffer(8.0)
+        if not smoothed.is_empty:
+            if smoothed.geom_type == "MultiPolygon":
+                smoothed = max(smoothed.geoms, key=lambda g: g.area)
+            if smoothed.area >= 0.85 * cur.area:
+                cur = smoothed
         if cur.area >= 100000.0:
             if cur.area < min_target or cur.area > max_target:
                 sf = math.sqrt(target_area_m2 / cur.area)
@@ -289,7 +314,7 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
     # Terrain classification: Dry Land / Shoreline Edge (<=100m) / Open Water
     water_feats = filter_features(
         features_xy,
-        "source_layer=Egypt — Water Areas OR source_layer=نهر النيل OR source_layer=Egypt — Nile River OR source_layer=Egypt — Waterways OR source_layer=River network OR source_layer=Water bodies (OSM) OR source_layer=Waterways (OSM)",
+        "source_layer=Egypt — Water Areas OR source_layer=نهر النيل OR source_layer=Egypt — Nile River OR source_layer=Egypt — Waterways OR source_layer=River network OR source_layer=Water bodies (OSM) OR source_layer=Waterways (OSM) OR source_layer=Lakes OR source_layer=Seas",
     )
     water_polys = [f["geometry"] for f in water_feats if f["geometry"].geom_type in ("Polygon", "MultiPolygon")]
     water_pts = _sample_points_from_geoms([f["geometry"] for f in water_feats], step_m=60.0)
@@ -309,8 +334,27 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
         else:
             terrain_classes[i] = "Dry Land"
 
-    # Masks for buildings & roads
-    bldg_feats = filter_features(features_xy, "source_layer=Egypt — Buildings OR source_layer=Built surface OR source_layer=Building footprints")
+    # Masks for buildings, built-up settlements, & roads
+    _BUILT_LANDUSE_CLASSES = {
+        "residential", "commercial", "industrial", "retail", "institutional",
+        "military", "cemetery", "village", "urban", "built", "construction",
+    }
+    bldg_feats = filter_features(
+        features_xy,
+        "source_layer=Egypt — Buildings OR source_layer=Built surface OR source_layer=Building footprints OR source_layer=Settlement areas (OSM) OR source_layer=Settlement locations — OSM source OR source_layer=Places of worship — polygons (OSM)",
+    )
+    for lf in filter_features(features_xy, "source_layer=Land-use areas (OSM)"):
+        props = lf.get("properties", {})
+        fc = str(props.get("fclass") or props.get("landuse") or "").strip().lower()
+        if fc in _BUILT_LANDUSE_CLASSES:
+            bldg_feats.append(lf)
+
+    built_polys = [f["geometry"] for f in bldg_feats if f["geometry"].geom_type in ("Polygon", "MultiPolygon")]
+    in_built = np.zeros(n_act, dtype=bool)
+    if built_polys:
+        built_union = unary_union(built_polys)
+        in_built = np.array([built_union.contains(Point(px, py)) for px, py in active_xy], dtype=bool)
+
     road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads OR source_layer=Road network (OSM) OR source_layer=L163_Road_network_OSM OR source_layer=Roads")
     bldg_pts = _sample_points_from_geoms([f["geometry"] for f in bldg_feats], step_m=40.0)
     road_pts = _sample_points_from_geoms([f["geometry"] for f in road_feats], step_m=40.0)
@@ -347,11 +391,11 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
         tif_dir = os.path.join(eng_out, "geotiff")
         os.makedirs(tif_dir, exist_ok=True)
 
-        # Engine mask
+        # Engine mask: never place site centers inside existing buildings/settlements (water is buildable)
         if eng_key in ("crystals", "cells"):
-            eng_mask = (d_road > 25.0) & (d_bldg > 25.0)
+            eng_mask = (d_road > 25.0) & (d_bldg > 25.0) & (~in_built)
         else:
-            eng_mask = np.ones(n_act, dtype=bool)
+            eng_mask = ~in_built
 
         force_scores: Dict[str, np.ndarray] = {}
         top_drivers_per_force: Dict[str, List[Tuple[str, np.ndarray]]] = {}
@@ -471,6 +515,7 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                 cx, cy, active_xy, target_area_m2=250000.0,
                 road_feats=road_feats,
                 water_polys=water_polys,
+                built_polys=built_polys,
                 boundary_xy=boundary_xy,
                 terrain_class=terrain_classes[idx],
             )
