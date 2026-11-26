@@ -290,7 +290,7 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
     # Terrain classification: Dry Land / Shoreline Edge (<=100m) / Open Water
     water_feats = filter_features(
         features_xy,
-        "source_layer=Egypt — Water Areas OR source_layer=نهر النيل OR source_layer=Egypt — Nile River OR source_layer=Egypt — Waterways OR source_layer=River network",
+        "source_layer=Egypt — Water Areas OR source_layer=نهر النيل OR source_layer=Egypt — Nile River OR source_layer=Egypt — Waterways OR source_layer=River network OR source_layer=Water bodies (OSM) OR source_layer=Waterways (OSM)",
     )
     water_polys = [f["geometry"] for f in water_feats if f["geometry"].geom_type in ("Polygon", "MultiPolygon")]
     water_pts = _sample_points_from_geoms([f["geometry"] for f in water_feats], step_m=60.0)
@@ -311,8 +311,8 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
             terrain_classes[i] = "Dry Land"
 
     # Masks for buildings & roads
-    bldg_feats = filter_features(features_xy, "source_layer=Egypt — Buildings OR source_layer=Built surface")
-    road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads")
+    bldg_feats = filter_features(features_xy, "source_layer=Egypt — Buildings OR source_layer=Built surface OR source_layer=Building footprints")
+    road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads OR source_layer=Road network (OSM) OR source_layer=Roads")
     bldg_pts = _sample_points_from_geoms([f["geometry"] for f in bldg_feats], step_m=40.0)
     road_pts = _sample_points_from_geoms([f["geometry"] for f in road_feats], step_m=40.0)
     d_bldg = min_dist_to_points(active_xy, bldg_pts)
