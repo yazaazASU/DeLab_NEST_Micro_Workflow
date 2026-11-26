@@ -397,29 +397,27 @@ def main():
 
     (pack_dir / "ALL_PROMPTS_CONSOLIDATED.md").write_text("\n".join(consolidated_sections), encoding="utf-8")
 
-    agent_instructions = f"""# Agent Instructions — Generating Satellite-Locked NEST Renders
+    agent_instructions = f"""# Render Outsourcing & Agent Instructions — NEST 2-Render Pair
 
-Follow `GENERAL_KNOWLEDGE/architectural_render_skill/SKILL.md` using the assets in this folder (`{pack_dir.name}/`):
+This self-contained `{pack_dir.name}/` package contains everything needed to produce **2 `16:9` renders per site** (`{len(projects)}` sites = `{len(projects) * 2}` images total):
+- **`site_<N>.jpg` (Whole-Site Scale Aerial, `~40–45°`):** Must span the **entire ~500 m × 500 m (`50–70 feddan`) dashed polygon** in `site_<N>_satellite_lock.png`, keeping surrounding 2-story rural houses and fields at true small real-world scale.
+- **`site_<N>_hero.jpg` (Close Hero Experience, `~15–25°`):** Threshold/human-scale shot capturing the signature architectural idea, tectonics, atmosphere, lighting, and people up close.
 
-## Step-by-Step Execution
-1. **For each site (`1` to `{len(projects)}`):**
-   - Inspect `site_<N>_satellite_lock.png` with `read_file` to verify real ground edges (river/canal side, urban blocks, flat terrain).
-   - Read `site_<N>_prompt.md`.
-   - Invoke `image-generator` passing **`site_<N>_satellite_lock.png` as the visual reference** along with the full prompt from `site_<N>_prompt.md`.
-   - Copy the generated image to `../site_<N>.jpg`.
-2. **Mandatory 6-Point Visual QC (compare side-by-side with `site_<N>_satellite_lock.png`):**
-   - Inspect both `../site_<N>.jpg` and `site_<N>_satellite_lock.png` via `read_file`.
-   - Verify all 6 checks from `GENERAL_KNOWLEDGE/architectural_render_skill/references/qc-checklist.md` — especially **Check #6 (Geographic, Topographic & Hydrological Fidelity)**:
-     - No invented hills/cliffs/mountains on flat plains.
-     - No invented turquoise ponds/lagoons/waterfalls.
-     - Real river/canal and neighboring urban fabric appear in the right direction.
-   - Perform at most **1 auto-fix pass** if any critical check fails.
-3. **Quota / Usage Exhaustion Fallback (`429 RESOURCE_EXHAUSTED`):**
-   - If `image-generator` hits a usage/quota limit, **stop retrying immediately**.
-   - Deliver the contents of `ALL_PROMPTS_CONSOLIDATED.md` (covering all remaining ungenerated sites) in **one single copy-paste fenced code block** in chat and remind the user to attach each matching `site_<N>_satellite_lock.png` in their external generator.
+## Step-by-Step Execution (For Each Site `1` to `{len(projects)}`)
+1. Open **`site_<N>_satellite_lock.png`** (`z=15`, `Top = North`) and **`site_<N>_prompt.md`**.
+2. Generate **Prompt 1 (Whole-Site Scale Aerial)** attaching `site_<N>_satellite_lock.png` as the strict geographic & scale reference → save to `../site_<N>.jpg`.
+3. Generate **Prompt 2 (Hero Experience Shot)** attaching `site_<N>_satellite_lock.png` for regional context → save to `../site_<N>_hero.jpg`.
+4. **Visual QC:** Verify true `50–70 feddan` scale vs. surrounding houses/roads (on `site_<N>.jpg`), flat/real topography, native flora, zero tilt-shift blur, and zero text/watermarks.
 """
     (pack_dir / "AGENT_INSTRUCTIONS.md").write_text(agent_instructions, encoding="utf-8")
-    print(f"Render pack complete -> {pack_dir}")
+
+    import zipfile
+    zip_path = run_dir / "renders" / "render_pack.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for fp in sorted(pack_dir.iterdir()):
+            if fp.is_file():
+                zf.write(fp, fp.name)
+    print(f"Render pack complete -> {pack_dir} (+ {zip_path.name})")
 
 
 if __name__ == "__main__":
