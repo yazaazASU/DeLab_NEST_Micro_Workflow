@@ -15,6 +15,8 @@
    - Review the full `candidate_pool` to select the **5 strongest, most complementary sites** based on Rule Precedence, physical buildability (`Dry Land` / `Shoreline Edge` / justified `Open Water`), ecological value, and economic/architectural synergy—never blindly locked into the first 5 raw indices.
 3. **Evidence & Data Provenance Audit:**
    - Ground every economic and architectural claim in Stage A's `observed_plot_telemetry` and `map_feature_pointers` first; where site-specific market data is missing, use transparent MENA/Egypt benchmarks and explicitly label every metric `Observed` vs. `Benchmark`.
+4. **Regional & Environmental Knowledge Lookup (`EGYPT_KNOWLEDGE/`):**
+   - Read the plot's `lat`/`lon` centroid (and `plot_title`) from `intermediates/stage_a_summary.json`, look up the matching **governorate** and nearest **special place(s)** in [`EGYPT_KNOWLEDGE/egypt_index.json`](../EGYPT_KNOWLEDGE/egypt_index.json) and its regional `.md` atlas, and blend their microclimate, prevailing wind, local geology/materials, living ecology, and cultural craft into Stage B (`experience_arc`, `Nature Hero`, and tectonic materials)—while **strictly honoring GIS/satellite ground truth** (never invent physical site features absent from the plot).
 
 ---
 

@@ -71,3 +71,11 @@ The way we describe every project must make it **immediately attractive and easy
 NEST does **not** require 3D Rhino massing or clay-lock renders. Instead:
 1. Stage B defines the **Architectural & Landscape Ensemble** (Built Elements & Spatial Anchors), **6-Beat User Journey**, **Atmosphere**, and **Visual Architectural Idea** in rich, concrete, de-metaphorized language.
 2. `build_render_pack.py` pairs **`site_<N>_satellite_lock.png`** (real Esri World Imagery crop) with **`site_<N>_prompt.md`** (the experience-driven architectural brief) to produce editorial `16:9` aerial renders directly from text + satellite ground truth.
+
+---
+
+## 5. Tectonic & Atmospheric Ambition (Light-Touch Render Direction)
+
+- **Bold Sectional Gestures:** Favour cantilevers, sculpted shells, stepped green-roof strata, or glowing twilight enclosures over flat-roofed generic compounds.
+- **Unified Tectonic World:** Every building and space in the project (hero space, dining, retail, stay) must share one coherent architectural language.
+- **Experience-Matched Lighting & Framing:** Let `experience_arc.atmosphere` drive the time of day (e.g., twilight lantern glow, misty dawn, or crisp sun) and use low-oblique `~25–35°` threshold aerials so human scale and spatial drama are felt.

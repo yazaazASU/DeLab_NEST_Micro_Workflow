@@ -66,17 +66,30 @@ def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str
     # Detect whether optional external editorial renders exist & ensure asset paths
     for p in projects:
         rk = p["rank"]
-        p.setdefault("massing_lock", f"renders/render_pack/site_{rk}_massing_lock.png")
-        p.setdefault("massing_lock_clean", f"renders/render_pack/site_{rk}_massing_lock_clean.png")
-        p.setdefault("satellite_lock", f"renders/render_pack/site_{rk}_satellite_lock.png")
+        p.setdefault("satellite_lock", f"renders/render_pack/site_{rk}/satellite_lock.png")
         p.setdefault("rhino_3dm", f"models/site_{rk}_massing.3dm")
         p.setdefault("rhino_3dm_path", f"models/site_{rk}_massing.3dm")
-        p.setdefault("render_prompt", f"renders/render_pack/site_{rk}_prompt.md")
-        p.setdefault("render_prompt_path", f"renders/render_pack/site_{rk}_prompt.md")
+        p.setdefault("render_prompt", f"renders/render_pack/site_{rk}/prompt.md")
+        p.setdefault("render_prompt_path", f"renders/render_pack/site_{rk}/prompt.md")
         ext_render = run_dir / "renders" / f"site_{rk}.jpg"
+        hero_render = run_dir / "renders" / f"site_{rk}_hero.jpg"
         p["has_editorial_render"] = ext_render.exists()
+        p["has_hero_render"] = hero_render.exists()
+        p["hero_render"] = f"renders/site_{rk}_hero.jpg" if hero_render.exists() else ""
         if p["has_editorial_render"]:
             p["render"] = f"renders/site_{rk}.jpg"
+        journey_items = (p.get("experience_arc") or {}).get("journey") or []
+        m_renders = []
+        for mi in range(1, max(len(journey_items), 1) + 1):
+            m_jpg = run_dir / "renders" / f"site_{rk}_moment_{mi}.jpg"
+            m_png = run_dir / "renders" / f"site_{rk}_moment_{mi}.png"
+            if m_jpg.exists():
+                m_renders.append(f"renders/site_{rk}_moment_{mi}.jpg")
+            elif m_png.exists():
+                m_renders.append(f"renders/site_{rk}_moment_{mi}.png")
+            else:
+                m_renders.append("")
+        p["moment_renders"] = m_renders
 
     nest_css = f"""
 {font_face_css}
@@ -115,9 +128,8 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .proj-card {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 18px; overflow: hidden; box-shadow: 0 10px 28px rgba(48,43,42,0.07); }}
 
 /* Top Split Visual Stage (Live 3D WebGL + Live Leaflet Satellite Map) */
-.card-visuals {{ display: grid; grid-template-columns: 1.2fr 1fr; border-bottom: 1px solid var(--nest-line); }}
-@media (max-width: 980px) {{ .card-visuals {{ grid-template-columns: 1fr; }} }}
-.render-wrap {{ position: relative; background: #F3EFEA; height: 420px; overflow: hidden; }}
+.card-visuals {{ display: grid; grid-template-columns: 1fr; border-bottom: 1px solid var(--nest-line); }}
+.render-wrap {{ position: relative; background: #F3EFEA; height: 480px; overflow: hidden; }}
 .webgl-stage {{ width: 100%; height: 100%; cursor: grab; display: block; }}
 .webgl-stage:active {{ cursor: grabbing; }}
 .render-wrap img.static-media {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 3; }}
@@ -181,6 +193,17 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 @media (max-width: 680px) {{ .micro-chips {{ grid-template-columns: 1fr; }} }}
 .mchip {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 10px; padding: 9px 11px; font-size: 12px; line-height: 1.4; }}
 .mchip .mk {{ font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--nest-edge); letter-spacing: 0.05em; margin-bottom: 3px; }}
+.exp-story-hdr {{ background: #FFFAF7; border: 1px solid var(--nest-line); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }}
+.exp-strip {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--nest-line); }}
+@media (max-width: 780px) {{ .exp-strip {{ grid-template-columns: 1fr; }} }}
+.exp-cue {{ font-size: 12px; line-height: 1.42; color: var(--nest-ink); }}
+.exp-cue .mk {{ font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--nest-edge); margin-bottom: 3px; }}
+.journey-board {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }}
+.jcard {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }}
+.jcard-media {{ width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--nest-soft); }}
+.jcard-slot {{ width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #FBEFED 0%, #F5F5F5 100%); border-bottom: 1px dashed var(--nest-line); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px; text-align: center; color: var(--nest-muted); font-size: 11px; }}
+.jcard-slot b {{ color: var(--nest-edge); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }}
+.jcard-body {{ padding: 10px 12px; flex: 1; }}
 
 /* Interactive Pin Chips */
 .pin-row {{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }}
@@ -304,7 +327,7 @@ body.print-all .full-brief-drawer {{ display: block !important; }}
     <div id="jump-bar" class="jump-bar"><span style="font-size:11.5px;font-weight:800;color:#625753;margin-right:4px">JUMP TO SITE:</span></div>
     <div class="tb-actions">
       <button type="button" id="btn-detail-toggle" class="btn-outline" onclick="toggleDetailed()">Story Mode | Full Dossiers</button>
-      <a class="btn-outline" href="renders/render_pack/ALL_PROMPTS_CONSOLIDATED.md" target="_blank">Render Pack Prompts ↗</a>
+      <a class="btn-outline" href="renders/render_pack/AGENT_INSTRUCTIONS.md" target="_blank">Render Pack Guide ↗</a>
       <button type="button" class="btn-coral" onclick="exportProposalsPdf()">⬇ Export Proposals PDF</button>
     </div>
   </div>
@@ -1023,10 +1046,16 @@ function renderProjectCards() {{
     const rawFlags = Array.isArray(p.flags) ? p.flags : Object.entries(p.flags || {{}}).filter(([,v]) => !!v).map(([k]) => k.replace(/_/g, ' '));
     const flagPills = (rawFlags.length ? rawFlags : ['✓ Standard Compliance']).map(f => `<span class="pill ${{f.includes('✓') ? 'ok' : 'warn'}}">${{f}}</span>`).join('');
     const pullLine = extractPullLine(p.thesis_detailed);
-    const pinBtns = (p.map_pointers || []).map(pt =>
-      `<button type="button" class="pin-btn" onclick="focusPinOnMap(${{p.rank}}, ${{pt.lat}}, ${{pt.lon}}, '${{pt.label.replace(/'/g, '')}}')" title="Locate on satellite map">` +
-      `<span class="pin-dot">${{pt.id}}</span>${{pt.label.split('(')[0].trim()}} · <b>${{pt.distance_m}} m</b></button>`
-    ).join('');
+    const pinBtns = (p.map_pointers || []).map((pt, pi) => {{
+      if (typeof pt === 'string') {{
+        return `<span class="pin-btn"><span class="pin-dot">${{pi + 1}}</span>${{pt}}</span>`;
+      }}
+      if (pt && typeof pt === 'object' && pt.label) {{
+        return `<button type="button" class="pin-btn" onclick="focusPinOnMap(${{p.rank}}, ${{pt.lat}}, ${{pt.lon}}, '${{String(pt.label).replace(/'/g, '')}}')" title="Locate on satellite map">` +
+          `<span class="pin-dot">${{pt.id || (pi + 1)}}</span>${{String(pt.label).split('(')[0].trim()}} · <b>${{pt.distance_m ?? ''}} m</b></button>`;
+      }}
+      return '';
+    }}).join('');
 
     // Step 2: Distributed Constellation grouped by Experience Role
     const mr = p.massing_rationale || {{}};
@@ -1036,17 +1065,17 @@ function renderProjectCards() {{
       const txt = `${{v.role || ''}} ${{v.name || ''}} ${{v.use || ''}}`.toLowerCase();
       if (txt.includes('stay') || txt.includes('lodge') || txt.includes('accom') || txt.includes('cabin') || txt.includes('suite')) return 'Eco-Accommodation';
       if (txt.includes('din') || txt.includes('food') || txt.includes('cafe') || txt.includes('kitchen') || txt.includes('retail') || txt.includes('market') || txt.includes('shop')) return 'Dining & Retail';
-      return 'Hero Experience Pavilions';
+      return 'Core Experience Architecture';
     }};
-    const roleOrder = ['Hero Experience Pavilions', 'Dining & Retail', 'Eco-Accommodation'];
+    const roleOrder = ['Core Experience Architecture', 'Dining & Retail', 'Eco-Accommodation'];
     const groupedConstellation = roleOrder.map(role => {{
       const items = vols.map((v, vi) => ({{ v, vi }})).filter(({{ v }}) => classifyRole(v) === role);
       if (!items.length) return '';
       const cards = items.map(({{ v, vi }}) => {{
         const gfaVal = parseNumber(v.area_m2, 0);
         const pct = gfaVal > 0 ? Math.max(Math.round((gfaVal / maxGfa) * 100), 18) : 32;
-        return `<div class="mass-bar-item" onclick="focus3Way(${{p.rank}}, 'footprints', ${{vi}}, this)" title="Click to highlight & zoom on satellite map">` +
-          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Pavilion'}} · ${{v.hours || 'Day-to-Dusk'}}</span></div>` +
+        return `<div class="mass-bar-item" onclick="focus3Way(${{p.rank}}, 'footprints', ${{vi}}, this)" title="Project Component">` +
+          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Component'}} · ${{v.hours || 'Day-to-Dusk'}}</span></div>` +
           `<div class="mb-track"><div class="mb-fill" style="width:${{pct}}%"></div></div>` +
           `<div class="mb-desc">${{v.use || v.shape_reason || ''}}</div></div>`;
       }}).join('');
@@ -1106,7 +1135,27 @@ function renderProjectCards() {{
           ['5 · Stay & Overnight', exp.stay_overnight],
           ['6 · Atmosphere', exp.atmosphere],
         ].filter(([, v]) => !!v);
-    const expBeats = rawJourney.map(([k, v]) => `<div class="mchip"><div class="mk">${{k}}</div>${{v}}</div>`).join('');
+    const mRenders = Array.isArray(p.moment_renders) ? p.moment_renders : [];
+    const expBeats = rawJourney.map(([k, v], mi) => {{
+      const mImg = mRenders[mi] || '';
+      const mediaHtml = mImg
+        ? `<img class="jcard-media" src="${{mImg}}" alt="${{k}}" loading="lazy" />`
+        : `<div class="jcard-slot"><b>Moment #${{mi + 1}} · Awaiting Render</b><span>renders/site_${{p.rank}}_moment_${{mi + 1}}.jpg</span></div>`;
+      return `<div class="jcard">${{mediaHtml}}<div class="jcard-body"><div class="mk" style="margin-bottom:4px">${{k}}</div><div style="font-size:12px;line-height:1.45;color:var(--ink)">${{v}}</div></div></div>`;
+    }}).join('');
+    const actPills = (p.activities || []).map(a =>
+      `<span class="pill ok" style="font-size:11px;padding:4px 9px">${{a}}</span>`
+    ).join('');
+    const settingTxt = natureHero;
+    const tectonicTxt = (p.thesis_summary && p.thesis_summary.gesture_line) || exp.core_idea || '';
+    const atmoTxt = exp.atmosphere || 'Warm directional light, deep courtyard shade, and tactile local stone.';
+
+    const skillsList = (p.generated_skills || []).map(sk =>
+      `<div class="mchip" style="min-width:190px;flex:1"><div class="mk">${{sk.engine || 'Engine'}} · ${{sk.role || ''}}</div><b>${{sk.name || sk.skill_id || 'Skill'}}</b><br><span style="color:#625753">${{sk.summary || sk.description || ''}}</span></div>`
+    ).join('');
+    const skillsBox = skillsList
+      ? `<div class="box" style="margin-top:10px"><div class="sec-lbl">Stage C Generated Design Skills (${{p.generated_skills.length}})</div><div class="micro-chips" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${{skillsList}}</div></div>`
+      : '';
 
     card.innerHTML = `
       <div class="card-visuals">
@@ -1114,23 +1163,10 @@ function renderProjectCards() {{
           <img id="card-img-${{p.rank}}" class="static-media" style="display:block" src="${{p.has_editorial_render ? p.render : p.satellite_lock}}" alt="Site #${{p.rank}}" />
           <div class="rank-chip">PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</div>
           <div class="media-toggle-bar">
-            ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Editorial Render</button>` : ''}}
+            ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Whole-Site Aerial</button>` : ''}}
+            ${{p.has_hero_render ? `<button type="button" class="media-tbtn" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.hero_render}}', this)">Hero Experience</button>` : ''}}
             <button type="button" class="media-tbtn ${{p.has_editorial_render ? '' : 'active'}}" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.satellite_lock}}', this)">Satellite</button>
-          </div>
-        </div>
-        <div class="mini-map-wrap">
-          <div id="mini-map-${{p.rank}}" class="mini-map"></div>
-          <div class="map-legend-pill">
-            <span><b style="color:#FF614C">---</b> ${{p.area_feddans}} Feddan Boundary</span>
-            <span><b style="color:#3B6E52">■</b> Landscape Zones</span>
-            <span><b style="color:#302B2A">■</b> Distributed Pavilions</span>
-          </div>
-          <div class="map-meta-bar">
-            <span class="map-coord-pill"><b>${{p.footprint_type}}</b> • ${{p.area_m2.toLocaleString()}} m² • ${{p.lat.toFixed(4)}}, ${{p.lon.toFixed(4)}}</span>
-            <span style="display:inline-flex;gap:5px">
-              <button type="button" class="mini-btn" onclick="resetMiniMap(${{p.rank}})">Reset View</button>
-              <button type="button" class="jump-map-btn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
-            </span>
+            <button type="button" class="media-tbtn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
           </div>
         </div>
       </div>
@@ -1142,7 +1178,7 @@ function renderProjectCards() {{
           <div class="badge-row">
             <span class="pill tier">${{visitMode}}</span>
             <span class="pill ok">Nature Hero: ${{natureHero}}</span>
-            <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Pavilions</span>
+            <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Components</span>
             <span class="pill" style="opacity:0.75">${{p.built_gfa}} · ${{p.idiom}}</span>
             ${{flagPills}}
           </div>
@@ -1161,27 +1197,21 @@ function renderProjectCards() {{
       <div class="story-stage">
         <!-- STEP 1: THE EXPERIENCE (DEFAULT OPENING VIEW) -->
         <div class="story-pane active">
-          <div class="story-grid">
-            <div style="display:flex;flex-direction:column;justify-content:center">
-              <div class="hook-hero">${{p.thesis_summary.hook}}</div>
-              ${{pullLine ? `<div class="pull-banner">“${{pullLine}}”</div>` : ''}}
-              <div class="micro-chips" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px">
-                <div class="mchip"><div class="mk">1 · Nature as Hero</div>${{natureHero}}</div>
-                <div class="mchip"><div class="mk">2 · Why It’s New</div>${{exp.core_encounter || p.thesis_summary.key_program || ''}}</div>
-                <div class="mchip"><div class="mk">3 · Architectural Idea</div>${{exp.core_idea || p.thesis_summary.gesture_line || ''}}</div>
-              </div>
-            </div>
-            <div class="diag-card">
-              <div class="diag-lbl"><span>Project-Specific Guest Journey (${{rawJourney.length}} Moments)</span><span>${{exp.atmosphere ? 'Atmosphere & Flow' : 'End-to-End'}}</span></div>
-              <div class="micro-chips" style="grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">${{expBeats}}</div>
-              ${{exp.atmosphere ? `<div style="font-size:11.5px;color:#625753;margin-top:8px"><b>Atmosphere:</b> ${{exp.atmosphere}}</div>` : ''}}
+          <div class="exp-story-hdr">
+            <div class="hook-hero" style="margin-bottom:0">${{p.thesis_summary.hook}}</div>
+            <div class="exp-strip">
+              <div class="exp-cue"><div class="mk">Setting</div>${{settingTxt}}</div>
+              <div class="exp-cue"><div class="mk">Architectural Move</div>${{tectonicTxt}}</div>
+              <div class="exp-cue"><div class="mk">Atmosphere</div>${{atmoTxt}}</div>
             </div>
           </div>
+          <div class="diag-lbl"><span>Guest Journey Storyboard (${{rawJourney.length}} Moments)</span><span>${{visitMode}}</span></div>
+          <div class="journey-board">${{expBeats}}</div>
         </div>
 
         <!-- STEP 2: DISTRIBUTED CONSTELLATION -->
         <div class="story-pane">
-          <div class="diag-lbl"><span>2 · Distributed Project Constellation (${{p.built_gfa}} across ${{vols.length || 1}} Pavilions)</span><span>Click any pavilion to locate on satellite map</span></div>
+          <div class="diag-lbl"><span>2 · Project Components &amp; Spaces (${{p.built_gfa}} across ${{vols.length || 1}} Components)</span><span>Any Architectural Typology</span></div>
           <div class="mass-bar-list">${{groupedConstellation}}</div>
         </div>
 
@@ -1207,7 +1237,7 @@ function renderProjectCards() {{
           </div>
           <div class="zstack-bar">${{zBarSegs}}</div>
           <div class="zone-grid">${{zTiles}}</div>
-          ${{elChips ? `<div style="margin-top:8px"><div style="font-size:10.5px;font-weight:800;text-transform:uppercase;color:#625753;margin-bottom:5px">Outdoor Destinations Around Pavilions:</div>${{elChips}}</div>` : ''}}
+          ${{elChips ? `<div style="margin-top:8px"><div style="font-size:10.5px;font-weight:800;text-transform:uppercase;color:#625753;margin-bottom:5px">Outdoor Destinations:</div>${{elChips}}</div>` : ''}}
           <div class="risk-strip" style="margin-top:8px"><b>⚠ Environmental &amp; Resource Guardrail:</b> ${{p.landscape_summary.tradeoffs_risk}}</div>
         </div>
 
@@ -1282,6 +1312,7 @@ function renderProjectCards() {{
           </table>
           <div style="font-size:11.5px"><b>Scenarios:</b> ${{p.fin.scenarios}} · <b>Phase 0 Pilot:</b> ${{p.fin.pilot}}</div>
         </div>
+        ${{skillsBox}}
       </div>
     `;
 
@@ -1290,9 +1321,10 @@ function renderProjectCards() {{
     // Initialize Live 3D WebGL Stage
     initWebGL3D(p);
 
-    // Initialize Tri-Layer Leaflet Mini-Map with center/zoom set FIRST + 3-way click sync
-    try {{
-      const mm = L.map('mini-map-' + p.rank, {{ center: [p.lat, p.lon], zoom: 14, zoomControl: true, attributionControl: false, scrollWheelZoom: true }});
+    // Initialize Tri-Layer Leaflet Mini-Map when container exists
+    const mmEl = document.getElementById('mini-map-' + p.rank);
+    if (mmEl) try {{
+      const mm = L.map(mmEl, {{ center: [p.lat, p.lon], zoom: 14, zoomControl: true, attributionControl: false, scrollWheelZoom: true }});
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{{z}}/{{y}}/{{x}}', {{ maxZoom: 19 }}).addTo(mm);
       const zLayers = [], elLayers = [], fpLayers = [];
       (p.landscape_zones || []).forEach((z, zi) => {{

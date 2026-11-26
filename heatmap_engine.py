@@ -204,7 +204,7 @@ def _decode_gpkg_geom(blob: bytes) -> Optional[Any]:
 def _load_gpkg_layers(gpkg_path: str, inventory_csv: Optional[str]) -> List[Dict[str, Any]]:
     table_to_name: Dict[str, str] = {}
     if inventory_csv and os.path.exists(inventory_csv):
-        with open(inventory_csv, "r", encoding="utf-8", errors="replace") as f:
+        with open(inventory_csv, "r", encoding="utf-8-sig", errors="replace") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 out = (row.get("output") or "").strip()
