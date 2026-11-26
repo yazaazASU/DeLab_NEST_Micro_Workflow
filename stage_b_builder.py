@@ -389,6 +389,58 @@ def main():
     out_path.write_text(json.dumps(projects, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[Stage B Builder] Built {len(projects)} reconciled projects -> {out_path}")
 
+    rep_path = args.run_dir / "NEST_Executive_Report.md"
+    plot_lbl = stage_a.get("plot_label", args.run_dir.name)
+    lines = [
+        f"# NEST Executive Report — {plot_lbl}",
+        "",
+        "> **Approach:** Experience-First, Nature-as-Hero Distributed Constellations (`NEST_Experience_Design.md`)",
+        "",
+        "## Portfolio Overview",
+        "",
+        "| Rank | Project | Visit Mode | Area (Fed.) | Built GFA | Total CapEx | IRR | Payback |",
+        "| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |",
+    ]
+    for p in projects:
+        exp = p.get("experience_arc") or {}
+        fin = p.get("fin") or {}
+        lines.append(
+            f"| #{p['rank']} | **{p['title']}** | {exp.get('visit_mode', 'Experience')} | {p['area_feddans']} | {p['built_gfa']} | {fin.get('capex', '—')} | {fin.get('irr', '—')} | {fin.get('payback', '—')} |"
+        )
+    for p in projects:
+        exp = p.get("experience_arc") or {}
+        fin = p.get("fin") or {}
+        lines += [
+            "",
+            "---",
+            "",
+            f"## Site #{p['rank']}: {p['title']}",
+            f"*{p.get('subtitle', '')}* — **{p['area_feddans']} feddans** (`{p['lat']}, {p['lon']}`)",
+            "",
+            f"- **Nature as Hero:** {p['thesis_summary'].get('why_here', '')}",
+            f"- **Core Architectural Idea:** {exp.get('core_idea', '')}",
+            f"- **Atmosphere:** {exp.get('atmosphere', '')}",
+            "",
+            "### Guest Journey",
+        ]
+        for mi, m in enumerate(exp.get("journey") or [], 1):
+            lines.append(f"{mi}. **{m.get('moment', f'Moment {mi}')}:** {m.get('detail', '')}")
+        lines += [
+            "",
+            "### Distributed Constellation",
+        ]
+        for v in (p.get("massing_rationale") or {}).get("volumes") or []:
+            lines.append(f"- **{v.get('name')}** ({v.get('role', 'Pavilion')}) — `{v.get('area_m2')}` · {v.get('use', '')}")
+        lines += [
+            "",
+            "### Two-Way Nature Integration & Landscape",
+            f"- **Nature → Building:** {p.get('nature_to_bldg', '')}",
+            f"- **Building → Nature:** {p.get('bldg_to_nature', '')}",
+            f"- **Financials:** CapEx `{fin.get('capex', '—')}` · Revenue `{fin.get('rev', '—')}` · IRR `{fin.get('irr', '—')}` · Payback `{fin.get('payback', '—')}`",
+        ]
+    rep_path.write_text("\n".join(lines), encoding="utf-8")
+    print(f"[Stage B Builder] Wrote Experience-First report -> {rep_path}")
+
 
 if __name__ == "__main__":
     main()

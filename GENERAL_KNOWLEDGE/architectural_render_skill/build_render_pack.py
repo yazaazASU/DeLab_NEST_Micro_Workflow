@@ -184,20 +184,41 @@ def render_satellite_lock(project: dict, out_path: Path, out_w: int = 1280, out_
     final_img.save(out_path, format="PNG", optimize=True)
 
 
-def infer_region_defaults(run_dir_name: str, title: str):
+def infer_region_defaults(run_dir_name: str, title: str, lat: float = 0.0, lon: float = 0.0):
     combined = (run_dir_name + " " + title).lower()
-    if "sinai" in combined:
+    if "sinai" in combined or lon > 32.6:
         return {
-            "region": "Central Sinai (Al-Hasana, Egypt)",
-            "topography": "Flat arid limestone-and-gravel desert plain with low distant desert mesas (0–3% local slope)",
+            "region": "Sinai / Red Sea Arid Coast & Mountains (Egypt)",
+            "topography": "Arid limestone-and-gravel desert plain with distant desert ridges matching the satellite crop",
             "forbidden": "Strictly NO lush green riverbanks, NO perennial flowing rivers, NO waterfalls, NO European lawns, NO tropical forests, NO artificial turquoise resort lagoons.",
             "flora": "Very sparse arid desert scrub and minimal xeriscaped native acacia/date palms strictly inside shaded courtyards.",
         }
+    if "port said" in combined or "manzala" in combined or (lat >= 30.2 and 31.2 < lon <= 32.6):
+        return {
+            "region": "Nile Delta & Mediterranean Lagoon Littoral (Egypt)",
+            "topography": "Dead-flat coastal deltaic plain and shallow brackish lagoon shoreline (0–2% slope)",
+            "forbidden": "Strictly NO hills, NO cliffs, NO mountains, NO European lawns, NO artificial turquoise resort pools.",
+            "flora": "Native Phragmites reed beds, salt-tolerant marsh scrub, and hardy coastal palms over pale stone and compacted sand.",
+        }
+    if "alexandria" in combined or "matrouh" in combined or "borg el arab" in combined or (lat >= 30.6 and lon <= 31.2):
+        return {
+            "region": "Mediterranean North Coast / Alexandria–Matrouh Littoral (Egypt)",
+            "topography": "Low coastal limestone ridge and flat sandy-scrub plain sloping gently toward the Mediterranean littoral",
+            "forbidden": "Strictly NO tall mountains, NO tropical forests, NO European manicured grass lawns, NO artificial turquoise resort lagoons.",
+            "flora": "Salt-tolerant Mediterranean coastal scrub, native fig/olive groves, and date palms over pale quarried limestone paving and dry sand.",
+        }
+    if lat < 30.6 and lon < 30.5 and lon > 1.0:
+        return {
+            "region": "Egyptian Western Desert",
+            "topography": "Open arid desert plateau and wind-swept sand/limestone plains",
+            "forbidden": "Strictly NO lush green lawns, NO artificial lakes, NO tropical forests.",
+            "flora": "Minimal desert-adapted acacia, tamarisk, and date palms strictly inside shaded microclimates.",
+        }
     return {
-        "region": "Assiut, Upper Egypt (Nile Valley)",
+        "region": "Nile Valley / Upper Egypt",
         "topography": "Strictly dead-flat Nile Valley alluvial plain (0–2% slope), extending completely level to the flat horizon",
         "forbidden": "Strictly NO natural hills, NO rocky cliffs, NO mountains, NO undulating parkland, NO artificial turquoise ponds or resort lakes, NO waterfalls, NO European manicured lawns, NO tropical forests.",
-        "flora": "Sparse, regionally authentic Upper Egypt native date palms, acacia, and sycamore shade trees over dry pale limestone paving and compacted earth (no grass lawns).",
+        "flora": "Sparse, regionally authentic Egyptian date palms, acacia, and sycamore shade trees over dry pale limestone paving and compacted earth (no grass lawns).",
     }
 
 
@@ -243,6 +264,17 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
     if nat_to_bldg or bldg_to_nat:
         two_way = f"\n- Visible Two-Way Nature Integration: (Nature->Building) {nat_to_bldg} | (Building->Nature) {bldg_to_nat}"
 
+    exp = project.get("experience_arc") or {}
+    vols = (project.get("massing_rationale") or {}).get("volumes") or []
+    constellation_str = "; ".join(
+        f"{v.get('name', 'Pavilion')} ({v.get('role', 'Pavilion')}, {v.get('area_m2', '')}): {v.get('shape_reason') or v.get('use', '')}"
+        for v in vols[:5]
+    )
+    journey_items = exp.get("journey") or []
+    journey_str = " | ".join(
+        f"{m.get('moment', '')}: {m.get('detail', '')}" for m in journey_items[:5] if isinstance(m, dict)
+    )
+
     return f"""Photorealistic editorial aerial architectural photograph (ArchDaily / Dezeen / MIR / Luxigon quality), 16:9 widescreen, medium-format drone camera, 35mm rectilinear lens, crisp deep depth-of-field (f/11) across the entire frame — strictly NO tilt-shift or miniature toy-model blur.
 
 VISUAL REFERENCE LOCK:
@@ -257,9 +289,11 @@ SITE REALITY LOCK ({region_cfg['region']}):
 
 EXPERIENCE-LED ARCHITECTURE & DISTRIBUTED CONSTELLATION (DE-METAPHORIZED):
 - Project: {title} (Total Built GFA: {project.get('built_gfa', 'N/A')} across a distributed multi-pavilion constellation | Site Area: {project.get('area_m2', 0)/10000:.2f} ha).
-- Core Architectural Idea & Atmosphere: {(project.get('experience_arc') or {}).get('core_idea', idiom)} {(project.get('experience_arc') or {}).get('atmosphere', '')}
+- Core Architectural Idea & Atmosphere: {exp.get('core_idea', idiom)} {exp.get('atmosphere', '')}
 - Tectonic Idiom: {idiom}
-- Distributed Pavilions & Nature Hero (translate any poetic terms strictly into realistic architectural masonry, stepped earth-bermed plinths, shaded courts, and curated dining/retail/eco-stay pavilions — NEVER natural rocky hills or turquoise ponds): {concept}{two_way}
+- Distributed Pavilions: {constellation_str or concept}
+- Visual Guest Journey Moments: {journey_str or concept}
+- Nature Hero & Two-Way Exchange (translate any poetic terms strictly into realistic architectural masonry, stepped earth-bermed plinths, shaded courts, and curated dining/retail/eco-stay pavilions — NEVER natural rocky hills or turquoise ponds): {concept}{two_way}
 - Materials: Authentic local stacked Egyptian limestone, board-formed desert-aggregate concrete, rammed earth, oxidized bronze shading louvers, matte dark photovoltaic surfaces where integrated, recessed low-iron glazing, dry pale stone paving.
 - Entourage: Sparse tiny candid human scale figures and minimal muted local vehicles on real access roads.
 
@@ -305,7 +339,7 @@ def main():
         print(f"Fetching Esri satellite lock for Site #{rank} -> {sat_path.name} ...")
         render_satellite_lock(p, sat_path)
 
-        region_cfg = infer_region_defaults(run_dir.name, p["title"])
+        region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
         hydro, fabric = summarize_cardinal_context(p, wat_pts, bld_pts)
         prompt_text = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
 

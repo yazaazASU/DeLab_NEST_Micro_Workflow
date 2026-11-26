@@ -113,9 +113,9 @@ def build_3engine_dashboard(
   .guide-cta-btn:hover { background: var(--nest-coral); color: var(--nest-ink); }
 
   /* 4-Column Synchronized Map Grid + Floating On-Map Legends */
-  .maps-row { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 10px 6px; background: var(--nest-paper); min-height: 0; }
+  .maps-row { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px 10px 6px; background: var(--nest-paper); min-height: 0; overflow-y: auto; }
   @media (max-width: 1200px) { .maps-row { grid-template-columns: repeat(2, 1fr); } }
-  .map-pane { display: flex; flex-direction: column; min-height: 0; background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(48,43,42,0.06); }
+  .map-pane { display: flex; flex-direction: column; min-height: 290px; background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(48,43,42,0.06); }
   .eng-hdr { display: flex; align-items: center; gap: 9px; padding: 7px 10px; background: linear-gradient(135deg, #FFFFFF, var(--nest-surface)); border-bottom: 1px solid var(--nest-line); flex: none; }
   .eng-hdr-svg { width: 38px; height: 38px; flex: none; border-radius: 8px; background: var(--nest-soft); border: 1px solid #EAD7D3; display: block; }
   .eng-hdr-meta { min-width: 0; flex: 1; }
@@ -127,7 +127,7 @@ def build_3engine_dashboard(
   .rule-pill { display: inline-flex; align-items: center; gap: 3px; padding: 1.5px 6.5px; border-radius: 999px; font-size: 10px; font-weight: 700; border: 1px solid var(--nest-line); background: #FFFFFF; color: var(--nest-ink); cursor: pointer; font-family: inherit; }
   .rule-pill:hover { background: var(--nest-soft); border-color: var(--nest-edge); color: var(--nest-edge); }
   .rule-pill--op { background: var(--nest-soft); border-color: #E2BEB8; color: var(--nest-edge); }
-  .map-canvas-wrap { position: relative; flex: 1; min-height: 0; background: #0f172a; }
+  .map-canvas-wrap { position: relative; flex: 1; min-height: 180px; background: #0f172a; }
   .map-div { width: 100%; height: 100%; }
   .map-legend { position: absolute; left: 8px; bottom: 8px; z-index: 900; max-width: calc(100% - 16px); padding: 6px 8px; background: rgba(255, 250, 247, 0.94); backdrop-filter: blur(4px); border: 1px solid var(--nest-line); border-radius: 8px; box-shadow: 0 4px 12px rgba(48,43,42,0.18); font-size: 10px; color: var(--nest-ink); pointer-events: none; display: flex; flex-direction: column; gap: 4px; }
   .map-legend-title { font-weight: 800; color: var(--nest-edge); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -152,7 +152,7 @@ def build_3engine_dashboard(
   .legend-hint { font-size: 11px; color: var(--nest-muted); font-weight: 600; }
 
   /* Unified NEST 2.2 Cell Inspector Drawer */
-  .drawer { height: 420px; background: var(--nest-paper); border-top: 2px solid var(--nest-coral); display: none; flex-direction: column; z-index: 1002; flex: none; box-shadow: 0 -10px 28px rgba(48,43,42,0.12); }
+  .drawer { height: 340px; background: var(--nest-paper); border-top: 2px solid var(--nest-coral); display: none; flex-direction: column; z-index: 1002; flex: none; box-shadow: 0 -10px 28px rgba(48,43,42,0.12); }
   .drawer-hdr { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 16px; background: var(--nest-surface); border-bottom: 1px solid var(--nest-line); font-size: 12px; flex-wrap: wrap; }
   .drawer-title { color: var(--nest-ink); font-size: 12.5px; }
   .drawer-ctrl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }

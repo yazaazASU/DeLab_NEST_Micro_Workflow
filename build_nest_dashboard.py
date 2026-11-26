@@ -1108,6 +1108,13 @@ function renderProjectCards() {{
         ].filter(([, v]) => !!v);
     const expBeats = rawJourney.map(([k, v]) => `<div class="mchip"><div class="mk">${{k}}</div>${{v}}</div>`).join('');
 
+    const skillsList = (p.generated_skills || []).map(sk =>
+      `<div class="mchip" style="min-width:190px;flex:1"><div class="mk">${{sk.engine || 'Engine'}} · ${{sk.role || ''}}</div><b>${{sk.name || sk.skill_id || 'Skill'}}</b><br><span style="color:#625753">${{sk.summary || sk.description || ''}}</span></div>`
+    ).join('');
+    const skillsBox = skillsList
+      ? `<div class="box" style="margin-top:10px"><div class="sec-lbl">Stage C Generated Design Skills (${{p.generated_skills.length}})</div><div class="micro-chips" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${{skillsList}}</div></div>`
+      : '';
+
     card.innerHTML = `
       <div class="card-visuals">
         <div id="render-wrap-${{p.rank}}" class="render-wrap">
@@ -1282,6 +1289,7 @@ function renderProjectCards() {{
           </table>
           <div style="font-size:11.5px"><b>Scenarios:</b> ${{p.fin.scenarios}} · <b>Phase 0 Pilot:</b> ${{p.fin.pilot}}</div>
         </div>
+        ${{skillsBox}}
       </div>
     `;
 
