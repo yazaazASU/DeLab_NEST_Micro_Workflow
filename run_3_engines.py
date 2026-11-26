@@ -157,44 +157,82 @@ def _build_organic_site_polygon(
     cy: float,
     active_xy: np.ndarray,
     target_area_m2: float = 250000.0,
-    barrier_union: Optional[Any] = None,
+    road_feats: Optional[Sequence[Dict[str, Any]]] = None,
+    water_polys: Optional[Sequence[Any]] = None,
     boundary_xy: Optional[Any] = None,
+    terrain_class: str = "Dry Land",
 ) -> Polygon:
-    """Create a 50–70 feddan (~250,000 m²) GIS-snapped site boundary clipped to roads, water, and plot edges."""
+    """Create a 50–70 feddan (~210k–294k m²) site boundary by polygonizing and merging real GIS street blocks."""
     from shapely.affinity import scale as shp_scale
+    from shapely.geometry import box as shp_box
+    from shapely.ops import polygonize
 
-    # Start with a slightly rotated parcel-like rounded polygon
-    r = math.sqrt(target_area_m2 / math.pi) * 1.25
-    angles = np.linspace(0, 2 * math.pi, 16, endpoint=False)
-    rot = ((abs(cx) + abs(cy)) % 7) * 0.25
-    pts = []
-    for a in angles:
-        mod = 1.0 + 0.14 * math.cos(2 * (a + rot)) + 0.07 * math.sin(3 * a)
-        pts.append((cx + r * mod * math.cos(a), cy + r * mod * math.sin(a)))
-    poly = Polygon(pts)
-
+    win = shp_box(cx - 600.0, cy - 600.0, cx + 600.0, cy + 600.0)
     if boundary_xy is not None and not boundary_xy.is_empty:
-        clipped = poly.intersection(boundary_xy)
-        if not clipped.is_empty:
-            poly = clipped
+        win = win.intersection(boundary_xy)
 
-    if barrier_union is not None and not barrier_union.is_empty:
-        diff = poly.difference(barrier_union)
-        if diff.geom_type == "MultiPolygon":
-            pt = Point(cx, cy)
-            containing = [g for g in diff.geoms if g.contains(pt) or g.distance(pt) < 40.0]
-            poly = max(containing, key=lambda g: g.area) if containing else max(diff.geoms, key=lambda g: g.area)
-        elif diff.geom_type == "Polygon" and diff.area > 20000.0:
-            poly = diff
+    lines: List[Any] = [win.boundary]
+    if road_feats:
+        wminx, wminy, wmaxx, wmaxy = win.bounds
+        for rf in road_feats:
+            g = rf["geometry"]
+            if g.is_empty:
+                continue
+            bx = g.bounds
+            if bx[2] < wminx or bx[0] > wmaxx or bx[3] < wminy or bx[1] > wmaxy:
+                continue
+            clipped = g.intersection(win)
+            if not clipped.is_empty:
+                lines.append(clipped)
 
-    if poly.geom_type == "MultiPolygon":
-        poly = max(poly.geoms, key=lambda g: g.area)
+    if terrain_class == "Dry Land" and water_polys:
+        for wp in water_polys:
+            if not wp.is_empty and wp.intersects(win):
+                lines.append(wp.boundary.intersection(win))
 
-    if poly.area > 1000.0:
-        sf = math.sqrt(target_area_m2 / poly.area)
-        sf = max(0.75, min(1.35, sf))
-        poly = shp_scale(poly, xfact=sf, yfact=sf, origin="centroid")
-    return poly
+    blocks = [b for b in polygonize(unary_union(lines)) if b.area >= 2000.0]
+    if terrain_class == "Dry Land" and water_polys:
+        w_union = unary_union([wp for wp in water_polys if wp.intersects(win)])
+        if not w_union.is_empty:
+            blocks = [b.difference(w_union) for b in blocks]
+            blocks = [b for b in blocks if not b.is_empty and b.area >= 2000.0]
+
+    pt = Point(cx, cy)
+    if blocks:
+        # Start from the block containing/nearest (cx, cy) and merge adjacent blocks up to 50–70 feddans
+        blocks.sort(key=lambda b: (0.0 if b.contains(pt) else b.distance(pt), b.centroid.distance(pt)))
+        chosen = [blocks[0]]
+        remaining = blocks[1:]
+        cur = chosen[0]
+        min_target = 212000.0  # ~50.5 feddans
+        max_target = 290000.0  # ~69.0 feddans
+
+        while cur.area < min_target and remaining:
+            # Prefer blocks touching or within 25m of current union, closest to (cx, cy)
+            adj = [b for b in remaining if cur.distance(b) <= 25.0]
+            if not adj:
+                adj = remaining
+            adj.sort(key=lambda b: (cur.distance(b), b.centroid.distance(pt)))
+            nxt = adj[0]
+            if cur.area + nxt.area > max_target and cur.area >= 180000.0:
+                break
+            chosen.append(nxt)
+            remaining.remove(nxt)
+            cur = unary_union(chosen)
+
+        if cur.geom_type == "MultiPolygon":
+            cur = max(cur.geoms, key=lambda g: g.area)
+        if cur.area >= 120000.0:
+            if cur.area < min_target:
+                sf = math.sqrt(target_area_m2 / cur.area)
+                cur = shp_scale(cur, xfact=sf, yfact=sf, origin="centroid")
+            return cur
+
+    # Fallback: rotated rectangular parcel clipped to window
+    poly = shp_box(cx - 250.0, cy - 250.0, cx + 250.0, cy + 250.0)
+    if boundary_xy is not None and not boundary_xy.is_empty:
+        poly = poly.intersection(boundary_xy)
+    return poly if poly.geom_type == "Polygon" else max(poly.geoms, key=lambda g: g.area)
 
 
 def _select_peaks(scores: np.ndarray, xy: np.ndarray, k: int = 5, min_dist_m: float = 450.0) -> List[int]:
@@ -411,11 +449,6 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                 f.write(f"- **Hidden Potential Score:** {hidden[pi]:.1f}/100\n")
                 f.write(f"- **Efficiency Ratio (NSF/GSF):** {eff*100:.0f}%\n")
 
-    # Prebuild road + water barrier union for GIS-snapped site boundaries
-    road_polys = [f["geometry"].buffer(14.0) for f in road_feats[:200] if not f["geometry"].is_empty]
-    barrier_geoms = road_polys + ([water_union] if water_polys else [])
-    barrier_union = unary_union(barrier_geoms) if barrier_geoms else None
-
     # Build Stratified Top 15 Candidate Pool & detect cross-engine convergence (<=350m)
     rank_counter = 1
     for eng_key, eng_label, _, _, posture in ENGINE_SPECS:
@@ -437,8 +470,10 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
             dom_force = FORCE_NAMES[int(res["dom_idx"][idx])]
             poly_xy = _build_organic_site_polygon(
                 cx, cy, active_xy, target_area_m2=250000.0,
-                barrier_union=barrier_union if terrain_classes[idx] == "Dry Land" else None,
+                road_feats=road_feats,
+                water_polys=water_polys,
                 boundary_xy=boundary_xy,
+                terrain_class=terrain_classes[idx],
             )
             poly_ll = proj.geom_to_ll(poly_xy)
             b = poly_ll.bounds
