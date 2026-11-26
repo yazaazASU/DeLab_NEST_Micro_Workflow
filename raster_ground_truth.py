@@ -79,7 +79,16 @@ def read_geotiff_band0(tif_path: Path) -> dict:
     band0 = np.zeros((h, w), dtype=dt)
     alpha = np.full((h, w), 255, dtype=np.uint8)
 
-    if 324 in tags and 325 in tags:
+    # Fast path for LZW / PackBits / standard TIFFs via Pillow when comp is not raw/deflate
+    if comp not in (1, 8):
+        im = Image.open(tif_path)
+        arr = np.asarray(im)
+        if arr.ndim == 3:
+            band0 = arr[:, :, 0]
+            alpha = arr[:, :, -1].astype(np.uint8)
+        else:
+            band0 = arr
+    elif 324 in tags and 325 in tags:
         tw = int(tags[322][0])
         th = int(tags[323][0])
         offs = tags[324]
@@ -131,6 +140,9 @@ def read_geotiff_band0(tif_path: Path) -> dict:
         for idx in range(4, len(geokeys) - 3, 4):
             if geokeys[idx] == 3072 and geokeys[idx + 3] == 54009:
                 is_mollweide = True
+    ascii_params = b"".join(tags.get(34737) or ()).decode("ascii", errors="ignore").lower()
+    if "mollweide" in ascii_params or (abs(float(tie[3])) > 1000.0 and float(scale[0]) >= 1.0):
+        is_mollweide = True
 
     return {
         "band0": band0,
@@ -162,40 +174,61 @@ def _lonlat_to_mollweide(lon_deg: np.ndarray, lat_deg: np.ndarray) -> tuple[np.n
 
 
 class RasterBundle:
-    """Optional native raster ground-truth bundle loaded from `<data_dir>/dataset-inventory.json`."""
+    """Native raster ground-truth bundle loaded from `<data_dir>/dataset-inventory.json` (old export) or `<data_dir>/rasters/*.tif` (new export)."""
 
     def __init__(self, data_dir: Path):
         self.data_dir = Path(data_dir)
         self.worldcover = None
         self.ghs_built = None
+        self.ghs_built_10m = None
         self.dsm = None
         inv_path = self.data_dir / "dataset-inventory.json"
-        if not inv_path.exists():
-            return
-        try:
-            inv = json.loads(inv_path.read_text(encoding="utf-8"))
-        except Exception:
-            return
-        items = inv if isinstance(inv, list) else inv.get("datasets", inv.get("layers", []))
-        for item in items:
-            if item.get("type") != "raster" or item.get("status") != "exported":
-                continue
-            rel = item.get("file") or ""
-            fpath = self.data_dir / rel
-            if not fpath.exists():
-                continue
-            nm = str(item.get("name") or "").lower()
+        if inv_path.exists():
             try:
-                if "worldcover" in nm and self.worldcover is None:
-                    self.worldcover = read_geotiff_band0(fpath)
-                elif "ghs_built_s_e2025" in nm and self.ghs_built is None:
-                    d = read_geotiff_band0(fpath)
-                    d["is_mollweide"] = True
-                    self.ghs_built = d
-                elif "copernicus dsm 30 m" in nm and self.dsm is None:
-                    self.dsm = read_geotiff_band0(fpath)
-            except Exception as e:
-                print(f"  [RasterGroundTruth] Skipping {fpath.name}: {e}")
+                inv = json.loads(inv_path.read_text(encoding="utf-8"))
+                items = inv if isinstance(inv, list) else inv.get("datasets", inv.get("layers", []))
+                for item in items:
+                    if item.get("type") != "raster" or item.get("status") != "exported":
+                        continue
+                    rel = item.get("file") or ""
+                    fpath = self.data_dir / rel
+                    if not fpath.exists():
+                        continue
+                    nm = str(item.get("name") or "").lower()
+                    try:
+                        if "worldcover" in nm and self.worldcover is None:
+                            self.worldcover = read_geotiff_band0(fpath)
+                        elif "ghs_built_s_e2025" in nm and self.ghs_built is None:
+                            d = read_geotiff_band0(fpath)
+                            d["is_mollweide"] = True
+                            self.ghs_built = d
+                        elif "copernicus dsm 30 m" in nm and self.dsm is None:
+                            self.dsm = read_geotiff_band0(fpath)
+                    except Exception as e:
+                        print(f"  [RasterGroundTruth] Skipping {fpath.name}: {e}")
+            except Exception:
+                pass
+
+        # Fallback / new export: scan `<data_dir>/rasters/*.tif` directly
+        rdir = self.data_dir / "rasters"
+        if rdir.exists():
+            for fpath in sorted(rdir.glob("*.tif")):
+                nm = fpath.name.lower()
+                try:
+                    if "worldcover" in nm and self.worldcover is None:
+                        self.worldcover = read_geotiff_band0(fpath)
+                    elif ("ghsl_10_m" in nm or "built_surface_2022_ghsl_10" in nm) and self.ghs_built_10m is None:
+                        d = read_geotiff_band0(fpath)
+                        d["is_mollweide"] = True
+                        self.ghs_built_10m = d
+                    elif ("ghs_100_m" in nm or "ghs_built_s_e2025" in nm) and "built_surface" in nm and self.ghs_built is None:
+                        d = read_geotiff_band0(fpath)
+                        d["is_mollweide"] = True
+                        self.ghs_built = d
+                    elif ("copernicus" in nm or "terrain_n" in nm) and self.dsm is None:
+                        self.dsm = read_geotiff_band0(fpath)
+                except Exception as e:
+                    print(f"  [RasterGroundTruth] Skipping {fpath.name}: {e}")
 
     def _sample_nearest(self, r: dict, lon: np.ndarray, lat: np.ndarray):
         if r.get("is_mollweide"):
@@ -219,11 +252,74 @@ class RasterBundle:
             wc_val, wc_ok = self._sample_nearest(self.worldcover, lon, lat)
             is_water = wc_ok & (wc_val == 80)
             is_built = wc_ok & (wc_val == 50)
+        if self.ghs_built_10m is not None:
+            g10_val, g10_ok = self._sample_nearest(self.ghs_built_10m, lon, lat)
+            g10_built = g10_ok & (g10_val != 255) & (g10_val >= 15)
+            is_built = g10_built if is_built is None else (is_built | g10_built)
         if self.ghs_built is not None:
             ghs_val, ghs_ok = self._sample_nearest(self.ghs_built, lon, lat)
-            ghs_built = ghs_ok & (ghs_val != 65535) & (ghs_val >= 350)
+            if float(self.ghs_built.get("scale_x", 100.0)) <= 20.0:
+                # 10 m GHSL built surface (0..100 m², 255 = nodata)
+                ghs_built = ghs_ok & (ghs_val < 255) & (ghs_val >= 10)
+            else:
+                # 100 m GHS_BUILT_S (m²/cell, 65535 = nodata)
+                ghs_built = ghs_ok & (ghs_val != 65535) & (ghs_val >= 350)
             is_built = ghs_built if is_built is None else (is_built | ghs_built)
         return is_water, is_built
+
+    def built_polygons_in_window(self, min_lon: float, min_lat: float, max_lon: float, max_lat: float, proj) -> list:
+        """Extract merged Shapely built-up polygons (in local meters via `proj`) from 10 m WorldCover/GHSL inside a lon/lat box."""
+        from shapely.geometry import box as shp_box
+        from shapely.ops import unary_union
+
+        cells = []
+        if self.worldcover is not None:
+            r = self.worldcover
+            ix0 = max(0, int(np.floor((min_lon - r["tie_x"]) / r["scale_x"])))
+            ix1 = min(r["w"], int(np.ceil((max_lon - r["tie_x"]) / r["scale_x"])))
+            iy0 = max(0, int(np.floor((r["tie_y"] - max_lat) / r["scale_y"])))
+            iy1 = min(r["h"], int(np.ceil((r["tie_y"] - min_lat) / r["scale_y"])))
+            if ix1 > ix0 and iy1 > iy0:
+                sub = r["band0"][iy0:iy1, ix0:ix1]
+                ys, xs = np.where(sub == 50)
+                for dy, dx in zip(ys, xs):
+                    lo0 = r["tie_x"] + (ix0 + int(dx)) * r["scale_x"]
+                    la1 = r["tie_y"] - (iy0 + int(dy)) * r["scale_y"]
+                    x0, y0 = proj.to_xy(lo0, la1 - r["scale_y"])
+                    x1, y1 = proj.to_xy(lo0 + r["scale_x"], la1)
+                    cells.append(shp_box(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
+        r_ghs10 = self.ghs_built_10m if self.ghs_built_10m is not None else (
+            self.ghs_built if (self.ghs_built is not None and float(self.ghs_built.get("scale_x", 100.0)) <= 20.0) else None
+        )
+        if r_ghs10 is not None:
+            r = r_ghs10
+            mx, my = _lonlat_to_mollweide(np.array([min_lon, max_lon]), np.array([min_lat, max_lat]))
+            ix0 = max(0, int(np.floor((mx.min() - r["tie_x"]) / r["scale_x"])))
+            ix1 = min(r["w"], int(np.ceil((mx.max() - r["tie_x"]) / r["scale_x"])))
+            iy0 = max(0, int(np.floor((r["tie_y"] - my.max()) / r["scale_y"])))
+            iy1 = min(r["h"], int(np.ceil((r["tie_y"] - my.min()) / r["scale_y"])))
+            if ix1 > ix0 and iy1 > iy0:
+                sub = r["band0"][iy0:iy1, ix0:ix1]
+                ys, xs = np.where((sub < 255) & (sub >= 15))
+                if len(ys) > 0:
+                    # Convert Mollweide cell centers back to approximate lon/lat via inverse or project bounding box
+                    # Use local affine interpolation from the 4 corners of the window
+                    cx_lon = (min_lon + max_lon) * 0.5
+                    cy_lat = (min_lat + max_lat) * 0.5
+                    cmx, cmy = _lonlat_to_mollweide(np.array([cx_lon, cx_lon + 0.005]), np.array([cy_lat, cy_lat + 0.005]))
+                    dmx_dlon = (cmx[1] - cmx[0]) / 0.005
+                    dmy_dlat = (cmy[1] - cmy[0]) / 0.005
+                    for dy, dx in zip(ys, xs):
+                        mx_c = r["tie_x"] + (ix0 + int(dx) + 0.5) * r["scale_x"]
+                        my_c = r["tie_y"] - (iy0 + int(dy) + 0.5) * r["scale_y"]
+                        lo_c = cx_lon + (mx_c - cmx[0]) / dmx_dlon
+                        la_c = cy_lat + (my_c - cmy[0]) / dmy_dlat
+                        xc, yc = proj.to_xy(lo_c, la_c)
+                        cells.append(shp_box(xc - 5.5, yc - 5.5, xc + 5.5, yc + 5.5))
+        if not cells:
+            return []
+        merged = unary_union(cells).buffer(3.0)
+        return list(merged.geoms) if merged.geom_type == "MultiPolygon" else [merged]
 
     def sample_dsm(self, lon: np.ndarray, lat: np.ndarray) -> np.ndarray | None:
         if self.dsm is None:

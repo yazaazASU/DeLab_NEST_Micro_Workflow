@@ -9,11 +9,11 @@
 ## 1. Two-Phase Stage B Execution (2–3 Min Target)
 
 ### Phase 1 — Coordinator Portfolio Lock (~30 s)
-1. Read `intermediates/stage_a_summary.json` (`candidate_pool` + `observed_plot_telemetry`).
+1. Read `intermediates/agent_site_context.md` (single-file brief with parcel shape/bearing, DEM relief, 10 m open-land quadrants, nearby named GIS landmarks, and the full Creative & Site-Grounding Contract).
 2. Select the **5 Sites** (`candidate_rank`) and lock a **Non-Overlapping Portfolio Matrix** *before* spawning any subagents:
-   - Each site gets a unique **`idiom`** (from the 11 grammars: `landform`, `canopy`, `shell`, `vertical`, `hydrological`, `mat_courtyard`, `folded_plate`, `linear_bridge`, `radial_cluster`, `wadi_terrace_bars`, `coastal_shelf_cut`).
-   - Each site gets a unique **`concept_register`** (`Concrete & Tectonic`, `Civic & Warm`, `Poetic-Minimal`, `Ecological-Direct`, `Industrial-Craft`).
-   - Each site gets a unique **`primary_material`** and **`program_anchor`** (never repeat the same museum/lab/market pairing twice).
+   - Each site gets a unique **`idiom`** (`courtyard`, `terrace`, `cantilever`, `clustered_compound`, `bridge`).
+   - Each site gets a unique **`concept_register`** (`Limestone & Wind-Tower`, `Earth & Rammed Mass`, `Timber & Tensile Shade`, `Steel & Solar Canopy`, `Vaulted Brick & Courtyard`).
+   - Each site gets a unique **`primary_material`** and **`program_anchor`** (never repeat the same building/program pairing twice, and never use banned RFP clichés like `Hub`, `Precinct`, `Campus`, `Innovation`, `Pavilion`).
    - Target footprint coverage: **Tier 1 `18%–25%`** (`60k–120k m²` GFA) or **Precinct `28%–35%`** across `50–70 feddans`.
 
 ### Phase 2 — 5 Parallel Subagents → `stage_b_builder.py` → `run_nest_pipeline.py`

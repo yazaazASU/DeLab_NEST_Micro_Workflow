@@ -355,9 +355,44 @@ Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft),
     return aerial_prompt, hero_prompt
 
 
+def build_moment_prompts(p: dict, region_cfg: dict, sat_name: str) -> list[tuple[int, str, str]]:
+    """Build one Gemini-ready camera & lighting prompt per experience_arc.journey moment."""
+    exp = p.get("experience_arc") or {}
+    journey = exp.get("journey") or []
+    if not journey:
+        return []
+    ts = p.get("thesis_summary") or {}
+    gesture = ts.get("gesture_line", "") or exp.get("core_idea", "")
+    atmo = exp.get("atmosphere", "") or "Warm directional sunlight with crisp architectural shadow relief."
+    register = p.get("concept_register", "Regional stone & timber")
+    out = []
+    for idx, m in enumerate(journey, start=1):
+        m_title = str(m.get("moment") or m.get("title") or f"Moment {idx}").strip()
+        m_detail = str(m.get("detail") or m.get("desc") or "").strip()
+        low_t = m_title.lower()
+        if any(k in low_t for k in ("night", "midnight", "star", "lantern", "dusk", "twilight", "evening")):
+            light_cue = "Blue-hour twilight / warm lantern glow against deep indigo sky, subtle interior illumination spilling onto stone and water."
+        elif any(k in low_t for k in ("sunrise", "dawn", "morning", "breakfast")):
+            light_cue = "Low golden morning sun casting long cool shadows across textured walls and native planting."
+        elif any(k in low_t for k in ("sunset", "golden")):
+            light_cue = "Warm amber sunset grazing across limestone, timber louvers, and water reflections."
+        else:
+            light_cue = "Crisp midday desert sun filtered through deep architectural overhangs, pergolas, and courtyard shade."
+
+        prompt = f"""Continue in the same {p['title']} site chat — keep the exact same architectural massing, roof geometry, and weathered material palette ({register}: {region_cfg.get('materials', 'local stone, rammed earth, desert-aggregate concrete, and weathered timber')}) established in the aerial and hero renders above.
+
+- Camera & Framing: Eye-level human perspective (~5–15° pitch, 28–35 mm rectilinear lens), 16:9 widescreen, candid people in motion for true scale.
+- Moment #{idx} ({m_title}): {m_detail}
+- Lighting & Atmosphere: {light_cue} Mood: {atmo}
+- Site Guardrails ({region_cfg['region']}): {region_cfg['flora']} {region_cfg['forbidden']} Strictly NO tilt-shift blur, NO text/watermarks."""
+        out.append((idx, m_title, prompt))
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build satellite-locked architectural render pack for a NEST run.")
     parser.add_argument("--run-dir", default="outputs", help="Path to NEST run output directory (e.g., outputs or outputs_sinai)")
+    parser.add_argument("--refresh-tiles", action="store_true", help="Re-download Esri satellite_lock.png even if already cached")
     args = parser.parse_args()
 
     run_dir = Path(args.run_dir).resolve()
@@ -382,23 +417,72 @@ def main():
         for stale in pack_dir.glob(pattern):
             stale.unlink()
 
+    render_jobs: list[dict] = []
+
     for p in projects:
         rank = p["rank"]
         site_dir = pack_dir / f"site_{rank}"
         site_dir.mkdir(parents=True, exist_ok=True)
         sat_name = "satellite_lock.png"
         sat_path = site_dir / sat_name
-        print(f"Fetching Esri satellite lock for Site #{rank} -> site_{rank}/{sat_path.name} ...")
-        render_satellite_lock(p, sat_path)
+        if args.refresh_tiles or not sat_path.exists():
+            print(f"Fetching Esri satellite lock for Site #{rank} -> site_{rank}/{sat_path.name} ...")
+            render_satellite_lock(p, sat_path)
 
         region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
         hydro, fabric = summarize_cardinal_context(p, wat_pts, bld_pts)
         aerial_prompt, hero_prompt = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
+        moment_prompts = build_moment_prompts(p, region_cfg, sat_name)
+
+        chat_group = f"site_{rank}"
+        render_jobs.append({
+            "job_id": f"site_{rank}_aerial",
+            "site_rank": rank,
+            "site_title": p["title"],
+            "chat_group": chat_group,
+            "job_type": "aerial",
+            "attach_image": f"renders/render_pack/site_{rank}/{sat_name}",
+            "output_file": f"renders/site_{rank}.jpg",
+            "prompt": aerial_prompt,
+        })
+        render_jobs.append({
+            "job_id": f"site_{rank}_hero",
+            "site_rank": rank,
+            "site_title": p["title"],
+            "chat_group": chat_group,
+            "job_type": "hero",
+            "attach_image": None,
+            "output_file": f"renders/site_{rank}_hero.jpg",
+            "prompt": hero_prompt,
+        })
+        for mi, mt, mp in moment_prompts:
+            render_jobs.append({
+                "job_id": f"site_{rank}_moment_{mi}",
+                "site_rank": rank,
+                "site_title": p["title"],
+                "chat_group": chat_group,
+                "job_type": "moment",
+                "moment_index": mi,
+                "moment_title": mt,
+                "attach_image": None,
+                "output_file": f"renders/site_{rank}_moment_{mi}.jpg",
+                "prompt": mp,
+            })
+
+        moment_targets = "\n".join(
+            f"- **Target {2 + mi} (Moment #{mi} — {mt}):** `../../site_{rank}_moment_{mi}.jpg` (`16:9` widescreen · attach `./{sat_name}` for regional context)"
+            for mi, mt, _ in moment_prompts
+        )
+        moment_sections = "\n".join(
+            f"\n## {2 + mi}. Moment #{mi}: {mt} (`../../site_{rank}_moment_{mi}.jpg`)\n\n```text\n{mp}\n```\n"
+            for mi, mt, mp in moment_prompts
+        )
 
         site_md = f"""# Site #{rank} Render Brief — {p['title']}
 
 - **Target 1 (Whole-Site Scale Aerial):** `../../site_{rank}.jpg` (`16:9` widescreen · attach `./{sat_name}`)
 - **Target 2 (Close Hero Experience):** `../../site_{rank}_hero.jpg` (`16:9` widescreen · attach `./{sat_name}` for context)
+{moment_targets}
 - **Coordinates:** `{p['lat']:.5f}, {p['lon']:.5f}` · **Boundary:** `{p.get('footprint_type', 'Contiguous')}` ({p.get('area_m2', 0)/10000:.2f} ha)
 
 ## 1. Whole-Site Scale Aerial Prompt (`../../site_{rank}.jpg`)
@@ -412,22 +496,37 @@ def main():
 ```text
 {hero_prompt}
 ```
-"""
+{moment_sections}"""
         (site_dir / "prompt.md").write_text(site_md, encoding="utf-8")
 
-    agent_instructions = f"""# Render Outsourcing & Agent Instructions — NEST 2-Render Pair
+    (pack_dir / "render_jobs.json").write_text(
+        json.dumps(render_jobs, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
-This self-contained `{pack_dir.name}/` package isolates each site into its own **`site_<N>/`** subfolder (`{len(projects)}` sites = `{len(projects) * 2}` images total) so each site is rendered independently with zero cross-site bleed:
-- **`site_<N>.jpg` (Whole-Site Scale Aerial, `~35–50°`):** Must span the **entire ~500 m × 500 m (`50–70 feddan`) dashed polygon** in `site_<N>/satellite_lock.png`, keeping surrounding 2-story rural houses and fields at true small real-world scale.
-- **`site_<N>_hero.jpg` (Close Hero Experience, `~10–25°`):** Threshold/human-scale shot capturing the signature architectural idea, tectonics, atmosphere, lighting, and people up close.
+    agent_instructions = f"""# Render Execution Instructions (Codex / ChatGPT)
 
-## Step-by-Step Execution (For Each Site `1` to `{len(projects)}`)
-1. Open **`site_<N>/satellite_lock.png`** (`z=15`, `Top = North`) and **`site_<N>/prompt.md`**.
-2. Generate **Prompt 1 (Whole-Site Scale Aerial)** attaching `site_<N>/satellite_lock.png` as the strict geographic & scale reference → save to `renders/site_<N>.jpg`.
-3. Generate **Prompt 2 (Hero Experience Shot)** attaching `site_<N>/satellite_lock.png` for regional context → save to `renders/site_<N>_hero.jpg`.
-4. **Visual QC:** Verify true `50–70 feddan` scale vs. surrounding houses/roads (on `site_<N>.jpg`), flat/real topography, native flora, zero tilt-shift blur, and zero text/watermarks.
+This `render_pack/` includes **`render_jobs.json`** ({len(render_jobs)} total jobs across `{len(projects)}` sites) for autonomous execution using your built-in image generation.
+
+## Execution Rules
+1. **One Image Thread / Context Per `chat_group` (`site_1`..`site_{len(projects)}`):** Keep all renders for a single site (`aerial`, `hero`, and `moment_1..N`) in one continuous generation context so they share the exact same architecture, massing, and materials.
+2. **Iterate `render_jobs.json` in order:**
+   - Skip any job whose `output_file` (relative to the plot's run directory, e.g. `renders/site_1.jpg`) already exists on disk.
+   - When `attach_image` is set (the `aerial` job of each `chat_group`), pass `site_<N>/satellite_lock.png` as the visual reference alongside `prompt`.
+   - For `hero` and `moment` jobs in the same `chat_group`, generate in the **same site context** (carrying over the architecture from `aerial`/`hero`) and save each image to `output_file` (`16:9` widescreen).
+3. **Rebuild Dashboard:** After saving images, run:
+   `python build_nest_dashboard.py --run-dir "{run_dir}" --plot-title "{run_dir.name}"`
 """
     (pack_dir / "AGENT_INSTRUCTIONS.md").write_text(agent_instructions, encoding="utf-8")
+    (run_dir / "renders" / "README.md").write_text(
+        f"# Renders Entry Point — {run_dir.name}\n\n"
+        f"- **Job Queue:** `render_pack/render_jobs.json` ({len(render_jobs)} jobs)\n"
+        f"- **Instructions:** `render_pack/AGENT_INSTRUCTIONS.md`\n"
+        f"- **When Done, Rebuild Dashboard:**\n"
+        f"  ```bash\n"
+        f"  python build_nest_dashboard.py --run-dir \"{run_dir}\" --plot-title \"{run_dir.name}\"\n"
+        f"  ```\n",
+        encoding="utf-8",
+    )
 
     import zipfile
     zip_path = run_dir / "renders" / "render_pack.zip"

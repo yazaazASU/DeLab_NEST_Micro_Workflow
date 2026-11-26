@@ -152,6 +152,74 @@ def score_cliques(force_arrays: Dict[str, np.ndarray], cliques: List[Tuple[str, 
     return best, best_lbl
 
 
+def _nearby_gis_pointers(cx: float, cy: float, features_xy: Sequence[Dict[str, Any]], max_dist_m: float = 1500.0, limit: int = 8) -> List[str]:
+    """Extract real nearby named/typed GIS features around (cx, cy) so Stage B & agents have concrete site context."""
+    pt = Point(cx, cy)
+    skip_layers = {
+        "Egypt boundary", "Egypt architecture reference boundary", "National boundary — administrative source",
+        "National boundary (geoBoundaries)", "Governorate boundaries", "Governorate boundaries (geoBoundaries)",
+        "Governorate boundaries — administrative source", "Earth engine governorates", "Processed tile coverage",
+        "Historical polities — Egypt subset (Cliopatria)", "Historical political geography — Egypt (Cliopatria)",
+        "Ecoregions — global source (2017)", "Ecoregions — Egypt extract", "Geological units — Africa (CGMW regional source)",
+    }
+    hits: List[tuple[float, str]] = []
+    seen: set[str] = set()
+    for feat in features_xy:
+        props = feat.get("properties") or {}
+        sl = str(props.get("source_layer") or "")
+        sl_low = sl.lower()
+        if not sl or sl in skip_layers or any(k in sl_low for k in (
+            "accessibility", "investment", "governorate", "evidence", "administrative",
+            "district", "localit", "voronoi", "hydrobasins", "rainfall", "scenario",
+            "population", "synthetic od", "catchment", "hayah karima", "health services",
+            "indicators", "map-sheet", "polities", "ecoregions", "geological",
+        )):
+            continue
+        g = feat.get("geometry")
+        if g is None or g.is_empty:
+            continue
+        bx = g.bounds
+        if bx[2] < cx - max_dist_m or bx[0] > cx + max_dist_m or bx[3] < cy - max_dist_m or bx[1] > cy + max_dist_m:
+            continue
+        dist = float(g.distance(pt))
+        if dist > max_dist_m:
+            continue
+        nm = props.get("name_en") or props.get("name") or props.get("NAME") or props.get("name_ar") or ""
+        fc = props.get("fclass") or props.get("highway") or props.get("landuse") or props.get("natural") or props.get("waterway") or ""
+        if not nm and not fc:
+            continue
+        label_parts = [sl.split(" — ")[0].strip()]
+        if nm:
+            label_parts.append(str(nm).strip())
+        elif fc:
+            label_parts.append(str(fc).strip())
+        if nm and fc and str(fc).strip().lower() not in str(nm).lower():
+            label_parts.append(f"[{fc}]")
+        key = " | ".join(label_parts[:2]).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        hits.append((dist, f"{': '.join(label_parts[:2])} ({dist:.0f} m)"))
+    hits.sort(key=lambda x: x[0])
+    return [h[1] for h in hits[:limit]]
+
+
+def _organic_parcel(cx: float, cy: float, target_area_m2: float = 250000.0) -> Polygon:
+    """Deterministic 14-vertex natural faceted parcel (avoids sterile 500x500m boxes on unsplit desert/water)."""
+    r_base = math.sqrt(target_area_m2 / math.pi)
+    phase = ((abs(int(round(cx))) * 37 + abs(int(round(cy))) * 73) % 360) * math.pi / 180.0
+    pts = []
+    n_v = 14
+    for i in range(n_v):
+        ang = phase + (2.0 * math.pi * i) / n_v
+        # Gentle multi-harmonic undulation (±16%) + slight aspect ratio (1.18 : 0.85)
+        wobble = 1.0 + 0.11 * math.sin(2.0 * ang + phase) + 0.06 * math.cos(3.0 * ang - phase)
+        rx = r_base * 1.12 * wobble
+        ry = r_base * 0.89 * wobble
+        pts.append((cx + rx * math.cos(ang), cy + ry * math.sin(ang)))
+    return Polygon(pts)
+
+
 def _build_organic_site_polygon(
     cx: float,
     cy: float,
@@ -162,6 +230,8 @@ def _build_organic_site_polygon(
     built_polys: Optional[Sequence[Any]] = None,
     boundary_xy: Optional[Any] = None,
     terrain_class: str = "Dry Land",
+    raster_bundle: Optional[Any] = None,
+    proj: Optional[Any] = None,
 ) -> Polygon:
     """Create a 50–70 feddan (~210k–294k m²) site boundary by splitting along real GIS roads/water/built-up areas and merging adjacent open blocks."""
     from shapely.affinity import scale as shp_scale
@@ -200,14 +270,23 @@ def _build_organic_site_polygon(
                 if not region_land.is_empty and region_land.area >= 3000.0:
                     region = region_land
 
-    if built_polys:
-        b_list = [bp for bp in built_polys if bp.intersects(win)]
-        if b_list:
-            b_union = unary_union(b_list).buffer(8.0)
-            if not b_union.is_empty:
-                region_unbuilt = region.difference(b_union)
-                if not region_unbuilt.is_empty and region_unbuilt.area >= 3000.0:
-                    region = region_unbuilt
+    b_list = [bp for bp in built_polys if bp.intersects(win)] if built_polys else []
+    if raster_bundle is not None and proj is not None:
+        wb = win.bounds
+        lo0, la0 = proj.to_ll(wb[0], wb[1])
+        lo1, la1 = proj.to_ll(wb[2], wb[3])
+        try:
+            rb_polys = raster_bundle.built_polygons_in_window(min(lo0, lo1), min(la0, la1), max(lo0, lo1), max(la0, la1), proj)
+            if rb_polys:
+                b_list.extend(rb_polys)
+        except Exception:
+            pass
+    if b_list:
+        b_union = unary_union(b_list).buffer(8.0)
+        if not b_union.is_empty:
+            region_unbuilt = region.difference(b_union)
+            if not region_unbuilt.is_empty and region_unbuilt.area >= 3000.0:
+                region = region_unbuilt
 
     raw_parts = list(region.geoms) if region.geom_type == "MultiPolygon" else ([region] if region.geom_type == "Polygon" else [])
     blocks = [b for b in raw_parts if not b.is_empty and b.area >= 3000.0]
@@ -247,15 +326,25 @@ def _build_organic_site_polygon(
             if smoothed.area >= 0.85 * cur.area:
                 cur = smoothed
         if cur.area >= 100000.0:
+            if cur.area > max_target * 1.15:
+                # Oversized unsplit block (e.g. open desert or open water): carve a natural terrain-aligned parcel instead of scaling a giant box
+                carved = cur.intersection(_organic_parcel(cx, cy, target_area_m2 * 1.15))
+                if not carved.is_empty:
+                    if carved.geom_type == "MultiPolygon":
+                        carved = max(carved.geoms, key=lambda g: g.area)
+                    if carved.area >= 80000.0:
+                        cur = carved
             if cur.area < min_target or cur.area > max_target:
                 sf = math.sqrt(target_area_m2 / cur.area)
                 cur = shp_scale(cur, xfact=sf, yfact=sf, origin="centroid")
             return cur
 
-    # Fallback: rectangular parcel clipped to window
-    poly = shp_box(cx - 250.0, cy - 250.0, cx + 250.0, cy + 250.0)
+    # Fallback: natural faceted parcel clipped to boundary
+    poly = _organic_parcel(cx, cy, target_area_m2)
     if boundary_xy is not None and not boundary_xy.is_empty:
-        poly = poly.intersection(boundary_xy)
+        clipped = poly.intersection(boundary_xy)
+        if not clipped.is_empty and clipped.area >= 80000.0:
+            poly = clipped
     return poly if poly.geom_type == "Polygon" else max(poly.geoms, key=lambda g: g.area)
 
 
@@ -354,6 +443,44 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
     if built_polys:
         built_union = unary_union(built_polys)
         in_built = np.array([built_union.contains(Point(px, py)) for px, py in active_xy], dtype=bool)
+
+    rb = None
+    try:
+        from pathlib import Path as _Path
+        from raster_ground_truth import RasterBundle
+        rb = RasterBundle(_Path(data_dir))
+        if rb.worldcover is not None or rb.ghs_built_10m is not None or rb.ghs_built is not None:
+            act_ll = [proj.to_ll(float(px), float(py)) for px, py in active_xy]
+            act_lons = np.array([p[0] for p in act_ll], dtype=np.float64)
+            act_lats = np.array([p[1] for p in act_ll], dtype=np.float64)
+            _, rb_built = rb.sample_water_built_masks(act_lons, act_lats)
+            if rb_built is not None:
+                in_built = in_built | rb_built
+                print(f"[Stage A] Fused 10m raster built-up mask ({int(np.sum(rb_built))} built cells excluded)")
+    except Exception as _e:
+        print(f"[Stage A] Raster built-up fusion skipped: {_e}")
+
+    # Native 10m raster ground-truth (WorldCover class 50 + GHSL 10m/100m built surface)
+    try:
+        from pathlib import Path as _Path
+        from raster_ground_truth import RasterBundle
+        _rb = RasterBundle(_Path(data_dir))
+        if _rb.worldcover is not None or _rb.ghs_built_10m is not None or _rb.ghs_built is not None:
+            _act_ll = np.array([proj.to_ll(float(px), float(py)) for px, py in active_xy], dtype=np.float64)
+            _wc_w, _rb_built = _rb.sample_water_built_masks(_act_ll[:, 0], _act_ll[:, 1])
+            if _rb_built is not None:
+                in_built = in_built | _rb_built
+                # Add unmapped raster-built 50m cells into built_polys so polygons skirt rural clusters
+                _rb_cells = [Point(float(active_xy[i, 0]), float(active_xy[i, 1])).buffer(26.0, cap_style=3) for i in np.where(_rb_built)[0]]
+                if _rb_cells:
+                    built_polys.extend(_rb_cells)
+            if _wc_w is not None:
+                in_water = in_water | _wc_w
+                for i in np.where(_wc_w)[0]:
+                    if terrain_classes[i] == "Dry Land":
+                        terrain_classes[i] = "Shoreline Edge"
+    except Exception as _e:
+        print(f"[Stage A] Raster built-up mask skipped: {_e}")
 
     road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads OR source_layer=Road network (OSM) OR source_layer=L163_Road_network_OSM OR source_layer=Roads")
     bldg_pts = _sample_points_from_geoms([f["geometry"] for f in bldg_feats], step_m=40.0)
@@ -518,6 +645,8 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                 built_polys=built_polys,
                 boundary_xy=boundary_xy,
                 terrain_class=terrain_classes[idx],
+                raster_bundle=rb,
+                proj=proj,
             )
             poly_ll = proj.geom_to_ll(poly_xy)
             b = poly_ll.bounds
@@ -575,7 +704,7 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                 },
                 "gis_evidence": {
                     "top_drivers_by_engine": top_drivers,
-                    "map_feature_pointers": [],
+                    "map_feature_pointers": _nearby_gis_pointers(cx, cy, features_xy),
                 },
                 "skill_seeds": {
                     "crystals": {"parent_engine": "Crystals Engine", "role_in_project": "Primary Lead" if eng_key == "crystals" else "Supporting"},
@@ -589,11 +718,33 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
                     "bbox_ll": [round(b[0], 6), round(b[1], 6), round(b[2], 6), round(b[3], 6)],
                     "geojson": mapping(poly_ll),
                 },
+                "_poly_xy": poly_xy,
             }
             all_candidates.append(cand)
             rank_counter += 1
 
     all_candidates.sort(key=lambda c: -c["merit_score"])
+    # Deduplicate near-identical / >60%-overlapping candidate polygons while preserving minor overlap
+    deduped: List[Dict[str, Any]] = []
+    for c in all_candidates:
+        cp = c["_poly_xy"]
+        is_dup = False
+        for k in deduped:
+            kp = k["_poly_xy"]
+            if cp.intersects(kp):
+                inter_a = cp.intersection(kp).area
+                if inter_a / max(1.0, min(cp.area, kp.area)) > 0.60:
+                    is_dup = True
+                    break
+        if not is_dup:
+            deduped.append(c)
+    if len(deduped) >= 5:
+        all_candidates = deduped
+    else:
+        seen_ids = {id(x) for x in deduped}
+        all_candidates = deduped + [c for c in all_candidates if id(c) not in seen_ids]
+    for c in all_candidates:
+        c.pop("_poly_xy", None)
     for idx_r, c in enumerate(all_candidates, start=1):
         c["site_rank"] = idx_r
 

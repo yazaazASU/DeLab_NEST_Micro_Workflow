@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.0",
+  "description": "Lightweight lookup index for all 27 Egyptian governorates and signature special places, supporting NEST Stage B experience design and architectural render generation.",
+  "governorates": {
+    "cairo": {
+      "name": "Cairo",
+      "region_file": "01_greater_cairo_nile_core.md",
+      "climate_zone": "Hot desert with Nile river breeze; spring Khamaseen dust winds",
+      "prevailing_wind": "N / NE (evening river breeze); S/SW in spring Khamaseen",
+      "local_materials": ["Mokattam nummulitic limestone", "fired clay brick", "carved mashrabiya wood", "gypsum plaster"],
+      "nature_hero": "Nile River Corridor & Limestone Desert Canyons",
+      "craft_hook": "Khayamiya appliqué, copper engraving, mashrabiya joinery",
+      "render_cues": "Golden afternoon sun grazing cream limestone, geometric wood-screen shadows, cool river-mist dawn"
+    },
+    "giza": {
+      "name": "Giza",
+      "region_file": "01_greater_cairo_nile_core.md",
+      "climate_zone": "Dry desert plateau bordering humid Nile palm belt",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Eocene nummulitic limestone", "rammed desert earth", "dark basalt plinths", "palm-rib screens"],
+      "nature_hero": "Oasis-to-Desert Edge & Saqqara Palm Groves",
+      "craft_hook": "Harrania natural-dyed wool tapestries, Kerdasa handloom weaving",
+      "render_cues": "Crisp high-contrast desert light, stepped stone silhouettes over lush palm canopies, warm ochre sunset haze"
+    },
+    "qalyubia": {
+      "name": "Qalyubia",
+      "region_file": "01_greater_cairo_nile_core.md",
+      "climate_zone": "Mild humid river-garden Delta apex",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Fired red-ochre Nile clay brick", "earthen plaster", "local orchard timber"],
+      "nature_hero": "Delta Barrages & Century-Old Mango/Banyan Orchards",
+      "craft_hook": "Historic brick river-arch masonry, agricultural orchard heritage",
+      "render_cues": "Lush emerald orchard shade, dappled light through giant banyan leaves, red-brick arches reflecting in calm canals"
+    },
+    "alexandria": {
+      "name": "Alexandria",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Semi-arid Mediterranean; mild rainy winters (180-200mm), breezy humid summers",
+      "prevailing_wind": "NW Etesian sea breeze; winter Nawa storm surges",
+      "local_materials": ["Oolitic coastal limestone (Mex stone)", "breathable lime plaster", "marine-grade timber & bronze"],
+      "nature_hero": "Mediterranean Sea Edge, Tide Pools & Lake Mariout",
+      "craft_hook": "Traditional wooden felucca/trawler boatbuilding in Anfoushi, stone carving",
+      "render_cues": "Crisp Mediterranean blue with whitecap spray, sunlit pale cream limestone, deep north-facing shaded arcades"
+    },
+    "matrouh": {
+      "name": "Matrouh",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Mediterranean arid coast with winter rain-fed inland steppes",
+      "prevailing_wind": "NW coastal sea breeze",
+      "local_materials": ["White oolitic limestone", "rammed coastal earth", "olive & palm-rib shade screens"],
+      "nature_hero": "Turquoise Limestone Bays & Rain-Fed Fig Orchards",
+      "craft_hook": "Awlad Ali Bedouin wool klim rugs, Roman rainwater cisterns",
+      "render_cues": "Blind-white sand meeting vivid turquoise water, low wind-hugging limestone terraces, golden coastal glow"
+    },
+    "beheira": {
+      "name": "Beheira",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Humid western Delta transitioning to dry salt-lake desert edge",
+      "prevailing_wind": "NW",
+      "local_materials": ["Black-and-red fired brick (mangur)", "mashrabiya timber", "mudbrick & salt-lake earth"],
+      "nature_hero": "River-to-Desert Seam, Lake Edku & Alkaline Salt Lakes",
+      "craft_hook": "Rosetta patterned brickwork, desert monastic mudbrick domes, palm basketry",
+      "render_cues": "Warm terracotta-and-black brick patterns, lush citrus & palm groves, shimmering pink-white salt flats"
+    },
+    "kafr_el_sheikh": {
+      "name": "Kafr El-Sheikh",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Humid coastal lagoon Delta (70-80% RH)",
+      "prevailing_wind": "N / NW sea wind",
+      "local_materials": ["Light timber boardwalks", "woven reed mats", "fired Delta brick"],
+      "nature_hero": "Lake Burullus Wetlands & Africa-Eurasia Bird Flyway",
+      "craft_hook": "Shallow wooden lagoon-skiff building, reed-mat weaving",
+      "render_cues": "Mirror-still brackish water at dawn, golden swaying reed beds, slender post-supported timber piers"
+    },
+    "damietta": {
+      "name": "Damietta",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Breezy humid maritime estuary",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Laminated & carved timber", "marine steel", "coastal brick & lime plaster"],
+      "nature_hero": "Where Sweet Nile Meets Salt Mediterranean (El-Lesan)",
+      "craft_hook": "Egypt's capital of fine woodworking, furniture carving & wooden yacht building",
+      "render_cues": "Crisp laminated timber ribs & shaded market arcades, river-mouth reflections, working wooden boatyards"
+    },
+    "dakahlia": {
+      "name": "Dakahlia",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Warm humid eastern Delta farmland",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Fired clay brick", "lime plaster", "local river timber"],
+      "nature_hero": "Fertile Delta Waterways & Northern Wetland Fringe",
+      "craft_hook": "Canal-side timber rowboats, historic Mamluk courtyard joinery",
+      "render_cues": "Emerald agricultural patchwork, shaded brick courtyards, calm palm-lined riverfront promenades"
+    },
+    "gharbia": {
+      "name": "Gharbia",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Mild-warm central Delta buffered by dense crops",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Terracotta clay brick lattices", "lime plaster", "cotton & flax shade canopies"],
+      "nature_hero": "Central Delta Green Carpet & Dawn Jasmine Fields",
+      "craft_hook": "Shubra Beloula jasmine-oil distillation, El-Mahalla cotton weaving",
+      "render_cues": "Fragrant dawn mist over white jasmine fields, woven mat-courtyard carpets, warm brick-lattice shadows"
+    },
+    "monufia": {
+      "name": "Monufia",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Pleasant river-cooled southern Delta",
+      "prevailing_wind": "N",
+      "local_materials": ["Fired brick", "earthen plaster", "palm & willow timber"],
+      "nature_hero": "Canal & Fruit-Orchard Mosaic",
+      "craft_hook": "Sakiet Abu Shara hand-knotted silk & wool carpets, clay pottery",
+      "render_cues": "Intimate shaded village courts, natural-dyed textile canopies, lush stepped brick canal landings"
+    },
+    "sharqia": {
+      "name": "Sharqia",
+      "region_file": "02_alexandria_north_coast_delta.md",
+      "climate_zone": "Warm eastern Delta transitioning to dry desert corridor",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Delta clay brick", "desert sand-earth", "granite accents"],
+      "nature_hero": "Delta-to-Desert Edge, Papyrus Reeds & Migratory Ponds",
+      "craft_hook": "El-Qaramous papyrus sheet crafting, Arabian horse heritage",
+      "render_cues": "Tall green papyrus stalks swaying in breeze, warm sand-and-brick transitions, flat Delta horizon"
+    },
+    "port_said": {
+      "name": "Port Said",
+      "region_file": "03_suez_canal_and_sinai.md",
+      "climate_zone": "Breezy humid Mediterranean-Canal crossroads",
+      "prevailing_wind": "NW sea wind",
+      "local_materials": ["Painted timber verandas & louvered shutters", "cast-iron brackets", "marine steel & coastal stone"],
+      "nature_hero": "Suez Canal Mouth & Lake Manzala Bird Wetlands",
+      "craft_hook": "19th-century bioclimatic wooden-veranda architecture, maritime heritage",
+      "render_cues": "Crisp white-and-ochre timber verandas, giant ships gliding past palms, misty sea-canal dawn"
+    },
+    "ismailia": {
+      "name": "Ismailia",
+      "region_file": "03_suez_canal_and_sinai.md",
+      "climate_zone": "Balanced lake-and-garden canal microclimate",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Limestone & brick garden villas", "pitched timber roofs", "canal sand-earth"],
+      "nature_hero": "Lake Timsah, Bitter Lakes & Fragrant Mango Orchards",
+      "craft_hook": "Garden-city veranda design, Simsimiyya folk music",
+      "render_cues": "Shaded tree-lined boulevards, calm lake sails, lush green mango canopies meeting golden canal sands"
+    },
+    "suez": {
+      "name": "Suez",
+      "region_file": "03_suez_canal_and_sinai.md",
+      "climate_zone": "Dry hot Gulf head with strong steady wind corridor",
+      "prevailing_wind": "Strong steady N / NNW (9-11 m/s corridor)",
+      "local_materials": ["Galala limestone", "weathered marine steel", "coral-limestone flats"],
+      "nature_hero": "Gulf of Suez Marine Corridor & Soaring Raptor Thermals",
+      "craft_hook": "Historic Red Sea-Nile port heritage, Simsimiyya lute culture",
+      "render_cues": "Dramatic desert cliffs meeting deep blue Gulf water, crisp marine steel trusses, wind-carved canopies"
+    },
+    "north_sinai": {
+      "name": "North Sinai",
+      "region_file": "03_suez_canal_and_sinai.md",
+      "climate_zone": "Mediterranean coastal sand-dune desert with mild winters",
+      "prevailing_wind": "NW Mediterranean breeze",
+      "local_materials": ["Rammed dune earth", "palm-frond weave", "coastal stone"],
+      "nature_hero": "Lake Bardawil, Zaranik Bird Flyway & Rain-Fed Dune Palms",
+      "craft_hook": "Bedouin tatreez embroidery, camel-hair weaving, olive/palm stewardship",
+      "render_cues": "Soft golden dunes dotted with green date palms, silver-blue lagoon horizon, low sand-hugging courts"
+    },
+    "south_sinai": {
+      "name": "South Sinai",
+      "region_file": "03_suez_canal_and_sinai.md",
+      "climate_zone": "Dual: cool high-altitude granite peaks & warm sunny coral coasts",
+      "prevailing_wind": "N / NE down Gulf of Aqaba; cool mountain breezes",
+      "local_materials": ["Dry-stacked rose-red granite", "colored sandstone", "fossil coral rock", "palm-frond shade"],
+      "nature_hero": "High-Mountain Oasis Gardens, Coral Reefs & Coastal Mangroves",
+      "craft_hook": "Gebeliyya Bedouin stone-walled bustan orchards, herbalism, beadwork",
+      "render_cues": "Rose-granite peaks glowing crimson at sunrise, crystal turquoise reefs, lantern-lit trails under Milky Way"
+    },
+    "red_sea": {
+      "name": "Red Sea",
+      "region_file": "04_red_sea_and_eastern_desert.md",
+      "climate_zone": "Warm dry desert coast cooled by steady northerly sea winds",
+      "prevailing_wind": "Steady N / NW coastal breeze",
+      "local_materials": ["Dry-stacked desert granite & porphyry", "coral-limestone (hagar sha'abi)", "weathered marine timber"],
+      "nature_hero": "Fringing Coral Reefs, White Mangroves & Acacia Desert Wadis",
+      "craft_hook": "Ababda/Bishariya jabana coffee ritual, coral-stone coastal houses, leather/beadwork",
+      "render_cues": "Deep cobalt-to-turquoise reef gradients, jagged red-brown granite backdrop, dry-stone walls matching bedrock"
+    },
+    "new_valley": {
+      "name": "New Valley",
+      "region_file": "05_western_desert_and_oases.md",
+      "climate_zone": "Hyper-arid oasis basins; hot days, crisp cold winter nights, dark skies",
+      "prevailing_wind": "N / NE",
+      "local_materials": ["Sun-dried mudbrick (toob laban)", "Nubian sandstone", "palm-trunk beams", "chalk & iron-ochre earth"],
+      "nature_hero": "Artesian Oasis Springs & Wind-Sculpted Chalk/Dune Seas",
+      "craft_hook": "Mudbrick vaulting (Al-Qasr), clay pottery, palm-frond basketry, sand painting",
+      "render_cues": "Sculpted ochre mudbrick vaults, emerald palms against golden dunes, surreal white chalk under twilight stars"
+    },
+    "fayoum": {
+      "name": "Fayoum",
+      "region_file": "05_western_desert_and_oases.md",
+      "climate_zone": "Fertile breezy oasis depression (-43m) cooled by Lake Qarun",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Whitewashed mudbrick domes", "Eocene limestone", "reed thatch", "terracotta clay"],
+      "nature_hero": "Terraced Oasis, Desert Waterfalls & Prehistoric Whale Sea Floor",
+      "craft_hook": "Tunis Village glazed pottery, gravity-powered wooden waterwheels (sawaqi)",
+      "render_cues": "Curved whitewashed mudbrick domes over blue lake water, turning wooden waterwheels, amber fossil cliffs"
+    },
+    "beni_suef": {
+      "name": "Beni Suef",
+      "region_file": "05_western_desert_and_oases.md",
+      "climate_zone": "Dry sunny northern Upper Egypt valley",
+      "prevailing_wind": "N",
+      "local_materials": ["Translucent Egyptian alabaster (calcite)", "limestone", "Nile mudbrick"],
+      "nature_hero": "Nile Islands, Alabaster Cliffs & Aromatic Herb Fields",
+      "craft_hook": "Carved translucent alabaster, handloom klim rugs, chamomile/herb drying",
+      "render_cues": "Glowing amber alabaster panels in thick stone walls, fragrant riverside herb fields, stepped pyramid horizon"
+    },
+    "minya": {
+      "name": "Minya",
+      "region_file": "05_western_desert_and_oases.md",
+      "climate_zone": "Hot dry summers, crisp sunny winters between cliff and dune",
+      "prevailing_wind": "N",
+      "local_materials": ["White-gold Middle Eocene limestone", "Nile clay brick"],
+      "nature_hero": "Cliff-Framed Nile Valley & Desert Escarpment",
+      "craft_hook": "White limestone quarrying & carving, traditional sugarcane molasses mills",
+      "render_cues": "High white-gold limestone cliffs glowing at sunrise over mirror-calm Nile and emerald sugarcane fields"
+    },
+    "assiut": {
+      "name": "Assiut",
+      "region_file": "06_upper_egypt_and_nubia.md",
+      "climate_zone": "Dry sunny Upper Egypt valley",
+      "prevailing_wind": "N",
+      "local_materials": ["Limestone & travertine", "fired clay brick", "metal-mesh screens"],
+      "nature_hero": "Nile Riverbend & Limestone Cliff Caves",
+      "craft_hook": "Tally (silver-and-gold thread tulle embroidery), wood & alabaster craft",
+      "render_cues": "Steep pale limestone cliffs framing emerald fields, sparkling geometric metal-mesh shade screens"
+    },
+    "sohag": {
+      "name": "Sohag",
+      "region_file": "06_upper_egypt_and_nubia.md",
+      "climate_zone": "Dry sunny Upper Egypt riverbend",
+      "prevailing_wind": "N",
+      "local_materials": ["Cream limestone", "terracotta red brick", "palm timber"],
+      "nature_hero": "The Great Nile Bend & Palm Plains",
+      "craft_hook": "Akhmim handloom silk/linen weaving on wooden pit-looms",
+      "render_cues": "Warm terracotta red-brick and cream-limestone walls, vibrant woven shade canopies, sweeping river curves"
+    },
+    "qena": {
+      "name": "Qena",
+      "region_file": "06_upper_egypt_and_nubia.md",
+      "climate_zone": "Hot dry Nile-to-Red-Sea pivot",
+      "prevailing_wind": "N",
+      "local_materials": ["Porous Ballasi evaporative clay", "golden sandstone", "limestone"],
+      "nature_hero": "Nile-to-Red-Sea Wadi Crossroads",
+      "craft_hook": "Qena qulla & ballas evaporative cooling pottery",
+      "render_cues": "Evaporative terracotta cooling walls & porous clay screens, golden sandstone reliefs, green sugarcane"
+    },
+    "luxor": {
+      "name": "Luxor",
+      "region_file": "06_upper_egypt_and_nubia.md",
+      "climate_zone": "Hyper-dry brilliant sun year-round; cool Nile evening breezes",
+      "prevailing_wind": "N / NW",
+      "local_materials": ["Honey-gold Theban limestone", "Nubian sandstone", "Hassan Fathy mudbrick domes"],
+      "nature_hero": "Nile Riverfront & Theban Cliff Amphitheater",
+      "craft_hook": "New Gourna passive-cooling mudbrick vaults, West Bank stone/alabaster carving",
+      "render_cues": "Honey-gold cliffs glowing crimson at sunset, stepped horizontal colonnades, breathable mudbrick domes"
+    },
+    "aswan": {
+      "name": "Aswan",
+      "region_file": "06_upper_egypt_and_nubia.md",
+      "climate_zone": "Warm dry sunny winters, very hot dry summers, zero humidity",
+      "prevailing_wind": "N",
+      "local_materials": ["Rose-pink granite", "matte charcoal basalt", "warm golden Nubian sandstone", "painted mudbrick"],
+      "nature_hero": "First Cataract Granite Rapids, Tropical Islands & River-Edge Dunes",
+      "craft_hook": "Nubian painted courtyard mudbrick, coiled straw basketry, granite masonry",
+      "render_cues": "Charcoal basalt plinths with golden sandstone & vibrant Nubian accents, smooth granite boulders in sapphire water"
+    }
+  },
+  "special_places": {
+    "wadi_degla": { "name": "Wadi Degla Protectorate", "governorate": "cairo", "region_file": "01_greater_cairo_nile_core.md", "nature_hero": "Living Eocene Limestone Canyon" },
+    "petrified_forest": { "name": "Maadi Petrified Forest", "governorate": "cairo", "region_file": "01_greater_cairo_nile_core.md", "nature_hero": "32-Million-Year-Old Agate Tree Trunks" },
+    "ras_el_hekma": { "name": "Ras El-Hekma & El Alamein", "governorate": "matrouh", "region_file": "02_alexandria_north_coast_delta.md", "nature_hero": "White Oolitic Headland & Turquoise Bays" },
+    "wadi_el_natrun": { "name": "Wadi El-Natrun", "governorate": "beheira", "region_file": "02_alexandria_north_coast_delta.md", "nature_hero": "Alkaline Natron Salt Lakes & Desert Monasteries" },
+    "lake_burullus": { "name": "Lake Burullus", "governorate": "kafr_el_sheikh", "region_file": "02_alexandria_north_coast_delta.md", "nature_hero": "Brackish Reed Lagoon & Bird Flyway" },
+    "lake_manzala": { "name": "Lake Manzala & Ashtum El-Gamil", "governorate": "port_said", "region_file": "02_alexandria_north_coast_delta.md", "nature_hero": "Largest Delta Lagoon & Migratory Bird Nursery" },
+    "lake_bardawil_zaranik": { "name": "Lake Bardawil & Zaranik", "governorate": "north_sinai", "region_file": "03_suez_canal_and_sinai.md", "nature_hero": "Hypersaline Barrier Lagoon & First Bird Entry Gate" },
+    "saint_catherine": { "name": "Saint Catherine & Mount Sinai", "governorate": "south_sinai", "region_file": "03_suez_canal_and_sinai.md", "nature_hero": "High-Altitude Rose-Granite Sky Island" },
+    "ras_mohammed": { "name": "Ras Mohammed & Nabq", "governorate": "south_sinai", "region_file": "03_suez_canal_and_sinai.md", "nature_hero": "Tectonic Coral Walls & Northernmost Mangroves" },
+    "dahab_nuweiba_taba": { "name": "Dahab, Nuweiba & Taba", "governorate": "south_sinai", "region_file": "03_suez_canal_and_sinai.md", "nature_hero": "Shoreline Reefs & Red-Granite Wadi Coast" },
+    "galala_zaafarana": { "name": "Galala Plateau & Zaafarana", "governorate": "red_sea", "region_file": "04_red_sea_and_eastern_desert.md", "nature_hero": "Cliff-Top Wind Corridor & Soaring Raptor Thermals" },
+    "wadi_el_gemal": { "name": "Wadi El-Gemal National Park", "governorate": "red_sea", "region_file": "04_red_sea_and_eastern_desert.md", "nature_hero": "Acacia Wadis, Dugongs & Sooty Falcons" },
+    "gebel_elba": { "name": "Gebel Elba National Park", "governorate": "red_sea", "region_file": "04_red_sea_and_eastern_desert.md", "nature_hero": "Egypt's Only Coastal Cloud-Mist Oasis" },
+    "siwa_oasis": { "name": "Siwa Oasis", "governorate": "matrouh", "region_file": "05_western_desert_and_oases.md", "nature_hero": "Kershef Salt-Earth Basin & Turquoise Salt Pools" },
+    "black_desert_bahariya": { "name": "Bahariya & Black Desert", "governorate": "giza", "region_file": "05_western_desert_and_oases.md", "nature_hero": "Black Volcanic Cones & Hot Oasis Springs" },
+    "white_desert_farafra": { "name": "Farafra & White Desert", "governorate": "new_valley", "region_file": "05_western_desert_and_oases.md", "nature_hero": "Wind-Carved Cretaceous Chalk Mushrooms" },
+    "dakhla_kharga": { "name": "Dakhla & Kharga Oases", "governorate": "new_valley", "region_file": "05_western_desert_and_oases.md", "nature_hero": "Rose-Sandstone Escarpments & Mudbrick Towns" },
+    "wadi_el_hitan_rayan": { "name": "Wadi El-Hitan & Wadi El-Rayan", "governorate": "fayoum", "region_file": "05_western_desert_and_oases.md", "nature_hero": "40-Million-Year-Old Whale Fossils & Desert Waterfalls" },
+    "abydos_dendera": { "name": "Abydos & Dendera", "governorate": "sohag", "region_file": "06_upper_egypt_and_nubia.md", "nature_hero": "Desert-Edge Sacred Limestone & Sandstone Precincts" },
+    "first_cataract_elephantine": { "name": "First Cataract & Elephantine Island", "governorate": "aswan", "region_file": "06_upper_egypt_and_nubia.md", "nature_hero": "Polished Granite Rapids & Nubian Courtyard Islands" },
+    "abu_simbel_lake_nasser": { "name": "Abu Simbel, Lake Nasser & Wadi Allaqi", "governorate": "aswan", "region_file": "06_upper_egypt_and_nubia.md", "nature_hero": "Saharan Inland Sea & Acacia Wadi Biosphere" }
+  }
+}
