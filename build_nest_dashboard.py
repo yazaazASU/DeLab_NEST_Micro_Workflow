@@ -1123,21 +1123,7 @@ function renderProjectCards() {{
           <div class="media-toggle-bar">
             ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Editorial Render</button>` : ''}}
             <button type="button" class="media-tbtn ${{p.has_editorial_render ? '' : 'active'}}" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.satellite_lock}}', this)">Satellite</button>
-          </div>
-        </div>
-        <div class="mini-map-wrap">
-          <div id="mini-map-${{p.rank}}" class="mini-map"></div>
-          <div class="map-legend-pill">
-            <span><b style="color:#FF614C">---</b> ${{p.area_feddans}} Feddan Boundary</span>
-            <span><b style="color:#3B6E52">■</b> Landscape Zones</span>
-            <span><b style="color:#302B2A">■</b> Distributed Pavilions</span>
-          </div>
-          <div class="map-meta-bar">
-            <span class="map-coord-pill"><b>${{p.footprint_type}}</b> • ${{p.area_m2.toLocaleString()}} m² • ${{p.lat.toFixed(4)}}, ${{p.lon.toFixed(4)}}</span>
-            <span style="display:inline-flex;gap:5px">
-              <button type="button" class="mini-btn" onclick="resetMiniMap(${{p.rank}})">Reset View</button>
-              <button type="button" class="jump-map-btn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
-            </span>
+            <button type="button" class="media-tbtn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
           </div>
         </div>
       </div>
