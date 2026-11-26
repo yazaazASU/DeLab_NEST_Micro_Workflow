@@ -115,9 +115,8 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .proj-card {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 18px; overflow: hidden; box-shadow: 0 10px 28px rgba(48,43,42,0.07); }}
 
 /* Top Split Visual Stage (Live 3D WebGL + Live Leaflet Satellite Map) */
-.card-visuals {{ display: grid; grid-template-columns: 1.2fr 1fr; border-bottom: 1px solid var(--nest-line); }}
-@media (max-width: 980px) {{ .card-visuals {{ grid-template-columns: 1fr; }} }}
-.render-wrap {{ position: relative; background: #F3EFEA; height: 420px; overflow: hidden; }}
+.card-visuals {{ display: grid; grid-template-columns: 1fr; border-bottom: 1px solid var(--nest-line); }}
+.render-wrap {{ position: relative; background: #F3EFEA; height: 480px; overflow: hidden; }}
 .webgl-stage {{ width: 100%; height: 100%; cursor: grab; display: block; }}
 .webgl-stage:active {{ cursor: grabbing; }}
 .render-wrap img.static-media {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 3; }}
