@@ -264,15 +264,25 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
     if nat_to_bldg or bldg_to_nat:
         two_way = f"\n- Visible Two-Way Nature Integration: (Nature->Building) {nat_to_bldg} | (Building->Nature) {bldg_to_nat}"
 
+    def _clean_prompt_text(s: str) -> str:
+        s = re.sub(r"\bwind chimneys?\b", "passive roof vents", s, flags=re.I)
+        s = re.sub(r"\bmuseum\b", "experience hall", s, flags=re.I)
+        s = re.sub(r"\bpavilion(s)?\b", r"structure\1", s, flags=re.I)
+        return s.strip()
+
     exp = project.get("experience_arc") or {}
     vols = (project.get("massing_rationale") or {}).get("volumes") or []
     constellation_str = "; ".join(
-        f"{v.get('name', 'Building')} ({v.get('role', 'Component')}, {v.get('area_m2', '')}): {v.get('shape_reason') or v.get('use', '')}"
+        _clean_prompt_text(f"{v.get('name', 'Building')} ({v.get('role', 'Component')}): {v.get('shape_reason') or v.get('use', '')}")
         for v in vols[:5]
     )
+    hero_vol = _clean_prompt_text(
+        f"{vols[0].get('name', title)}: {vols[0].get('shape_reason') or vols[0].get('use', '')}"
+        if vols else concept
+    )
     journey_items = exp.get("journey") or []
-    journey_str = " | ".join(
-        f"{m.get('moment', '')}: {m.get('detail', '')}" for m in journey_items[:5] if isinstance(m, dict)
+    hero_moments_str = " | ".join(
+        _clean_prompt_text(f"{m.get('moment', '')}: {m.get('detail', '')}") for m in journey_items[:2] if isinstance(m, dict)
     )
     area_ha = project.get("area_m2", 250000) / 10000.0
     feddans = project.get("area_feddans", round(area_ha * 2.3804, 1))
@@ -280,22 +290,23 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
 
     aerial_prompt = f"""Photorealistic editorial aerial architectural photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, crisp deep focus across the entire frame — strictly NO tilt-shift or miniature toy-model blur, zero text/signage, zero logos, zero watermarks.
 
-VISUAL REFERENCE & FULL SITE SCALE ({feddans} feddans / {area_ha:.1f} ha — ~{side_m} m x {side_m} m):
-Use the attached `{sat_filename}` as the strict geographic and SCALE foundation (Top = North). The project spans the ENTIRE ~{side_m} m x {side_m} m dashed polygon—NOT a single small compound.
-- True Relative Scale: Keep the surrounding 2-story rural brick houses, roads, and agricultural plots at their exact small real-world scale in `{sat_filename}`; distribute the project's buildings and outdoor zones across the full {feddans}-feddan site, separated by 150–300 m of restored native landscape, trails, and plazas.
+VISUAL REFERENCE & STRICT BOUNDARY LOCK ({feddans} feddans / {area_ha:.1f} ha — ~{side_m} m x {side_m} m):
+Use the attached `{sat_filename}` as the strict geographic, boundary, and SCALE foundation (Top = North).
+- Strict Polygon Containment: Place ALL new project buildings and landscaped zones strictly INSIDE the red dashed polygon in `{sat_filename}`. Leave every existing rural brick house, road, canal, and agricultural field OUTSIDE the red dashed polygon completely untouched and at its exact real-world scale.
+- True Relative Scale: Across the ~{side_m} m x {side_m} m interior of the red dashed polygon, distribute the buildings as distinct, separated architectural zones connected by 150–300 m of restored native landscape, trails, and plazas—never oversized relative to the surrounding 2-story houses.
 - Region & Topography ({region_cfg['region']}): {region_cfg['topography']}.
 - Hydrology: {hydro}
 - Surrounding Context: {fabric}
 - Native Flora: {region_cfg['flora']}
 - FORBIDDEN FEATURES: {region_cfg['forbidden']}{tower_guard}
 
-CREATIVE DIRECTION — {title} ({project.get('built_gfa', 'N/A')} distributed across {feddans} feddans):
-- Core Architectural Idea: {exp.get('core_idea', idiom)}
-- Unified Tectonic Language (any fitting typology—campus, bridge, terraced complex, towers, or halls): {constellation_str or concept}
-- Atmosphere & Nature as Hero: {exp.get('atmosphere', '')} {concept}{two_way}
+CREATIVE DIRECTION — {title}:
+- Core Architectural Idea: {_clean_prompt_text(exp.get('core_idea', idiom))}
+- Unified Tectonic Language (any fitting typology—campus, bridge, terraced complex, towers, or halls): {constellation_str or _clean_prompt_text(concept)}
+- Atmosphere & Nature as Hero: {_clean_prompt_text(exp.get('atmosphere', ''))} {_clean_prompt_text(concept)}{two_way}
 
 FRAMING & LIGHTING:
-High-altitude Whole-Site Aerial (~40–45° pitch) capturing the entire {feddans}-feddan boundary and its surrounding context in one legible frame, with lighting/time-of-day matched to the Experience & Atmosphere above."""
+High-altitude Whole-Site Aerial (~40–45° pitch) showing the entire red dashed boundary and untouched surrounding context in one legible frame, with lighting/time-of-day matched to the Atmosphere above."""
 
     hero_prompt = f"""Photorealistic editorial architectural visualization (ArchDaily / Dezeen / MIR / Rendair craft), 16:9 widescreen, crisp deep focus — strictly NO tilt-shift blur, zero text/signage, zero logos, zero watermarks.
 
@@ -305,13 +316,13 @@ Anchored in the flat terrain, native flora, and surrounding context of `{sat_fil
 - Native Flora: {region_cfg['flora']}
 
 HERO EXPERIENCE SHOT — {title}:
-- Core Architectural Idea: {exp.get('core_idea', idiom)}
-- Architectural Forms & Tectonics: {constellation_str or concept}
-- Experience & Atmosphere: {exp.get('atmosphere', 'Natural daylight tuned to the site experience.')}
-- Guest Journey Moments to Feel Here: {journey_str or concept}
+- Core Architectural Idea: {_clean_prompt_text(exp.get('core_idea', idiom))}
+- Primary Space in Focus: {hero_vol}
+- Experience & Atmosphere: {_clean_prompt_text(exp.get('atmosphere', 'Natural daylight tuned to the site experience.'))}
+- Key Sensory Moments Here: {hero_moments_str or _clean_prompt_text(concept)}
 
 FRAMING & LIGHTING:
-Close human-scale / low-oblique threshold view (~15–25° pitch) focusing on the primary architectural threshold and public experience—where structural cantilevers/shells/openings, light, mist or water, materials, and candid human figures are felt up close, with time-of-day lighting matched to the Atmosphere above."""
+Close human-scale / low-oblique threshold view (~15–25° pitch) focused strictly on the primary entrance and hero space above—showing structural cantilevers/shells/openings, light, mist or water, materials, and candid human figures up close, with time-of-day lighting matched to the Atmosphere above."""
 
     return aerial_prompt, hero_prompt
 
