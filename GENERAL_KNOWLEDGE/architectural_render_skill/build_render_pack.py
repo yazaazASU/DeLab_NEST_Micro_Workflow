@@ -275,30 +275,25 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
         f"{m.get('moment', '')}: {m.get('detail', '')}" for m in journey_items[:5] if isinstance(m, dict)
     )
 
-    return f"""Photorealistic editorial aerial architectural photograph (ArchDaily / Dezeen / MIR / Luxigon quality), 16:9 widescreen, medium-format drone camera, 35mm rectilinear lens, crisp deep depth-of-field (f/11) across the entire frame — strictly NO tilt-shift or miniature toy-model blur.
+    return f"""Photorealistic editorial architectural visualization (ArchDaily / Dezeen / MIR / D5 / Rendair craft), 16:9 widescreen, crisp deep focus across the entire frame — strictly NO tilt-shift or miniature toy-model blur, zero text/signage, zero logos, zero watermarks.
 
-VISUAL REFERENCE LOCK:
-Use the attached `{sat_filename}` as the strict geographic and site-organization foundation. Match its exact flat terrain, real water/river/canal edge position, roads, and neighboring urban/agricultural fabric (Top of satellite image = North).
-
-SITE REALITY LOCK ({region_cfg['region']}):
-- Topography: {region_cfg['topography']}.
+VISUAL REFERENCE & SITE LIMITS:
+Use the attached `{sat_filename}` as the strict geographic ground truth (Top = North). Match its exact terrain relief, real water/canal edges, roads, and neighboring context.
+- Region & Topography ({region_cfg['region']}): {region_cfg['topography']}.
 - Hydrology: {hydro}
-- Cardinal Surrounding Context: {fabric}
-- Regional Flora: {region_cfg['flora']}
-- FORBIDDEN LANDSCAPE FEATURES: {region_cfg['forbidden']}{tower_guard}
+- Surrounding Context: {fabric}
+- Native Flora: {region_cfg['flora']}
+- FORBIDDEN FEATURES: {region_cfg['forbidden']}{tower_guard}
 
-EXPERIENCE-LED ARCHITECTURE & DISTRIBUTED CONSTELLATION (DE-METAPHORIZED):
-- Project: {title} (Total Built GFA: {project.get('built_gfa', 'N/A')} across a distributed multi-pavilion constellation | Site Area: {project.get('area_m2', 0)/10000:.2f} ha).
-- Core Architectural Idea & Atmosphere: {exp.get('core_idea', idiom)} {exp.get('atmosphere', '')}
-- Tectonic Idiom: {idiom}
-- Distributed Pavilions: {constellation_str or concept}
-- Visual Guest Journey Moments: {journey_str or concept}
-- Nature Hero & Two-Way Exchange (translate any poetic terms strictly into realistic architectural masonry, stepped earth-bermed plinths, shaded courts, and curated dining/retail/eco-stay pavilions — NEVER natural rocky hills or turquoise ponds): {concept}{two_way}
-- Materials: Authentic local stacked Egyptian limestone, board-formed desert-aggregate concrete, rammed earth, oxidized bronze shading louvers, matte dark photovoltaic surfaces where integrated, recessed low-iron glazing, dry pale stone paving.
-- Entourage: Sparse tiny candid human scale figures and minimal muted local vehicles on real access roads.
+CREATIVE DIRECTION — {title} ({project.get('built_gfa', 'N/A')} across a unified multi-pavilion constellation on {project.get('area_m2', 0)/10000:.2f} ha):
+- Core Architectural Idea: {exp.get('core_idea', idiom)}
+- Unified Tectonic Language: Express one bold, unmistakable architectural world across all pavilions—using daring sectional gestures (cantilevers, sculpted shells, stepped terraces, or shaded courts) rather than generic boxes: {constellation_str or concept}
+- Experience & Atmosphere: {exp.get('atmosphere', 'Natural daylight tuned to the site experience.')}
+- Key Guest Journey Moments: {journey_str or concept}
+- Nature as Hero: {concept}{two_way}
 
-CAMERA & LIGHTING:
-Classic Hero Aerial (~40–45° pitch), Golden Hour late-afternoon sunlight casting long crisp shadows with subtle natural dusty horizon haze. Zero HDR oversaturation, zero gibberish text/signage, zero logos, zero floating elements."""
+FRAMING & LIGHTING DIRECTION:
+Choose a low-oblique threshold aerial (~25–35° pitch) where the arrival sequence, human scale figures, structural soffits, and landscape thresholds are clearly felt, and match the time of day, sky, and lighting (golden hour, blue-hour twilight glow, or crisp sun) directly to the Experience & Atmosphere above."""
 
 
 def main():
