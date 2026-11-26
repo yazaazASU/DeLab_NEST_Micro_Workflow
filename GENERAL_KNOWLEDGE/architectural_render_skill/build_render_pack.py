@@ -118,13 +118,13 @@ def render_satellite_lock(project: dict, out_path: Path, out_w: int = 1280, out_
     # Choose zoom level so the site + ~500 m surrounding context fits comfortably in 1280x720
     lat_span = max(max(all_lats) - min(all_lats), 0.004)
     lon_span = max(max(all_lons) - min(all_lons), 0.006)
-    z = 16
-    for cand_z in (16, 15, 14):
+    z = 15
+    for cand_z in (15, 14):
         x0, y0 = latlon_to_tile_xy(max(all_lats), min(all_lons), cand_z)
         x1, y1 = latlon_to_tile_xy(min(all_lats), max(all_lons), cand_z)
         px_w = abs(x1 - x0) * 256.0
         px_h = abs(y1 - y0) * 256.0
-        if px_w <= out_w * 0.52 and px_h <= out_h * 0.56:
+        if px_w <= out_w * 0.44 and px_h <= out_h * 0.48:
             z = cand_z
             break
 
@@ -267,33 +267,53 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
     exp = project.get("experience_arc") or {}
     vols = (project.get("massing_rationale") or {}).get("volumes") or []
     constellation_str = "; ".join(
-        f"{v.get('name', 'Pavilion')} ({v.get('role', 'Pavilion')}, {v.get('area_m2', '')}): {v.get('shape_reason') or v.get('use', '')}"
+        f"{v.get('name', 'Building')} ({v.get('role', 'Component')}, {v.get('area_m2', '')}): {v.get('shape_reason') or v.get('use', '')}"
         for v in vols[:5]
     )
     journey_items = exp.get("journey") or []
     journey_str = " | ".join(
         f"{m.get('moment', '')}: {m.get('detail', '')}" for m in journey_items[:5] if isinstance(m, dict)
     )
+    area_ha = project.get("area_m2", 250000) / 10000.0
+    feddans = project.get("area_feddans", round(area_ha * 2.3804, 1))
+    side_m = int(round(math.sqrt(max(10000.0, float(project.get("area_m2", 250000))))))
 
-    return f"""Photorealistic editorial architectural visualization (ArchDaily / Dezeen / MIR / D5 / Rendair craft), 16:9 widescreen, crisp deep focus across the entire frame — strictly NO tilt-shift or miniature toy-model blur, zero text/signage, zero logos, zero watermarks.
+    aerial_prompt = f"""Photorealistic editorial aerial architectural photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, crisp deep focus across the entire frame — strictly NO tilt-shift or miniature toy-model blur, zero text/signage, zero logos, zero watermarks.
 
-VISUAL REFERENCE & SITE LIMITS:
-Use the attached `{sat_filename}` as the strict geographic ground truth (Top = North). Match its exact terrain relief, real water/canal edges, roads, and neighboring context.
+VISUAL REFERENCE & FULL SITE SCALE ({feddans} feddans / {area_ha:.1f} ha — ~{side_m} m x {side_m} m):
+Use the attached `{sat_filename}` as the strict geographic and SCALE foundation (Top = North). The project spans the ENTIRE ~{side_m} m x {side_m} m dashed polygon—NOT a single small compound.
+- True Relative Scale: Keep the surrounding 2-story rural brick houses, roads, and agricultural plots at their exact small real-world scale in `{sat_filename}`; distribute the project's buildings and outdoor zones across the full {feddans}-feddan site, separated by 150–300 m of restored native landscape, trails, and plazas.
 - Region & Topography ({region_cfg['region']}): {region_cfg['topography']}.
 - Hydrology: {hydro}
 - Surrounding Context: {fabric}
 - Native Flora: {region_cfg['flora']}
 - FORBIDDEN FEATURES: {region_cfg['forbidden']}{tower_guard}
 
-CREATIVE DIRECTION — {title} ({project.get('built_gfa', 'N/A')} across a unified multi-pavilion constellation on {project.get('area_m2', 0)/10000:.2f} ha):
+CREATIVE DIRECTION — {title} ({project.get('built_gfa', 'N/A')} distributed across {feddans} feddans):
 - Core Architectural Idea: {exp.get('core_idea', idiom)}
-- Unified Tectonic Language: Express one bold, unmistakable architectural world across all pavilions—using daring sectional gestures (cantilevers, sculpted shells, stepped terraces, or shaded courts) rather than generic boxes: {constellation_str or concept}
-- Experience & Atmosphere: {exp.get('atmosphere', 'Natural daylight tuned to the site experience.')}
-- Key Guest Journey Moments: {journey_str or concept}
-- Nature as Hero: {concept}{two_way}
+- Unified Tectonic Language (any fitting typology—campus, bridge, terraced complex, towers, or halls): {constellation_str or concept}
+- Atmosphere & Nature as Hero: {exp.get('atmosphere', '')} {concept}{two_way}
 
-FRAMING & LIGHTING DIRECTION:
-Choose a low-oblique threshold aerial (~25–35° pitch) where the arrival sequence, human scale figures, structural soffits, and landscape thresholds are clearly felt, and match the time of day, sky, and lighting (golden hour, blue-hour twilight glow, or crisp sun) directly to the Experience & Atmosphere above."""
+FRAMING & LIGHTING:
+High-altitude Whole-Site Aerial (~40–45° pitch) capturing the entire {feddans}-feddan boundary and its surrounding context in one legible frame, with lighting/time-of-day matched to the Experience & Atmosphere above."""
+
+    hero_prompt = f"""Photorealistic editorial architectural visualization (ArchDaily / Dezeen / MIR / Rendair craft), 16:9 widescreen, crisp deep focus — strictly NO tilt-shift blur, zero text/signage, zero logos, zero watermarks.
+
+SITE REALITY & CONTEXT ({region_cfg['region']}):
+Anchored in the flat terrain, native flora, and surrounding context of `{sat_filename}` (no mountains, no artificial turquoise resort lagoons, no European lawns).
+- Region & Topography: {region_cfg['topography']}.
+- Native Flora: {region_cfg['flora']}
+
+HERO EXPERIENCE SHOT — {title}:
+- Core Architectural Idea: {exp.get('core_idea', idiom)}
+- Architectural Forms & Tectonics: {constellation_str or concept}
+- Experience & Atmosphere: {exp.get('atmosphere', 'Natural daylight tuned to the site experience.')}
+- Guest Journey Moments to Feel Here: {journey_str or concept}
+
+FRAMING & LIGHTING:
+Close human-scale / low-oblique threshold view (~15–25° pitch) focusing on the primary architectural threshold and public experience—where structural cantilevers/shells/openings, light, mist or water, materials, and candid human figures are felt up close, with time-of-day lighting matched to the Atmosphere above."""
+
+    return aerial_prompt, hero_prompt
 
 
 def main():
@@ -336,29 +356,41 @@ def main():
 
         region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
         hydro, fabric = summarize_cardinal_context(p, wat_pts, bld_pts)
-        prompt_text = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
+        aerial_prompt, hero_prompt = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
 
         site_md = f"""# Site #{rank} Render Brief — {p['title']}
 
-- **Target Output File:** `../site_{rank}.jpg` (`16:9` widescreen)
-- **Satellite Visual Lock:** `./{sat_name}` *(pass this image as visual context reference)*
+- **Target 1 (Whole-Site Scale Aerial):** `../site_{rank}.jpg` (`16:9` widescreen · attach `./{sat_name}`)
+- **Target 2 (Close Hero Experience):** `../site_{rank}_hero.jpg` (`16:9` widescreen · attach `./{sat_name}` for context)
 - **Coordinates:** `{p['lat']:.5f}, {p['lon']:.5f}` · **Boundary:** `{p.get('footprint_type', 'Contiguous')}` ({p.get('area_m2', 0)/10000:.2f} ha)
 
-## Prompt (Copy-Paste Ready)
+## 1. Whole-Site Scale Aerial Prompt (`../site_{rank}.jpg`)
 
 ```text
-{prompt_text}
+{aerial_prompt}
+```
+
+## 2. Hero Experience Shot Prompt (`../site_{rank}_hero.jpg`)
+
+```text
+{hero_prompt}
 ```
 """
         (pack_dir / f"site_{rank}_prompt.md").write_text(site_md, encoding="utf-8")
 
         consolidated_sections.extend([
             "---",
-            f"## IMAGE {rank} — Save as: `renders/site_{rank}.jpg` (Attach `./{sat_name}`)",
+            f"## IMAGE {rank}A (Whole-Site Scale) — Save as: `renders/site_{rank}.jpg` (Attach `./{sat_name}`)",
             f"**Project:** {p['title']}",
             "",
             "```text",
-            prompt_text,
+            aerial_prompt,
+            "```",
+            "",
+            f"## IMAGE {rank}B (Hero Experience) — Save as: `renders/site_{rank}_hero.jpg` (Attach `./{sat_name}`)",
+            "",
+            "```text",
+            hero_prompt,
             "```",
             "",
         ])

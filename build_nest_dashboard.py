@@ -74,7 +74,10 @@ def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str
         p.setdefault("render_prompt", f"renders/render_pack/site_{rk}_prompt.md")
         p.setdefault("render_prompt_path", f"renders/render_pack/site_{rk}_prompt.md")
         ext_render = run_dir / "renders" / f"site_{rk}.jpg"
+        hero_render = run_dir / "renders" / f"site_{rk}_hero.jpg"
         p["has_editorial_render"] = ext_render.exists()
+        p["has_hero_render"] = hero_render.exists()
+        p["hero_render"] = f"renders/site_{rk}_hero.jpg" if hero_render.exists() else ""
         if p["has_editorial_render"]:
             p["render"] = f"renders/site_{rk}.jpg"
 
@@ -1035,17 +1038,17 @@ function renderProjectCards() {{
       const txt = `${{v.role || ''}} ${{v.name || ''}} ${{v.use || ''}}`.toLowerCase();
       if (txt.includes('stay') || txt.includes('lodge') || txt.includes('accom') || txt.includes('cabin') || txt.includes('suite')) return 'Eco-Accommodation';
       if (txt.includes('din') || txt.includes('food') || txt.includes('cafe') || txt.includes('kitchen') || txt.includes('retail') || txt.includes('market') || txt.includes('shop')) return 'Dining & Retail';
-      return 'Hero Experience Pavilions';
+      return 'Core Experience Architecture';
     }};
-    const roleOrder = ['Hero Experience Pavilions', 'Dining & Retail', 'Eco-Accommodation'];
+    const roleOrder = ['Core Experience Architecture', 'Dining & Retail', 'Eco-Accommodation'];
     const groupedConstellation = roleOrder.map(role => {{
       const items = vols.map((v, vi) => ({{ v, vi }})).filter(({{ v }}) => classifyRole(v) === role);
       if (!items.length) return '';
       const cards = items.map(({{ v, vi }}) => {{
         const gfaVal = parseNumber(v.area_m2, 0);
         const pct = gfaVal > 0 ? Math.max(Math.round((gfaVal / maxGfa) * 100), 18) : 32;
-        return `<div class="mass-bar-item" onclick="focus3Way(${{p.rank}}, 'footprints', ${{vi}}, this)" title="Click to highlight & zoom on satellite map">` +
-          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Pavilion'}} · ${{v.hours || 'Day-to-Dusk'}}</span></div>` +
+        return `<div class="mass-bar-item" onclick="focus3Way(${{p.rank}}, 'footprints', ${{vi}}, this)" title="Project Component">` +
+          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Component'}} · ${{v.hours || 'Day-to-Dusk'}}</span></div>` +
           `<div class="mb-track"><div class="mb-fill" style="width:${{pct}}%"></div></div>` +
           `<div class="mb-desc">${{v.use || v.shape_reason || ''}}</div></div>`;
       }}).join('');
@@ -1120,7 +1123,8 @@ function renderProjectCards() {{
           <img id="card-img-${{p.rank}}" class="static-media" style="display:block" src="${{p.has_editorial_render ? p.render : p.satellite_lock}}" alt="Site #${{p.rank}}" />
           <div class="rank-chip">PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</div>
           <div class="media-toggle-bar">
-            ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Editorial Render</button>` : ''}}
+            ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Whole-Site Aerial</button>` : ''}}
+            ${{p.has_hero_render ? `<button type="button" class="media-tbtn" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.hero_render}}', this)">Hero Experience</button>` : ''}}
             <button type="button" class="media-tbtn ${{p.has_editorial_render ? '' : 'active'}}" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.satellite_lock}}', this)">Satellite</button>
             <button type="button" class="media-tbtn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
           </div>
@@ -1134,7 +1138,7 @@ function renderProjectCards() {{
           <div class="badge-row">
             <span class="pill tier">${{visitMode}}</span>
             <span class="pill ok">Nature Hero: ${{natureHero}}</span>
-            <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Pavilions</span>
+            <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Components</span>
             <span class="pill" style="opacity:0.75">${{p.built_gfa}} · ${{p.idiom}}</span>
             ${{flagPills}}
           </div>
@@ -1173,7 +1177,7 @@ function renderProjectCards() {{
 
         <!-- STEP 2: DISTRIBUTED CONSTELLATION -->
         <div class="story-pane">
-          <div class="diag-lbl"><span>2 · Distributed Project Constellation (${{p.built_gfa}} across ${{vols.length || 1}} Pavilions)</span><span>Click any pavilion to locate on satellite map</span></div>
+          <div class="diag-lbl"><span>2 · Project Components &amp; Spaces (${{p.built_gfa}} across ${{vols.length || 1}} Components)</span><span>Any Architectural Typology</span></div>
           <div class="mass-bar-list">${{groupedConstellation}}</div>
         </div>
 

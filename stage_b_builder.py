@@ -430,7 +430,7 @@ def main():
             "### Distributed Constellation",
         ]
         for v in (p.get("massing_rationale") or {}).get("volumes") or []:
-            lines.append(f"- **{v.get('name')}** ({v.get('role', 'Pavilion')}) — `{v.get('area_m2')}` · {v.get('use', '')}")
+            lines.append(f"- **{v.get('name')}** ({v.get('role', 'Building')}) — `{v.get('area_m2')}` · {v.get('use', '')}")
         lines += [
             "",
             "### Two-Way Nature Integration & Landscape",

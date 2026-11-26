@@ -77,5 +77,5 @@ NEST does **not** require 3D Rhino massing or clay-lock renders. Instead:
 ## 5. Tectonic & Atmospheric Ambition (Light-Touch Render Direction)
 
 - **Bold Sectional Gestures:** Favour cantilevers, sculpted shells, stepped green-roof strata, or glowing twilight enclosures over flat-roofed generic compounds.
-- **Unified Tectonic World:** Every pavilion in a constellation (hero space, dining, retail, stay) must share one coherent architectural language.
+- **Unified Tectonic World:** Every building and space in the project (hero space, dining, retail, stay) must share one coherent architectural language.
 - **Experience-Matched Lighting & Framing:** Let `experience_arc.atmosphere` drive the time of day (e.g., twilight lantern glow, misty dawn, or crisp sun) and use low-oblique `~25–35°` threshold aerials so human scale and spatial drama are felt.
