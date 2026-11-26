@@ -312,7 +312,7 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
 
     # Masks for buildings & roads
     bldg_feats = filter_features(features_xy, "source_layer=Egypt — Buildings OR source_layer=Built surface OR source_layer=Building footprints")
-    road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads OR source_layer=Road network (OSM) OR source_layer=Roads")
+    road_feats = filter_features(features_xy, "source_layer=الطرق OR source_layer=Egypt — Roads OR source_layer=gis_osm_roads OR source_layer=Road network (OSM) OR source_layer=L163_Road_network_OSM OR source_layer=Roads")
     bldg_pts = _sample_points_from_geoms([f["geometry"] for f in bldg_feats], step_m=40.0)
     road_pts = _sample_points_from_geoms([f["geometry"] for f in road_feats], step_m=40.0)
     d_bldg = min_dist_to_points(active_xy, bldg_pts)
