@@ -1,0 +1,9 @@
+<svg class="gloss-svg" viewBox="0 0 260 76" aria-hidden="true">
+          <line x1="16" y1="62" x2="244" y2="62" stroke="#d5c9c5" stroke-width="1.5"/>
+          <path d="M18,60 Q58,60 74,16 Q90,60 112,60 L148,60 Q170,60 186,16 Q202,60 242,60" fill="none" stroke="#ff614c" stroke-width="2.5"/>
+          <circle cx="130" cy="56" r="5" fill="#302b2a"/>
+          <text x="130" y="45" text-anchor="middle" font-size="9" fill="#302b2a" font-weight="700">Monument</text>
+          <text x="74" y="12" text-anchor="middle" font-size="9" fill="#a3473a" font-weight="700">Peak Ring</text>
+          <text x="186" y="12" text-anchor="middle" font-size="9" fill="#a3473a" font-weight="700">Peak Ring</text>
+          <text x="130" y="72" text-anchor="middle" font-size="8.5" fill="#625753">Inner buffer (too close) · Ring (ideal sightline)</text>
+        </svg>

@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large GIS inputs & generated run outputs
+GIS_Data/
+Outputs/
+outputs*/
+*.3dm
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
