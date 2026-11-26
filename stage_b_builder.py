@@ -327,6 +327,13 @@ def build_project_from_seed(seed: dict, stage_a: dict) -> dict:
                 {"moment": "Curated Dining & Eco-Stay", "detail": "Experience-curated local tasting kitchen, artisan outpost, and dusk-to-dawn eco-lodges."},
             ],
         },
+        "visual_direction": seed.get("visual_direction") or {
+            "architectural_language": seed["thesis_summary"].get("gesture_line", ""),
+            "aerial_composition": f"Dispersed buildings and restored landscape trails filling the {seed.get('target_feddans', 58):.0f}-feddan site.",
+            "hero_threshold_scene": seed["thesis_summary"].get("hook", ""),
+            "lighting_mood": seed.get("experience_arc", {}).get("atmosphere", "Warm late-afternoon directional light with crisp shadow relief."),
+            "materials_palette": "Regionally authentic stone, desert-aggregate concrete, weathered timber, and native arid planting.",
+        },
         "activities": seed.get("activities", []),
         "spaces": seed.get("spaces", []),
         "landscape_summary": seed["landscape_summary"],

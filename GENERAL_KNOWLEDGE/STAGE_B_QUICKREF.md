@@ -62,6 +62,13 @@
     "stay_overnight": "Eco-accommodation or dusk-to-dawn experience (or day-to-dusk note).",
     "atmosphere": "Materials, light, shadow, acoustics, breeze, and visual character."
   },
+  "visual_direction": {
+    "architectural_language": "Bold tectonic character across all structures (cantilevers, vaults, shells, terraced strata, or shaded courts).",
+    "aerial_composition": "How the dispersed buildings and landscape trails sit inside the 50-70 feddan polygon.",
+    "hero_threshold_scene": "The single primary entrance/hero space and human activity for the close 18-deg shot.",
+    "lighting_mood": "Specific time of day, sky, shadow contrast, and interior glow (e.g., deep blue twilight with warm lantern glow).",
+    "materials_palette": "Authentic regional materials and tactile textures (zero m2 or generic buzzwords)."
+  },
   "activities": ["Activity 1", "Activity 2", "Activity 3", "Activity 4"],
   "spaces": [
     {

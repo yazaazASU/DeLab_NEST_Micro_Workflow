@@ -271,15 +271,32 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
         return s.strip()
 
     exp = project.get("experience_arc") or {}
+    vd = project.get("visual_direction") or {}
     vols = (project.get("massing_rationale") or {}).get("volumes") or []
-    constellation_str = "; ".join(
-        _clean_prompt_text(f"{v.get('name', 'Building')} ({v.get('role', 'Component')}): {v.get('shape_reason') or v.get('use', '')}")
-        for v in vols[:5]
+
+    arch_lang = _clean_prompt_text(
+        vd.get("architectural_language")
+        or exp.get("core_idea")
+        or "; ".join(f"{v.get('name', 'Building')}: {v.get('shape_reason') or v.get('use', '')}" for v in vols[:4])
     )
-    hero_vol = _clean_prompt_text(
-        f"{vols[0].get('name', title)}: {vols[0].get('shape_reason') or vols[0].get('use', '')}"
-        if vols else concept
+    aerial_comp = _clean_prompt_text(
+        vd.get("aerial_composition")
+        or "; ".join(f"{v.get('name', 'Building')} ({v.get('role', 'Component')})" for v in vols[:4])
     )
+    hero_scene = _clean_prompt_text(
+        vd.get("hero_threshold_scene")
+        or (f"{vols[0].get('name', title)}: {vols[0].get('shape_reason') or vols[0].get('use', '')}" if vols else concept)
+    )
+    lighting_mood = _clean_prompt_text(
+        vd.get("lighting_mood")
+        or exp.get("atmosphere")
+        or "Directional late-afternoon coastal light with crisp architectural shadow relief and subtle atmospheric haze."
+    )
+    materials_pal = _clean_prompt_text(
+        vd.get("materials_palette")
+        or "Regionally authentic stone, desert-aggregate concrete, weathered timber, and native arid planting."
+    )
+
     journey_items = exp.get("journey") or []
     hero_moments_str = " | ".join(
         _clean_prompt_text(f"{m.get('moment', '')}: {m.get('detail', '')}") for m in journey_items[:2] if isinstance(m, dict)
@@ -288,41 +305,37 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
     feddans = project.get("area_feddans", round(area_ha * 2.3804, 1))
     side_m = int(round(math.sqrt(max(10000.0, float(project.get("area_m2", 250000))))))
 
-    aerial_prompt = f"""Photorealistic editorial aerial architectural photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, crisp deep focus across the entire frame — strictly NO tilt-shift or miniature toy-model blur, zero text/signage, zero logos, zero watermarks.
+    aerial_prompt = f"""1. OPTICAL & COMPOSITION (WHOLE-SITE SCALE AERIAL):
+Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 craft), 16:9 widescreen, 35mm rectilinear lens, ~42° oblique pitch, deep f/11 focus across the entire frame. Frame the ENTIRE {feddans}-feddan (~{side_m} m x {side_m} m) red dashed polygon of `{sat_filename}` (Top = North) with generous surrounding Egyptian context.
 
-VISUAL REFERENCE & STRICT BOUNDARY LOCK ({feddans} feddans / {area_ha:.1f} ha — ~{side_m} m x {side_m} m):
-Use the attached `{sat_filename}` as the strict geographic, boundary, and SCALE foundation (Top = North).
-- Strict Polygon Containment: Place ALL new project buildings and landscaped zones strictly INSIDE the red dashed polygon in `{sat_filename}`. Leave every existing rural brick house, road, canal, and agricultural field OUTSIDE the red dashed polygon completely untouched and at its exact real-world scale.
-- True Relative Scale: Across the ~{side_m} m x {side_m} m interior of the red dashed polygon, distribute the buildings as distinct, separated architectural zones connected by 150–300 m of restored native landscape, trails, and plazas—never oversized relative to the surrounding 2-story houses.
-- Region & Topography ({region_cfg['region']}): {region_cfg['topography']}.
-- Hydrology: {hydro}
-- Surrounding Context: {fabric}
+2. LIGHT, SHADOW & ATMOSPHERE:
+{lighting_mood} — natural atmospheric depth toward the horizon, crisp shadow reveals beneath roof overhangs and cantilevers.
+
+3. TECTONIC & MATERIAL CRAFT ({title}):
+- Architectural Language: {arch_lang}
+- Site-Wide Dispersal: {aerial_comp} — buildings are widely separated across the full ~{side_m} m x {side_m} m interior by 150–300 m of restored native landscape, shaded trails, and public plazas.
+- Materials & Scale: {materials_pal}; keep all buildings realistically scaled against the surrounding 2-story rural brick houses and agricultural plots.
+
+4. GIS SITE REALITY & NEGATIVE GUARDRAILS:
+- Strict Polygon Containment: Place ALL new architecture and landscaping strictly INSIDE the red dashed polygon of `{sat_filename}`; leave every rural brick house, road, canal, and field OUTSIDE the polygon untouched.
+- Region ({region_cfg['region']}): {region_cfg['topography']}. {hydro} {fabric}
 - Native Flora: {region_cfg['flora']}
-- FORBIDDEN FEATURES: {region_cfg['forbidden']}{tower_guard}
+- Forbidden: {region_cfg['forbidden']}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
 
-CREATIVE DIRECTION — {title}:
-- Core Architectural Idea: {_clean_prompt_text(exp.get('core_idea', idiom))}
-- Unified Tectonic Language (any fitting typology—campus, bridge, terraced complex, towers, or halls): {constellation_str or _clean_prompt_text(concept)}
-- Atmosphere & Nature as Hero: {_clean_prompt_text(exp.get('atmosphere', ''))} {_clean_prompt_text(concept)}{two_way}
+    hero_prompt = f"""1. OPTICAL & COMPOSITION (CLOSE HERO EXPERIENCE):
+Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, 24mm rectilinear architectural lens, ~18° low-oblique human-threshold view with clear foreground (path/steps/planting), midground (hero threshold & soffits), and flat distant horizon.
 
-FRAMING & LIGHTING:
-High-altitude Whole-Site Aerial (~40–45° pitch) showing the entire red dashed boundary and untouched surrounding context in one legible frame, with lighting/time-of-day matched to the Atmosphere above."""
+2. LIGHT, SHADOW & ATMOSPHERE:
+{lighting_mood} — rich interplay of directional light, deep shadow reveals, warm interior-to-exterior glow, and sensory mist or water reflections where warranted.
 
-    hero_prompt = f"""Photorealistic editorial architectural visualization (ArchDaily / Dezeen / MIR / Rendair craft), 16:9 widescreen, crisp deep focus — strictly NO tilt-shift blur, zero text/signage, zero logos, zero watermarks.
+3. TECTONIC & MATERIAL TACTILITY ({title}):
+- Hero Space in Focus: {hero_scene}
+- Architectural Language & Materials: {arch_lang}. {materials_pal}, crisp structural joints, weathered textures, and candid human figures walking through the space for true scale.
+- Sensory Moments Felt Here: {hero_moments_str or _clean_prompt_text(concept)}
 
-SITE REALITY & CONTEXT ({region_cfg['region']}):
-Anchored in the flat terrain, native flora, and surrounding context of `{sat_filename}` (no mountains, no artificial turquoise resort lagoons, no European lawns).
-- Region & Topography: {region_cfg['topography']}.
-- Native Flora: {region_cfg['flora']}
-
-HERO EXPERIENCE SHOT — {title}:
-- Core Architectural Idea: {_clean_prompt_text(exp.get('core_idea', idiom))}
-- Primary Space in Focus: {hero_vol}
-- Experience & Atmosphere: {_clean_prompt_text(exp.get('atmosphere', 'Natural daylight tuned to the site experience.'))}
-- Key Sensory Moments Here: {hero_moments_str or _clean_prompt_text(concept)}
-
-FRAMING & LIGHTING:
-Close human-scale / low-oblique threshold view (~15–25° pitch) focused strictly on the primary entrance and hero space above—showing structural cantilevers/shells/openings, light, mist or water, materials, and candid human figures up close, with time-of-day lighting matched to the Atmosphere above."""
+4. SITE REALITY & NEGATIVE GUARDRAILS:
+- Anchored in the flat terrain and native flora of `{sat_filename}` ({region_cfg['region']}): {region_cfg['topography']}. {region_cfg['flora']}
+- Forbidden: {region_cfg['forbidden']}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO cramped multi-building collage."""
 
     return aerial_prompt, hero_prompt
 
