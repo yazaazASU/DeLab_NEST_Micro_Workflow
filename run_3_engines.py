@@ -627,14 +627,9 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
             cx, cy = float(active_xy[idx, 0]), float(active_xy[idx, 1])
             lon, lat = proj.to_ll(cx, cy)
 
-            # Check convergence across engines (<=350m or strong score at same cell)
-            conv: List[str] = []
-            for ek, el, _, _, _ in ENGINE_SPECS:
-                if ek == eng_key:
-                    conv.append(el)
-                elif any(math.hypot(cx - active_xy[p, 0], cy - active_xy[p, 1]) <= 350.0 for p in engine_results[ek]["peaks"]):
-                    conv.append(el)
-            strategy = f"Merge ({' + '.join(conv)})" if len(conv) > 1 else f"Select: {eng_label}"
+            # Independent per-engine selection (no cross-engine Merge/Combined)
+            conv: List[str] = [eng_label]
+            strategy = f"Select: {eng_label}"
 
             fscores = {fn: round(float(res["force_scores"][fn][idx]), 1) for fn in FORCE_NAMES}
             dom_force = FORCE_NAMES[int(res["dom_idx"][idx])]
@@ -723,30 +718,50 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
             all_candidates.append(cand)
             rank_counter += 1
 
-    all_candidates.sort(key=lambda c: -c["merit_score"])
-    # Deduplicate near-identical / >60%-overlapping candidate polygons while preserving minor overlap
-    deduped: List[Dict[str, Any]] = []
-    for c in all_candidates:
-        cp = c["_poly_xy"]
-        is_dup = False
-        for k in deduped:
-            kp = k["_poly_xy"]
-            if cp.intersects(kp):
-                inter_a = cp.intersection(kp).area
-                if inter_a / max(1.0, min(cp.area, kp.area)) > 0.60:
-                    is_dup = True
-                    break
-        if not is_dup:
-            deduped.append(c)
-    if len(deduped) >= 5:
-        all_candidates = deduped
-    else:
-        seen_ids = {id(x) for x in deduped}
-        all_candidates = deduped + [c for c in all_candidates if id(c) not in seen_ids]
+    # Deduplicate >60% overlapping polygons independently per engine (keep top 3 per engine)
+    engine_candidates: Dict[str, List[Dict[str, Any]]] = {}
+    ordered_pool: List[Dict[str, Any]] = []
+    for ek, el, _, _, _ in ENGINE_SPECS:
+        eng_cands = [c for c in all_candidates if c.get("dominant_engine") == el]
+        eng_cands.sort(key=lambda c: -c["merit_score"])
+        kept_eng: List[Dict[str, Any]] = []
+        for c in eng_cands:
+            cp = c["_poly_xy"]
+            is_dup = False
+            for k in kept_eng:
+                kp = k["_poly_xy"]
+                if cp.intersects(kp):
+                    inter_a = cp.intersection(kp).area
+                    if inter_a / max(1.0, min(cp.area, kp.area)) > 0.60:
+                        is_dup = True
+                        break
+            if not is_dup:
+                kept_eng.append(c)
+            if len(kept_eng) >= 3:
+                break
+        if not kept_eng and eng_cands:
+            kept_eng = [eng_cands[0]]
+        engine_candidates[ek] = kept_eng
+        ordered_pool.extend(kept_eng)
+
+    all_candidates = ordered_pool
     for c in all_candidates:
         c.pop("_poly_xy", None)
     for idx_r, c in enumerate(all_candidates, start=1):
         c["site_rank"] = idx_r
+
+    # Guarantee at least 1 candidate per engine in top_5_candidates for backward compatibility
+    top_5_compat: List[Dict[str, Any]] = []
+    for ek, _, _, _, _ in ENGINE_SPECS:
+        if engine_candidates.get(ek):
+            top_5_compat.append(engine_candidates[ek][0])
+    seen_top = {id(x) for x in top_5_compat}
+    for c in sorted(all_candidates, key=lambda x: -x["merit_score"]):
+        if len(top_5_compat) >= 5:
+            break
+        if id(c) not in seen_top:
+            top_5_compat.append(c)
+            seen_top.add(id(c))
 
     summary = {
         "plot_label": plot_name,
@@ -766,8 +781,9 @@ def run_pipeline(data_dir: str, out_dir: str, plot_name: str, gk_dir: str) -> st
             }
             for ek, _, _, _, _ in ENGINE_SPECS
         },
+        "engine_candidates": engine_candidates,
         "candidate_pool": all_candidates,
-        "top_5_candidates": all_candidates[:5],
+        "top_5_candidates": top_5_compat,
     }
 
     with open(os.path.join(inter_dir, "stage_a_summary.json"), "w", encoding="utf-8") as f:

@@ -325,7 +325,14 @@ body.print-all .full-brief-drawer {{ display: block !important; }}
 
 <section id="tab-proposals">
   <div class="prop-toolbar">
-    <div id="jump-bar" class="jump-bar"><span style="font-size:11.5px;font-weight:800;color:#625753;margin-right:4px">JUMP TO SITE:</span></div>
+    <div id="jump-bar" class="jump-bar">
+      <span style="font-size:11.5px;font-weight:800;color:#625753;margin-right:4px">ENGINE:</span>
+      <button type="button" class="jbtn eng-fbtn active" onclick="filterByEngine('All', this)">All</button>
+      <button type="button" class="jbtn eng-fbtn" onclick="filterByEngine('Crystals', this)">Crystals</button>
+      <button type="button" class="jbtn eng-fbtn" onclick="filterByEngine('Cells', this)">Cells</button>
+      <button type="button" class="jbtn eng-fbtn" onclick="filterByEngine('Corals', this)">Corals</button>
+      <span style="font-size:11.5px;font-weight:800;color:#625753;margin:0 4px 0 8px">SITE:</span>
+    </div>
     <div class="tb-actions">
       <button type="button" id="btn-detail-toggle" class="btn-outline" onclick="toggleDetailed()">Story Mode | Full Dossiers</button>
       <a class="btn-outline" href="renders/render_pack/AGENT_INSTRUCTIONS.md" target="_blank">Render Pack Guide ↗</a>
@@ -1043,6 +1050,9 @@ function renderProjectCards() {{
     const card = document.createElement('article');
     card.id = 'site-card-' + p.rank;
     card.className = 'proj-card';
+    card.dataset.engine = p.engine || 'Crystals';
+    const engBadge = `${{p.engine || 'Crystals'}} Engine`;
+    const resPills = (p.resources_utilized || []).map(r => `<span class="pill ok" style="font-size:10.5px">${{r}}</span>`).join('');
 
     const rawFlags = Array.isArray(p.flags) ? p.flags : Object.entries(p.flags || {{}}).filter(([,v]) => !!v).map(([k]) => k.replace(/_/g, ' '));
     const flagPills = (rawFlags.length ? rawFlags : ['✓ Standard Compliance']).map(f => `<span class="pill ${{f.includes('✓') ? 'ok' : 'warn'}}">${{f}}</span>`).join('');
@@ -1174,7 +1184,7 @@ function renderProjectCards() {{
       <div class="card-visuals">
         <div id="render-wrap-${{p.rank}}" class="render-wrap">
           <img id="card-img-${{p.rank}}" class="static-media" style="display:block" src="${{p.has_editorial_render ? p.render : p.satellite_lock}}" alt="Site #${{p.rank}}" />
-          <div class="rank-chip">PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</div>
+          <div class="rank-chip">${{engBadge.toUpperCase()}} • PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</div>
           <div class="media-toggle-bar">
             ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Whole-Site Aerial</button>` : ''}}
             ${{p.has_hero_render ? `<button type="button" class="media-tbtn" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.hero_render}}', this)">Hero Experience</button>` : ''}}
@@ -1196,6 +1206,7 @@ function renderProjectCards() {{
           <h2>${{p.title}}</h2>
           <div class="sub">${{p.subtitle}}</div>
           <div class="badge-row">
+            <span class="pill" style="background:#302B2A;color:#FFFAF7;border-color:#302B2A">${{engBadge}}</span>
             <span class="pill tier">${{visitMode}}</span>
             <span class="pill ok">Nature Hero: ${{natureHero}}</span>
             <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Components</span>
@@ -1273,6 +1284,7 @@ function renderProjectCards() {{
               <div class="diag-lbl"><span>Why This Site &amp; Landscape Strategy</span><span>${{p.area_feddans}} Feddans</span></div>
               <div class="micro-chips">
                 <div class="mchip"><div class="mk">Why Here</div>${{p.thesis_summary.why_here}}</div>
+                <div class="mchip"><div class="mk">Site Resources Utilized</div>${{resPills || 'All active plot forces'}}${{p.resource_coverage_rationale ? `<div style="margin-top:4px;color:#625753;font-size:11px">${{p.resource_coverage_rationale}}</div>` : ''}}</div>
                 <div class="mchip"><div class="mk">Landscape Backbone</div>${{p.landscape_summary.backbone || ''}}</div>
                 <div class="mchip"><div class="mk">Architecture–Landscape Interface</div>${{p.landscape_summary.arch_interface || ''}}</div>
               </div>
@@ -1408,6 +1420,14 @@ function renderProjectCards() {{
     }});
   }}
 }}
+
+window.filterByEngine = function(eng, btn) {{
+  document.querySelectorAll('.eng-fbtn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.proj-card').forEach(card => {{
+    card.style.display = (eng === 'All' || card.dataset.engine === eng) ? '' : 'none';
+  }});
+}};
 
 renderProjectCards();
 </script>

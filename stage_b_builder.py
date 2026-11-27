@@ -385,8 +385,14 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
 
     fin, econ = _compute_financials(seed, total_gfa_m2, site_area_m2)
 
+    eng_raw = str(seed.get("engine") or cand.get("dominant_engine") or "Crystals").strip()
+    eng_norm = "Crystals" if "crystal" in eng_raw.lower() else ("Cells" if "cell" in eng_raw.lower() else ("Corals" if "coral" in eng_raw.lower() else eng_raw.title()))
+
     return {
         "rank": rank,
+        "engine": eng_norm,
+        "resources_utilized": seed.get("resources_utilized") or [],
+        "resource_coverage_rationale": seed.get("resource_coverage_rationale") or "",
         "title": seed["title"],
         "subtitle": seed["subtitle"],
         "nature_hero": seed.get("nature_hero") or "Sun, Wind & Coast",
@@ -1049,6 +1055,18 @@ def main():
     seeds.sort(key=lambda s: int(s["rank"]))
     projects = [build_project_from_seed(s, stage_a, raster_bundle=rb) for s in seeds]
 
+    # Enforce >= 1 project per independent engine (Crystals, Cells, Corals)
+    eng_counts = {e: sum(1 for p in projects if p.get("engine") == e) for e in ("Crystals", "Cells", "Corals")}
+    missing_engs = [e for e, cnt in eng_counts.items() if cnt < 1]
+    if missing_engs:
+        raise ValueError(
+            f"Each engine must propose at least 1 project (no combined projects). Missing engines: {missing_engs}. "
+            f"Current counts: {eng_counts}."
+        )
+    for p in projects:
+        if not p.get("resources_utilized"):
+            print(f"[Resource Warn] Site #{p['rank']} ({p['title']}) missing resources_utilized list.")
+
     div_warnings = audit_portfolio_diversity(projects)
     for w in div_warnings:
         print(f"[Diversity Warn] {w}")
@@ -1121,7 +1139,18 @@ def main():
     lines = [
         f"# NEST Executive Report — {plot_lbl}",
         "",
-        "> **Approach:** Evidence-First Architectural & Investment Brief (Use-Driven Massing + Regional GIS/Climate Grounding)",
+        "> **Approach:** Independent Engine Portfolios (Crystals, Cells, Corals — No Combined Projects) + Evidence-First Space & Financial Brief",
+        "",
+        "## Engine-by-Engine Resource Coverage",
+        "",
+        "| Engine | Projects Proposed | Resources Utilized |",
+        "| :--- | :---: | :--- |",
+    ]
+    for eng_nm in ("Crystals", "Cells", "Corals"):
+        ep = [p for p in projects if p.get("engine") == eng_nm]
+        res_u = sorted({r for p in ep for r in (p.get("resources_utilized") or [])})
+        lines.append(f"| **{eng_nm} Engine** | {len(ep)} | {', '.join(res_u) if res_u else 'See site briefs'} |")
+    lines += [
         "",
         "## Portfolio Overview",
         "",

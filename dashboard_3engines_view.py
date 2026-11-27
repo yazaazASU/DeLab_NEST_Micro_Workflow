@@ -41,7 +41,7 @@ def build_3engine_dashboard(
     center_lat = (bounds[0][0] + bounds[1][0]) / 2
     center_lon = (bounds[0][1] + bounds[1][1]) / 2
     typ_hex = [f"rgb({r},{g},{b})" for r, g, b in typ_colors_rgb]
-    all_layers = ["Best-Fit Typology", "Hidden Potential", *typ_names, "Mixed-Use (2+)", "Mixed-Use (3+)"]
+    all_layers = ["Best-Fit Typology", "Hidden Potential", *typ_names]
 
     html = """<!DOCTYPE html>
 <html lang="en">
@@ -396,7 +396,7 @@ def build_3engine_dashboard(
       </svg>
       <div class="eng-hdr-meta">
         <div class="eng-hdr-top">
-          <span class="eng-hdr-title">4. Combined Result</span>
+          <span class="eng-hdr-title">4. Plot Resources &amp; Engine Sites</span>
           <span class="eng-hdr-role">Sites &amp; Building Forms</span>
         </div>
         <div class="eng-hdr-desc">Peak score across all 3 engines with resulting building sites and architectural footprints.</div>

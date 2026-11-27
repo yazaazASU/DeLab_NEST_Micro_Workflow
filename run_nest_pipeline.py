@@ -211,8 +211,10 @@ def main():
         ctx_lines = [
             f"# Architect Agent Brief & Site Context — {plot_title}",
             "",
-            "You are designing **5 distinct, unforgettable architectural destinations** (`intermediates/seeds/site_1_seed.json`..`site_5_seed.json`) for this plot.",
-            "Read **only this file**, then author bespoke JSON seeds that pass every rule below.",
+            "## Independent Engine Intervention Model (No Combined Projects)",
+            "- **Each of the 3 engines (`Crystals`, `Cells`, `Corals`) proposes its own independent project(s)** — **NO combined or merged projects**.",
+            "- **Resource-Coverage Rule:** Each engine MUST propose **at least 1 project (`1–3` per engine, `3–9` total)** and must utilize **all active site resources** on this plot (Water, Food, Sun, Air, People, Nature). If one `50–70 feddan` project captures all active plot resources for that engine, propose `1` project; if untapped resources sit in another zone, propose `2–3` projects so every resource is used.",
+            "- Author `intermediates/seeds/site_1_seed.json`..`site_<K>_seed.json` (`K = 3..9`), reading **only this file**.",
             "",
             "## Creative & Site-Grounding Contract (Mandatory)",
             "1. **No Boring RFP / Tech-Campus Clichés:** NEVER use generic filler words like `Hub`, `Precinct`, `Campus`, `Innovation`, `Vocational Institute`, `R&D Bays`, `Testing Lab`, `Pavilion`, `Solution`, or `Synergy` in titles or building names. Name places like a real architecture monograph (e.g., *The Calcarenite Solar Baths*, *Salt-Mist Cisterns*, *Al Gharbaniat Shade-Loom*).",
@@ -224,7 +226,7 @@ def main():
             "7. **Signature Spatial Diagram:** Pair grounded daily human life with **one unmistakable architectural gesture / footprint move** per site (use `ring`, `crescent`, `stepped_terrace`, `spine`, `fan`, `courtyard`, `l_shape`, `pier`, or `bar` in `volumes[].archetype` so the site plan reads as a bold spatial diagram).",
             "",
             "## Compact Seed Schema (`intermediates/seeds/site_<N>_seed.json`)",
-            "Required keys: `rank`, `candidate_rank`, `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `ring|crescent|stepped_terrace|spine|fan|courtyard|l_shape|pier|bar`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
+            "Required keys: `rank`, `candidate_rank`, `engine` (`crystals|cells|corals`), `resources_utilized` (list of plot resources used), `resource_coverage_rationale` (1 sentence explaining why 1 project sufficed or why 2–3 were needed for this engine), `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `ring|crescent|stepped_terrace|spine|fan|courtyard|l_shape|pier|bar`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
             "- **Room-by-Room Space Program (`interior_zones`):** Give each building **6–10 realistic rooms** (`150–800 m²` for typical rooms, avoiding `>1,200 m²` single rooms) using `{name, role, area_m2}` **plus explicit `Circulation & Tare` / `BOH & MEP` rows** (`15%–30%` of building `area_m2`) so `NSF / GSF` is realistic and reconciles to `space_program.json` & `space_program.csv`.",
         ]
         typ_json = ROOT / "GENERAL_KNOWLEDGE" / "NEST_Typologies_and_User_Scenarios.json"
@@ -242,7 +244,7 @@ def main():
             "---",
             "",
         ]
-        for c in sa.get("top_5_candidates") or []:
+        for c in (sa.get("candidate_pool") or sa.get("top_5_candidates") or []):
             rk = c.get("site_rank")
             acc = c.get("accessibility") or {}
             ptrs = (c.get("gis_evidence") or {}).get("map_feature_pointers") or []
