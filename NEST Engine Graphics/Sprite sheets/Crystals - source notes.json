@@ -1,0 +1,41 @@
+{
+  "version": 3,
+  "artwork": "User-provided purple faceted Crystal character sheet",
+  "processing": "Transparent-background edit using ImageGen; 4x3 frame layout retained",
+  "dimensions": [
+    1448,
+    1086
+  ],
+  "sha256": "eed563cc4b009c412db4134b8f61768fc90328a14e7086fe00b0b5c6c7d11796",
+  "idle_frame": 0,
+  "walk_frames": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "probe_frames": [
+    4,
+    5,
+    6,
+    5,
+    4
+  ],
+  "success_frames": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "skill_crop": {
+    "x": 1354,
+    "y": 990,
+    "size": 80
+  },
+  "palette": "Original purple artwork preserved; former desaturation/brightness recoloring removed",
+  "validation": "TypeScript, build and26 tests pass; no terrain navigation changes"
+}

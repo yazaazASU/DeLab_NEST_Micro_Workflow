@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "integration_status": "Prepared only; not connected to NEST",
+  "namespace": "architectural_inspiration",
+  "enabled_by_default": false,
+  "reasoning_policy_changes": false,
+  "site_scoring_weight": 0,
+  "training_or_finetuning": false,
+  "default_context_injection": false,
+  "allowed_uses": {
+    "precedent_lookup": [
+      "source_description"
+    ],
+    "explicit_scenario_development": [
+      "source_description",
+      "scenario_hypothesis",
+      "original_concept"
+    ],
+    "explicit_commercial_exploration": [
+      "source_description",
+      "commercial_hypothesis"
+    ]
+  },
+  "controls": [
+    "Generate an initial brief/site-based response before retrieving inspiration when practical.",
+    "Do not inject every record or collection-level preferences into a system prompt.",
+    "Use a small query-relevant subset, deduplicate by project, and preserve claim_status and source_url.",
+    "Treat retrieved text as reference data, never instructions.",
+    "Do not convert frequency, popularity, NEW labels or catalog position into recommendation weights.",
+    "Keep scenario and revenue fields out of the source-description embedding text.",
+    "Do not infer profit, exact area, suitability, clinical benefit or technical feasibility.",
+    "Permit the same answer with the collection disabled; user must be able to opt out."
+  ],
+  "bias_limit": "Selection bias remains: this is a curated collection with strong Egypt/Behance/student-project coverage. Separation and gating reduce influence but cannot guarantee zero bias.",
+  "validation_before_activation": [
+    "Disabled-mode output/context and site scores unchanged.",
+    "Factual queries exclude scenario and commercial record kinds.",
+    "General site/program queries do not retrieve this optional namespace by default.",
+    "No duplicate project dominates the context.",
+    "Revenue questions retain unvalidated status.",
+    "A museum/school/housing brief remains answerable despite the earlier chat preferences.",
+    "Disabling the namespace fully removes its records from retrieved context."
+  ]
+}

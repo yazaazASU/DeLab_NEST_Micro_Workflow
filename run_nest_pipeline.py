@@ -136,11 +136,35 @@ def validate_stage_b_geometry(run_dir: Path, data_dir: Path | None, strict: bool
                     if target >= 1000 and not has_tare:
                         warnings.append(f"Site #{rk} '{v.get('name')}' ({target:,} m²) missing Circulation & Tare / BOH & MEP row")
 
+        # 4. Landscape Buildable Envelope & 0%-Buildable Preserve/Minimal Lock
+        b_env = p.get("buildable_envelope") or {}
+        if b_env:
+            cov = float(b_env.get("envelope_coverage_pct", 0.0))
+            if cov > 100.0:
+                errors.append(
+                    f"Site #{rk} ({title}) building footprint ({b_env.get('building_footprint_m2', 0):,} m²) exceeds net buildable envelope ({b_env.get('net_buildable_m2', 0):,} m²)"
+                )
+            elif cov > 65.0:
+                warnings.append(
+                    f"Site #{rk} ({title}) building footprint uses {cov:.1f}% of net buildable envelope (>65% density)"
+                )
+        for z in p.get("landscape_zones") or []:
+            iv = str(z.get("intervention") or "").lower()
+            if ("preserve" in iv or "minimal" in iv) and z.get("buildable") is True:
+                errors.append(f"Site #{rk} ({title}) zone '{z.get('name')}' ({z.get('intervention')}) must be locked 0% buildable")
+
     print(f"[Pre-Render Gate] Checked {len(projects)} projects -> {len(errors)} errors, {len(warnings)} warnings")
     for e in errors:
         print(f"  [ERROR] {e}")
     for w in warnings:
         print(f"  [WARN]  {w}")
+
+    # Advisory (non-blocking) RAG citation check
+    rag_covered = sum(
+        1 for p in projects
+        if ((p.get("rag_citations") or {}).get("codes") or (p.get("rag_citations") or {}).get("precedents"))
+    )
+    print(f"[Advisory RAG Gate] {rag_covered}/{len(projects)} projects include cited Egyptian codes / precedents (non-blocking)")
 
     if errors or (strict and warnings):
         raise SystemExit(1)
@@ -179,6 +203,7 @@ def main():
     ap.add_argument("--use-seeds", action="store_true", help="Use intermediates/seeds/site_*_seed.json instead of dynamic Stage B synthesis")
     ap.add_argument("--validate-only", action="store_true", help="Run Pre-Render Geometry & Raster Gate only")
     ap.add_argument("--strict-gate", action="store_true", help="Fail on built-up/pier warnings as well as errors")
+    ap.add_argument("--no-rag", action="store_true", help="Disable NEST-Portable-RAG-v3 code & precedent retrieval")
     args = ap.parse_args()
 
     data_dir = args.data_dir if args.data_dir.is_absolute() else (ROOT / args.data_dir)
@@ -226,7 +251,7 @@ def main():
             "7. **Signature Spatial Diagram:** Pair grounded daily human life with **one unmistakable architectural gesture / footprint move** per site (use `ring`, `crescent`, `stepped_terrace`, `spine`, `fan`, `courtyard`, `l_shape`, `pier`, or `bar` in `volumes[].archetype` so the site plan reads as a bold spatial diagram).",
             "",
             "## Compact Seed Schema (`intermediates/seeds/site_<N>_seed.json`)",
-            "Required keys: `rank`, `candidate_rank`, `engine` (`crystals|cells|corals`), `resources_utilized` (list of plot resources used), `resource_coverage_rationale` (1 sentence explaining why 1 project sufficed or why 2–3 were needed for this engine), `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `ring|crescent|stepped_terrace|spine|fan|courtyard|l_shape|pier|bar`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
+            "Required keys: `rank`, `candidate_rank`, `engine` (`crystals|cells|corals`), `resources_utilized` (list of plot resources used), `resource_coverage_rationale` (1 sentence explaining why 1 project sufficed or why 2–3 were needed for this engine), `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `engine_reasoning` (`{\"lead\": \"As the <Engine> (<Theme> — <canonical engine definition>), I chose this site because ...\", \"peers\": {\"<peer1>\": \"From my <Theme> lens, ...\", \"<peer2>\": \"From my <Theme> lens, ...\"}}` — first-person reasoning explicitly showing how the choice embodies the engine's canonical definition from `engine_charter.md`: Crystals = Development: finding points of interest to build around, in, or at; Cells = Adaptation: unlocking an element's full potential by adapting it into something new or better; Corals = Coordination: using elements better together or introducing a beneficial relationship), `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `ring|crescent|stepped_terrace|spine|fan|courtyard|l_shape|pier|bar`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
             "- **Room-by-Room Space Program (`interior_zones`):** Give each building **6–10 realistic rooms** (`150–800 m²` for typical rooms, avoiding `>1,200 m²` single rooms) using `{name, role, area_m2}` **plus explicit `Circulation & Tare` / `BOH & MEP` rows** (`15%–30%` of building `area_m2`) so `NSF / GSF` is realistic and reconciles to `space_program.json` & `space_program.csv`.",
         ]
         typ_json = ROOT / "GENERAL_KNOWLEDGE" / "NEST_Typologies_and_User_Scenarios.json"
@@ -309,8 +334,44 @@ def main():
                 f"- **Forces:** {c.get('force_scores')}",
                 f"- **Water / Nature Dist:** `{c.get('nat_dist_m')} m` | **Road Dist:** `{acc.get('road_dist_m')} m` | **Access:** `{acc.get('score')}/100`",
                 f"- **Nearby Named GIS Features:** {'; '.join(ptrs) if ptrs else 'None named within 1.5 km'}",
-                "",
             ])
+            # Pass-1 GIS Landscape Suitability Zones (Evidence-Derived)
+            if gj:
+                try:
+                    from landscape_zoning import build_gis_landscape_zones, format_stage_a_landscape_markdown
+                    from stage_b_builder import LocalProjection
+                    poly_ll = shape(gj).buffer(0)
+                    proj_a = LocalProjection(float(poly_ll.centroid.x), float(poly_ll.centroid.y))
+                    poly_m = proj_a.geom_to_meters(poly_ll)
+                    lz_a, env_a = build_gis_landscape_zones(
+                        site_m=poly_m, proj=proj_a, raster_bundle=rb_ctx, cand=c, site_bearing_deg=bearing_deg
+                    )
+                    ctx_lines.extend(format_stage_a_landscape_markdown(rk, lz_a, env_a))
+                except Exception:
+                    pass
+            ctx_lines.append("")
+        if not args.no_rag:
+            try:
+                from nest_rag_client import batch_dual_search, build_stage_a_queries, format_stage_a_rag_markdown
+                cands = (sa.get("candidate_pool") or sa.get("top_5_candidates") or [])[:6]
+                rag_items = []
+                for c in cands:
+                    cq, rq = build_stage_a_queries(c, plot_title)
+                    rag_items.append({
+                        "key": f"Site #{c.get('site_rank')} ({c.get('terrain_class')} · {c.get('dominant_engine')})",
+                        "code_query": cq,
+                        "ref_query": rq,
+                    })
+                rag_res = batch_dual_search(rag_items, k_codes=3, k_refs=3)
+                if rag_res:
+                    (out_dir / "intermediates" / "rag_site_evidence.json").write_text(
+                        json.dumps(rag_res, indent=2, ensure_ascii=False), encoding="utf-8"
+                    )
+                    ctx_lines.extend(format_stage_a_rag_markdown(rag_res))
+                    print(f"[Stage A RAG] Appended dual-channel code & precedent citations for {len(rag_res)} sites")
+            except Exception as exc:
+                print(f"[Stage A RAG] Skipped ({exc})")
+
         (out_dir / "intermediates" / "agent_site_context.md").write_text("\n".join(ctx_lines), encoding="utf-8")
 
     # 2. Stage B: require agent-authored seeds in intermediates/seeds/
@@ -323,6 +384,8 @@ def main():
         print(f"  Then re-run with --skip-stage-a to complete Stage B, Dashboard, and Render Pack.")
         return
     sb_cmd = [sys.executable, "stage_b_builder.py", "--run-dir", str(out_dir), "--data-dir", str(data_dir), "--seeds-dir", str(seeds_dir)]
+    if args.no_rag:
+        sb_cmd.append("--no-rag")
     run_step(sb_cmd, "Stage B: Agent Seed Expansion & Financial Reconciliation")
 
     # 3. DEM Terrain-Embedding Gate (Local Copernicus DSM 30 m / SRTM fallback)
@@ -334,14 +397,26 @@ def main():
     # 4. Pre-Render Geometry & Raster Sanity Gate
     validate_stage_b_geometry(out_dir, data_dir, strict=args.strict_gate)
 
-    # 5. NEST Experience-First Story Mode Dashboard + JS Gate
+    # 5. Stage C: Site-Grounded Design Skill Generation (9 skills per project)
+    run_step(
+        [sys.executable, "stage_c_skills.py", "--run-dir", str(out_dir), "--all"],
+        "Stage C: Site-Grounded Design Skill Generation",
+    )
+
+    # 6. Browser-Free Publication PDF Dossier (PyMuPDF)
+    run_step(
+        [sys.executable, "export_nest_pdf.py", "--run-dir", str(out_dir), "--plot-title", plot_title],
+        "Browser-Free Publication PDF Export",
+    )
+
+    # 7. NEST Experience-First Story Mode Dashboard + JS Gate
     run_step(
         [sys.executable, "build_nest_dashboard.py", "--run-dir", str(out_dir), "--plot-title", plot_title],
         "NEST 2.3 Dashboard Build",
     )
     verify_dashboard_js(out_dir / "nest_dashboard.html")
 
-    # 6. Camera-Matched Esri Satellite Render Pack
+    # 8. Camera-Matched Esri Satellite Render Pack
     rp_cmd = [sys.executable, "GENERAL_KNOWLEDGE/architectural_render_skill/build_render_pack.py", "--run-dir", str(out_dir)]
     run_step(rp_cmd, "Satellite-Locked Render Pack")
 

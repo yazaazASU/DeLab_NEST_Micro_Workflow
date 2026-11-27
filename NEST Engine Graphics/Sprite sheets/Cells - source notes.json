@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "artwork": "User-supplied rose-glass Cells character sheet, 8 November 2026",
+  "processing": "ImageGen transparent-background edit; 12 poses retained in 4x3 layout",
+  "dimensions": [
+    1448,
+    1086
+  ],
+  "sha256": "3ca8c0fb69283bc383dce00b5c4b72d93a263f72aa0fa48eaeef450437104b52",
+  "daughter_crop": {
+    "x": 1330,
+    "y": 952,
+    "size": 98
+  },
+  "verification": "TypeScript check and 19 animation/model tests passed. Live character loaded ready, version 2 atlas confirmed on character, portrait and daughter markers, no browser errors. Existing sprite timing unchanged; old atlas retained. Source inspection only for reduced-motion behavior."
+}

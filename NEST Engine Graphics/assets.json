@@ -1,0 +1,68 @@
+{
+  "export_date": "2026-11-28",
+  "engines": [
+    {
+      "engine": "Crystals",
+      "source": "web/crystal-map/characters/crystals-atlas-v3.png",
+      "source_sha256": "eed563cc4b009c412db4134b8f61768fc90328a14e7086fe00b0b5c6c7d11796",
+      "sprite_sheet": "Sprite sheets/Crystals.png",
+      "columns": 4,
+      "rows": 3,
+      "frames": 12,
+      "frame_width_px": 362,
+      "frame_height_px": 362,
+      "main_png_idle_frame_zero_based": 0,
+      "walk_frames_zero_based": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "walk_frames_per_second": 6,
+      "transparency_preserved": true,
+      "processing": "Exact frame extraction; no generation, recoloring, retouching or upscaling"
+    },
+    {
+      "engine": "Cells",
+      "source": "web/crystal-map/cells/cells-atlas-v2.png",
+      "source_sha256": "3ca8c0fb69283bc383dce00b5c4b72d93a263f72aa0fa48eaeef450437104b52",
+      "sprite_sheet": "Sprite sheets/Cells.png",
+      "columns": 4,
+      "rows": 3,
+      "frames": 12,
+      "frame_width_px": 362,
+      "frame_height_px": 362,
+      "main_png_idle_frame_zero_based": 4,
+      "walk_frames_zero_based": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "walk_frames_per_second": 6,
+      "transparency_preserved": true,
+      "processing": "Exact frame extraction; no generation, recoloring, retouching or upscaling"
+    },
+    {
+      "engine": "Corals",
+      "source": "web/crystal-map/characters/corals-atlas-v2.png",
+      "source_sha256": "19bab2ee747152cc246915dfa1fa7bb1ad51b20c0da5c1ded9784ec77c832e11",
+      "sprite_sheet": "Sprite sheets/Corals.png",
+      "columns": 4,
+      "rows": 3,
+      "frames": 12,
+      "frame_width_px": 362,
+      "frame_height_px": 362,
+      "main_png_idle_frame_zero_based": 0,
+      "walk_frames_zero_based": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "walk_frames_per_second": 6,
+      "transparency_preserved": true,
+      "processing": "Exact frame extraction; no generation, recoloring, retouching or upscaling"
+    }
+  ]
+}

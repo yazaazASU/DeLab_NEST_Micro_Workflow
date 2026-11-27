@@ -1,0 +1,3675 @@
+{
+  "schema_version": "1.0",
+  "created_date": "2026-11-27",
+  "purpose": "NEST architectural inspiration and scenario retrieval",
+  "integration_status": "Standalone import candidate; not integrated with NEST and no compatibility with an existing NEST schema is claimed",
+  "coverage": "Deduplicated projects and named competition entries presented in the chat, with two newly checked graduation projects and six new scenario proposals. Both new projects are partial matches: campus scale is visible, exact area and a wholly novel paid activity are not established. Search-only rejected candidates are excluded. Competition collections are separate.",
+  "evidence_rules": [
+    "Source-supported programs remain distinct from assistant scenarios and revenue hypotheses.",
+    "Unknown area remains unknown; a large rendering is not a verified mega-project area.",
+    "Built, student, competition, installation and fictional records must not be treated as equivalent.",
+    "Revenue is not profit; no demand, capex, opex, ROI or commercial viability is established.",
+    "No automatic GIS suitability inference. Assess access, utilities, water, climate, ecology, permissions and local demand.",
+    "Images are linked to remote sources and require internet; no image ownership is transferred."
+  ],
+  "projects": [
+    {
+      "id": "P001",
+      "title": "The Adventure Land (Degla Park)",
+      "author": "Ezzeldin Abdealnasser",
+      "status": "Graduation proposal, 2025",
+      "typology": "Adventure park",
+      "source_supported_function": "Amusement/adventure park with masterplan, three upper floor plans, park layout and sections. Rides are visible in the renderings.",
+      "illustrative_user_scenario": "A group follows a sequence of rides, gathering spaces and viewing points during a day visit.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/229880395/GRADUATION-PROJECT-THE-ADVENTURE-LAND-%28DEGLA-PARK%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/44f450229880395.686d0220ea588.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Park-scale masterplan and multilevel drawings; exact area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "ride packages",
+        "group bookings",
+        "food concessions"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Ride engineering, throughput, maintenance, seasonality and demand need assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P002",
+      "title": "The Journey of Taste — Culinary Art Complex",
+      "author": "Hana Hatem, Nile University",
+      "status": "Graduation proposal, project year 2025; published 2026",
+      "typology": "Participatory culinary complex",
+      "source_supported_function": "Cooking and tasting journey combining open markets, plazas, interactive workshops, exhibition areas and edible gardens in Ismailia.",
+      "illustrative_user_scenario": "Visitors select ingredients, join a cooking workshop and share a meal; returning groups explore another culinary theme.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/243295821/Culinary-art-complex-Graduation-Project",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/9209ca243295821.698404ef61bb7.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Complex shown in overall rendering and section; exact area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Paid workshops",
+        "chef events",
+        "food retail leases",
+        "dining",
+        "private group bookings"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Food safety, class capacity, staffing and repeat demand govern viability.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P003",
+      "title": "Pure Passion Entertainment Complex",
+      "author": "Haneen Alaa / Team XYZ",
+      "status": "Graduation proposal; published 2023",
+      "typology": "Entertainment complex",
+      "source_supported_function": "Entertainment-complex presentation located on its title board at Mazarine Island, El Alamein. The inspected images confirm entrance/reception design, not a complete activity schedule.",
+      "illustrative_user_scenario": "A visitor arrives for a booked entertainment session; the actual attraction sequence needs further extraction from the full boards.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/178635325/PURE-PASSION-ENTERTAINMENT-COMPLEX-(Graduation-Project)",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/65c49d178635325.67f531300c58d.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Complex in project title; mega scale and area not verified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Session tickets if supported by final program",
+        "events",
+        "food concessions"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Limited written brief. Do not invent specific attractions or assume mega scale from the title.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P004",
+      "title": "Montfort Adventure Resort",
+      "author": "Rahaf Shaqour; project signed Rahaf Moqadi",
+      "status": "Graduation proposal; published 2023",
+      "typology": "Adventure and recreation destination",
+      "source_supported_function": "Upper Galilee / Al-Qurn valley resort combining hiking, cable car, swimming, gym, spa and restaurant; accommodation is also part of the source program.",
+      "illustrative_user_scenario": "Day visitors combine a landscape route and cable-car journey with recreation and food.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/172670011/Montfort-Adventure-Resort-Graduation-Project",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e620cb172670011.6483005e332e3.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Landscape resort program; exact area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Day passes",
+        "guided activities",
+        "cable-car tickets",
+        "food",
+        "spa sessions"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Not a wholly new typology; ecological capacity, access and cable-car feasibility matter.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P005",
+      "title": "NEO — City of Human Enhancement",
+      "author": "Zeyad Mohammed, Ain Shams University",
+      "status": "Graduation proposal, 2025",
+      "typology": "Human enhancement campus",
+      "source_supported_function": "Neurotechnology and biomedical research exploring expanded human capabilities and wearable interfaces.",
+      "illustrative_user_scenario": "A participant learns to use an assistive interface in collaboration with designers and clinicians.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/236628149/%28Graduation-Project%29-Neo-The-City-Of-Human-Enhancement",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/d7f300236628149.68efbe4cd638d.png",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Author states 30 feddans; New Administrative Capital",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Development contracts",
+        "training",
+        "device support",
+        "research leases"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative biomedical claims are not demonstrated outcomes. Clinical activity requires suitable governance and partners.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P006",
+      "title": "AI City",
+      "author": "Mohamed Ibrahem",
+      "status": "Graduation proposal, 2023",
+      "typology": "Assistive robotics city",
+      "source_supported_function": "New Mansoura research city for medical/engineering AI, assistive robots and smart artificial limbs; academy and workspaces.",
+      "illustrative_user_scenario": "A prosthetic user tests adjustments with engineers and returns for device adaptation.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/180155821/AI-CITY-%28GRADUATION-PROJECT%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/aa3e4b180155821.6505d7bb82639.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Multibuilding campus rendering; exact area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Product development contracts",
+        "training",
+        "workspace leases",
+        "device support"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P007",
+      "title": "MECHATRON",
+      "author": "Eman Samir",
+      "status": "Graduation proposal, 2023",
+      "typology": "Human–robot innovation complex",
+      "source_supported_function": "Port Said robotics/innovation proposal with multilevel drawings and a retractable exhibition. Detailed operations are not stated in the accessible text.",
+      "illustrative_user_scenario": "Workers and engineers learn a shared robotic workflow and demonstrate a prototype.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/174838857/MECHATRON-GRADUATION-PROJECT-2023",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/5dc23a174838857.64a9661b2b456.png",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Multiple levels, basement, sections and site rendering",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Corporate training",
+        "prototype space rental",
+        "demonstrations",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P008",
+      "title": "Biotechnology Exhibitions and Researches Platform",
+      "author": "Rwaida Paraznchy",
+      "status": "Graduation proposal, 2019–2020",
+      "typology": "Biotechnology incubator platform",
+      "source_supported_function": "Baghdad laboratory/incubator complex for human/animal, plant and inheritance studies, with conferences and exhibition functions.",
+      "illustrative_user_scenario": "A startup develops a biological prototype using shared laboratories and presents it to an industry partner.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/112497185/BIOTECHNOLOGY-EXHIBITIONS-AND-RESEARCHES-PLATFORM",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/b2cc1b112497185.601589b05a337.png",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Author states 7,400 m² lab/incubator component; overall 54,296 sq. has unclear unit",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Laboratory leases",
+        "shared equipment",
+        "contract research",
+        "professional conferences"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "High laboratory operating costs; source biomedical claims are conceptual, not validated.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P009",
+      "title": "TECHNO-LIFE World Expo 2030",
+      "author": "Benyamen Ramzy, Ain Shams University",
+      "status": "Graduation proposal, 2022",
+      "typology": "Future-experience expo",
+      "source_supported_function": "Salam City proposal with water/energy/horticulture pavilions, flying-robot/hologram halls, AR and simulated mobility experiences.",
+      "illustrative_user_scenario": "A visitor tries a simulated vehicle while exhibitors demonstrate their technologies to clients.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/150682659/Graduation-Project-2022-Techno-Life-World-Expo",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/5d8c81150682659.62fe5c906b08e.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Large site rendering, six boards, sections and structural studies",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Pavilion leases",
+        "launches",
+        "conferences",
+        "sponsorship",
+        "experience tickets"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Year-round utilization and replacement of obsolete media need planning.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P010",
+      "title": "Drones Technology Center",
+      "author": "Elias Krait",
+      "status": "Graduation proposal; published 2020",
+      "typology": "Remote-operation technology center",
+      "source_supported_function": "Programming, sensor and mechatronics laboratories, control center, hologram room and library.",
+      "illustrative_user_scenario": "An operator controls a drone while a development team evaluates its sensors.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/104733947/My-Graduation-Project-%28Drones-Technology-Center%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/24883f104733947.5f69c10ec4e6a.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Multiple spaces and exteriors; area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Technical training",
+        "workspace rental",
+        "maintenance",
+        "contract services"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Commercial service extensions are assistant proposals; airspace permissions depend on location.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P011",
+      "title": "Neuro — Urban Community Hub",
+      "author": "Youssef Essam",
+      "status": "Graduation thesis listed; published 2023",
+      "typology": "Sensory participation hub",
+      "source_supported_function": "Engagement farm, community kitchen, controlled rooms, interactive promenade and hologram corridors.",
+      "illustrative_user_scenario": "Participants cultivate, cook and move through contrasting sensory environments.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/176316685/Neuro-%28Urban-Community-Hub%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/8981dd176316685.64c7f47077943.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Large composition shown; area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Workshops",
+        "membership",
+        "group programs",
+        "food"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "The source label psychoactive planting and healing claims are not established clinical effects.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P012",
+      "title": "Esport and Digital Gaming Center",
+      "author": "Mahinour Khaled",
+      "status": "Graduation proposal; published 2022",
+      "typology": "Physical–digital competition complex",
+      "source_supported_function": "Drone racing, competition arenas, outdoor viewing and proposed laser-tag VR/hologram environments.",
+      "illustrative_user_scenario": "Players alternate remote piloting and bodily gameplay while spectators follow the competition.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/138178715/ESPORT-AND-DIGITAL-GAMING-CENTER-%28GRADUATION-PROJECT%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e78a55138178715.62180a25002b8.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Three floor plans, sections, elevations and full board",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Play sessions",
+        "tournaments",
+        "training",
+        "broadcast partnerships",
+        "food"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P013",
+      "title": "Space Simulation Center",
+      "author": "Mohamed Refaat",
+      "status": "Graduation proposal; published 2015",
+      "typology": "Space-experience destination",
+      "source_supported_function": "Shuttle and Mars simulators, proposed weightlessness experience, IMAX, planetarium, historical/cultural zones and themed accommodation.",
+      "illustrative_user_scenario": "Visitors undertake a staged simulated space journey through several environmental experiences.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/22614683/Space-Simulation-Center-%28Graduation-Project%29",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/hd_webp/6df01f22614683.563159b51d187.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Four major program zones; area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Experience tickets",
+        "school programs",
+        "events",
+        "themed stays"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Weightlessness is an unverified conceptual claim, not demonstrated engineering.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P014",
+      "title": "Nostalgia Park",
+      "author": "Hady Hesham",
+      "status": "Graduation proposal, 2019",
+      "typology": "Historical role-play park",
+      "source_supported_function": "Virtual/interactive museum in Al-Azbakieya Park where visitors experience the Khedivial era through physical and virtual media.",
+      "illustrative_user_scenario": "A family moves through historical settings and participates in an interpreted daily-life scene.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/82476715/Graduation-Project-%282019%29-I-NOSTALGIA-PARK",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/4636ff82476715.5d1e51e8ba6f3.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Park setting; area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "guided role-play",
+        "school visits",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P015",
+      "title": "ILLUMINATION — Filming and Light Art Center",
+      "author": "Ahmed Sayed",
+      "status": "Graduation proposal, 2017–2018",
+      "typology": "Cinematic experience complex",
+      "source_supported_function": "Downtown Cairo film/light-art proposal creating interactive cinematic scenarios around ancient Egypt.",
+      "illustrative_user_scenario": "Visitors move through a timed narrative composed through light, scenery and film.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/75433521/ILLUMINATION-FILMING-AND-ART-CENTER-GRADUATION-PROJECT",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/47753175433521.5c4c8ac9c33e1.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Complex proposal; area unverified",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Timed experiences",
+        "production hire",
+        "workshops",
+        "special events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P016",
+      "title": "REJAD — Storytelling Museum",
+      "author": "Omar Khaled Awny",
+      "status": "Graduation proposal; published 2025",
+      "typology": "Displacement storytelling landscape",
+      "source_supported_function": "Four phases connect Nubian life before displacement, dam/displacement, aftermath and hope of return.",
+      "illustrative_user_scenario": "A visitor follows a changing temporal sequence from lost place to an imagined return.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/233123753/REJAD-STORY-TELLING-MUSEUM-GRADUATION-PROJECT",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/d622f7233123753.68a99868ca9c6.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "guided programs",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P017",
+      "title": "The Healed Wound",
+      "author": "Thuy Quynh Nguyen",
+      "status": "Graduation proposal; published 2025",
+      "typology": "War memory landscape",
+      "source_supported_function": "Subterranean/semi-subterranean war-remnants museum, forest, atria, memorial funnel and spiral ascent.",
+      "illustrative_user_scenario": "Different generations follow a spatial sequence from war memory to reflection and rebirth.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/225837429/GRADUATION-PROJECT-THE-HEALED-WOUND",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200_webp/f86e77225837429.682445531eeec.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "education programs",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Healing is a design intention, not a demonstrated therapeutic result.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P018",
+      "title": "Model Prison Transformation, Barcelona",
+      "author": "H Arquitectes + DataAE; GRAPH Visual Studio",
+      "status": "Competition proposal; published 2021",
+      "typology": "Institutional reversal complex",
+      "source_supported_function": "Former prison transformed into market, design hub, museum and park.",
+      "illustrative_user_scenario": "Visitors move freely through spaces originally organized around confinement.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/121260183/Model-Prison-Competition-in-Barcelona",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/0637bf121260183.60c20ac9a4577.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Market leases",
+        "workshops",
+        "events",
+        "workspace"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P019",
+      "title": "Future Technology Center / Beyond Life",
+      "author": "Nada Hossam",
+      "status": "Graduation proposal; published 2023",
+      "typology": "Immersive technology hub",
+      "source_supported_function": "Metaverse/VR/AI public engagement proposal with multiple experience zones.",
+      "illustrative_user_scenario": "Visitors try digital interfaces and compare physical and virtual interaction.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/175452907/Future-Technology-Center",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/hd_webp/f93507175452907.64b4294c6f7e0.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Experience sessions",
+        "courses",
+        "events",
+        "sponsorship"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P020",
+      "title": "Sleep Institute",
+      "author": "Ruso Margishvili, IIT studio",
+      "status": "Student studio proposal; published 2012",
+      "typology": "Sleep and wakefulness institute",
+      "source_supported_function": "Sleep studies, monitoring laboratories and public engagement including installations, library, cinema and experimental space.",
+      "illustrative_user_scenario": "A participant follows a monitored sleep study while public visitors explore sleep-related installations.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/3784274/Sleep-Institute",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Partner-led clinical services",
+        "research contracts",
+        "public programs"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Contains a tower element; not a fit for the current no-tower preference. Clinical feasibility unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P021",
+      "title": "Behind the Seen",
+      "author": "Aisha Hammoud",
+      "status": "Graduation proposal; published 2018",
+      "typology": "Inclusive multisensory arts center",
+      "source_supported_function": "Educational, sensory-gallery and social routes consider visually impaired users and intersect at shared space.",
+      "illustrative_user_scenario": "A visually impaired artist leads a workshop where visitors use touch and sound.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/67016187/BEHIND-THE-SEEN",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Workshops",
+        "performances",
+        "courses"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P022",
+      "title": "Amsterdam Sensory Archive",
+      "author": "Eva Kirschbaum",
+      "status": "Graduation proposal, 2025",
+      "typology": "Archive of sensory experience",
+      "source_supported_function": "Connected volumes and landscapes collect and share sensory experiences rather than only documents.",
+      "illustrative_user_scenario": "People reconstruct a changing harbor through sound, smell, touch and memory.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.bouwkunst.ahk.nl/en/network/graduates/2025/student/eva-kirschbaum/",
+      "image_url": "https://www.bouwkunst.ahk.nl/media/avb/pics/2025/afstudeerder_24-25/Eva_Kirschbaum/1-Eva_Kirschbaum_design_principles.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Workshops",
+        "commissioned experiences",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P023",
+      "title": "City Walkers",
+      "author": "Terrence Hector",
+      "status": "Fairy Tales 2017, second prize",
+      "typology": "Sentient migrating architecture",
+      "source_supported_function": "Fictional slow-moving architectural beings support settlements and resource extraction.",
+      "illustrative_user_scenario": "A settlement follows a walker across generations.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://worldarchitecture.org/architecture-news/cvzhc/blank-space-announces-winners-of-2017-fairy-tales-architecture-competition.html",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Architectural fiction; not a feasible paid-experience facility without major reinterpretation.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P024",
+      "title": "Last Day",
+      "author": "Mykhailo Ponomarenko",
+      "status": "Fairy Tales 2017, first prize",
+      "typology": "Speculative landscape narrative",
+      "source_supported_function": "Monumental science-fiction interventions within painted landscapes.",
+      "illustrative_user_scenario": "A traveler encounters a familiar landscape transformed by an enormous artificial intervention.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://worldarchitecture.org/architecture-news/cvzhc/blank-space-announces-winners-of-2017-fairy-tales-architecture-competition.html",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Storytelling reference rather than a verified operational typology.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P025",
+      "title": "Human Civilization Monument",
+      "author": "Jinghua Yuan, Siyu Li, Wenhai Zheng, Dayou Du",
+      "status": "First Contact competition, first prize",
+      "typology": "Extraterrestrial communication pavilion",
+      "source_supported_function": "Floating exhibition cubes organized through binary code communicate human civilization.",
+      "illustrative_user_scenario": "An unfamiliar visitor interprets humanity through spatial relationships.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://architecturecompetitions.com/humanitypavilion/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative competition premise; nonhuman visitor is fictional.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P026",
+      "title": "The Stanford Binary Array",
+      "author": "Thiam Yi Donovan Ong",
+      "status": "First Contact competition, third prize",
+      "typology": "Contact amphitheater",
+      "source_supported_function": "Circular amphitheater near Stanford Dish associates gathering with extraterrestrial communication.",
+      "illustrative_user_scenario": "A gathering uses a shared performance to address an unknown audience.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://architecturecompetitions.com/humanitypavilion/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Performances",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P027",
+      "title": "The Living Refuge",
+      "author": "Changsi Wang",
+      "status": "eVolo 2025, first prize; announced 2026",
+      "typology": "Pollinator research tower",
+      "source_supported_function": "Pollinator habitat, scientific work and public observation corridors in Manhattan.",
+      "illustrative_user_scenario": "A visitor observes pollinator activity while scientists study habitat systems.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://bustler.net/news/10913/innovative-high-rises-honored-at-evolo-s-2025-skyscraper-competition",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Tower precedent retained for completeness; ecological effectiveness unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P028",
+      "title": "The Weight of Pleasure",
+      "author": "Kim Sunbin and Jung Hwanseok",
+      "status": "Museum of Emotions 8, third prize",
+      "typology": "Ethical dining landscape",
+      "source_supported_function": "Partly buried communal dining room frames a cattle landscape.",
+      "illustrative_user_scenario": "Diners confront the relationship between their meal and the animals outside.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://architecturecompetitions.com/museumofemotions8/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Dining bookings",
+        "curated meals"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P029",
+      "title": "REFRACTION",
+      "author": "Demet Dincer, Mehmet Metin Polat, Bilge Altug",
+      "status": "Museum of Emotions 1, first prize",
+      "typology": "Emotional sequence sanctuary",
+      "source_supported_function": "Waterborne arrival, walkways and contrasting light conditions create emotional transitions.",
+      "illustrative_user_scenario": "A visitor arrives by boat and moves from isolation to illumination.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://architecturecompetitions.com/museumofemotions",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Timed visits",
+        "guided experiences"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P030",
+      "title": "Dandelion2100",
+      "author": "See organizer attribution",
+      "status": "DYING competition winner",
+      "typology": "Alternative cemetery",
+      "source_supported_function": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "illustrative_user_scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dying/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Winner listing verified; do not infer individual functions from the title.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P031",
+      "title": "Newerwhere INC",
+      "author": "See organizer attribution",
+      "status": "DYING competition winner",
+      "typology": "Alternative cemetery",
+      "source_supported_function": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "illustrative_user_scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dying/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Winner listing verified; do not infer individual functions from the title.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P032",
+      "title": "The story of atoms",
+      "author": "See organizer attribution",
+      "status": "DYING competition winner",
+      "typology": "Alternative cemetery",
+      "source_supported_function": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "illustrative_user_scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dying/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Winner listing verified; do not infer individual functions from the title.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P033",
+      "title": "Plastic Fish Tower",
+      "author": "Kim Hongseop, Cho Hyunbeom, Yoom Sunhee, Yoom Hyungsoo",
+      "status": "eVolo 2012 honorable mention",
+      "typology": "Ocean waste-processing habitat",
+      "source_supported_function": "Floating proposal collects and reprocesses ocean plastic.",
+      "illustrative_user_scenario": "A remote work crew operates collection and processing systems.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://d-lab.kr/?p=345",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative tower; technical/environmental outcomes unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P034",
+      "title": "Himalaya Water Tower",
+      "author": "Zhi Zheng, Hongchuan Zhao, Dongbai Song",
+      "status": "eVolo 2012 first prize",
+      "typology": "Seasonal water reserve",
+      "source_supported_function": "Proposal stores and regulates water, including freezing it for future use.",
+      "illustrative_user_scenario": "Operators coordinate stored water with downstream seasonal needs.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://bustler.net/news/2472/evolo-2012-skyscraper-competition-winners",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative tower and resource system; not demonstrated engineering.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P035",
+      "title": "Out of the Ground",
+      "author": "Nathan Ehrlich, Alexandro Piña, Yao Xiao",
+      "status": "Iceland Beer Spa student award",
+      "typology": "Brewery bathing complex",
+      "source_supported_function": "Brewery, beer spa, cafe/snack bar and souvenir shop.",
+      "illustrative_user_scenario": "A guest combines a production visit, tasting and bathing ritual.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://arch.rice.edu/latest/news/rice-university-graduate-students-win-award-iceland-beer-spa-architecture-competition",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Bath sessions",
+        "tastings",
+        "food",
+        "retail"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P036",
+      "title": "Analemma Tower",
+      "author": "Clouds Architecture Office",
+      "status": "Speculative proposal",
+      "typology": "Orbiting suspended building",
+      "source_supported_function": "Tower suspended from an orbiting asteroid using a space-based support concept.",
+      "illustrative_user_scenario": "Occupants coordinate journeys with a moving orbital address.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://cloudsao.com/ANALEMMA-TOWER",
+      "image_url": "https://www.sciencealert.com/images/2017-03/analemma-tower-clouds-architecture-office-conceptual-supertall-skyscrapers_dezeen_2364_col_7.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Highly speculative tower, not a demonstrated construction system.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P037",
+      "title": "Reversible Destiny Lofts",
+      "author": "Arakawa + Madeline Gins",
+      "status": "Built, 2005",
+      "typology": "Active bodily dwelling",
+      "source_supported_function": "Uneven floors, poles and unusual geometry encourage conscious bodily engagement.",
+      "illustrative_user_scenario": "A resident continuously adapts movement and uses surfaces inventively.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.reversibledestiny.org/author/rdfstaff/page/2/",
+      "image_url": "https://architizer-prod.imgix.net/mediadata/projects/082013/1e8651c2.jpg?auto=format%2Ccompress&cs=strip&q=60&w=1680",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Housing reference retained for completeness; longevity premise is not an established medical effect.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P038",
+      "title": "Pig City",
+      "author": "MVRDV",
+      "status": "Research proposal",
+      "typology": "Vertical animal production",
+      "source_supported_function": "Pig farming and production processes stacked into a compact system.",
+      "illustrative_user_scenario": "Animal caretakers navigate vertically organized production spaces.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.mvrdv.com/projects/134/pig-city",
+      "image_url": "https://www.mvrdv.com/media/scraped/ff9cd26d-de5b-4d86-8b3c-46452c01cb54.jpg?width=1920",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Nonhuman/tower precedent; welfare and commercial outcomes not established.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P039",
+      "title": "Essence Skyscraper",
+      "author": "BOMP",
+      "status": "eVolo 2015 first prize",
+      "typology": "Stacked landscape expedition",
+      "source_supported_function": "Contrasting natural environments stacked within a tower.",
+      "illustrative_user_scenario": "A visitor moves from aquatic scenery to cave, jungle and waterfall experiences.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.archdaily.com/614728/evolo-announces-2015-skyscraper-competition-winners",
+      "image_url": "https://architizer-prod.imgix.net/media/1427746300026Evolo_1.jpg?auto=compress&auto=format&cs=strip&fit=max&q=60&w=1680",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Tower reference; environmental operation unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P040",
+      "title": "Noah Oasis",
+      "author": "Ma Yidong, Zhu Zhonghui, Qin Zhengyu, Jiang Zhe",
+      "status": "eVolo 2015 honorable mention",
+      "typology": "Offshore habitat conversion",
+      "source_supported_function": "Oil platforms reimagined as ecological, research and refuge structures.",
+      "illustrative_user_scenario": "Former industrial workers become habitat caretakers alongside researchers.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.designboom.com/architecture/the-noah-oasis-vertical-bio-habitats-evolo-competition-03-31-2015/",
+      "image_url": "https://www.designboom.com/twitterimages/uploads/2015/03/cr51-818x525.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative ecological conversion; technical claims unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P041",
+      "title": "New York Horizon",
+      "author": "Yitan Sun and Jianshi Wu",
+      "status": "eVolo 2016 first prize",
+      "typology": "Inhabited landscape perimeter",
+      "source_supported_function": "Excavated Central Park enclosed by a continuous horizontal building.",
+      "illustrative_user_scenario": "People descend from streets into a valley framed by occupied edges.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://worldarchitecture.org/architecture-news/ceghh/yitan-sunjianshi-wu-are-the-winners-of--2016-skyscraper-competition-with-new-york-horizon.html",
+      "image_url": "https://worldarchitecture.org/files/nwsbox/?file=evololeadimage.png",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Speculative mega excavation; residential components retained as historical context.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P042",
+      "title": "Oase No. 7",
+      "author": "Haus-Rucker-Co",
+      "status": "Built installation, 1972",
+      "typology": "Suspended public retreat",
+      "source_supported_function": "Inflatable transparent bubble projects from a facade with seating and plants.",
+      "illustrative_user_scenario": "A visitor experiences retreat while remaining visible from the square.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://ortner-ortner.com/en/haus-rucker-co/projekt/oase-nr-7-documenta-5-kassel-1972/bilder?image=oase-no.7.jpg",
+      "image_url": "https://ortner-ortner.com/thumbs/haus-rucker-co/projekt/oase-nr-7-documenta-5-kassel-1972/bilder/oase-no.7-860x860.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Small installation; not a mega project",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Timed installations",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P043",
+      "title": "Jellyfish Barge",
+      "author": "Studiomobile",
+      "status": "Built prototype",
+      "typology": "Floating productive greenhouse",
+      "source_supported_function": "Hydroponic greenhouse and solar water-distillation on a modular floating platform.",
+      "illustrative_user_scenario": "Growers work on water and connect productive platforms to shared spaces.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://cargocollective.com/Studiomobile/Jellyfish-Barge",
+      "image_url": "https://payload.cargocollective.com/1/16/526011/8567547/IMG_9283-as-Smart-Object-1_1340_c.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Prototype, not a mega project",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Produce",
+        "workshops",
+        "visits"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P044",
+      "title": "E-Defense",
+      "author": "NIED",
+      "status": "Operational facility",
+      "typology": "Disaster rehearsal institute",
+      "source_supported_function": "Full-scale earthquake testing reproduces structural damage processes.",
+      "illustrative_user_scenario": "Researchers observe a full-scale test then evaluate the damaged specimen.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://e-defense.bosai.go.jp/en/about_index/",
+      "image_url": "https://www.eri.u-tokyo.ac.jp/KUSUNOKI-LAB/images/featured-work4/2.png",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Research contracts",
+        "testing services"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Public rescue/flood/fire campus was an assistant extension, not the source facility program.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P045",
+      "title": "Biosphere 2",
+      "author": "University of Arizona; original project team",
+      "status": "Built research facility",
+      "typology": "Controlled ecosystem complex",
+      "source_supported_function": "Rainforest, ocean, desert and other mesocosms support ecological research.",
+      "illustrative_user_scenario": "Scientists monitor different environments while visitors follow interpretation routes.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://biosphere2.org/research/biosphere-2-ecosystems",
+      "image_url": "https://cdn.uanews.arizona.edu/s3fs-public/styles/az_large/public/170330_Biosphere%202%20Rain%20Forest_2_Demers.jpg.webp?VersionId=1sTaJhAOBQ23Ku4q.FI_LaiQWCtk3iBt&itok=pvUK1uXs",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Research funding",
+        "visits",
+        "education"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P046",
+      "title": "Zootopia",
+      "author": "BIG",
+      "status": "Masterplan proposal",
+      "typology": "Immersive wildlife landscape",
+      "source_supported_function": "Visitor facilities integrated into animal-habitat landscape for Givskud Zoo.",
+      "illustrative_user_scenario": "Visitors move through concealed routes while animal movement remains the focus.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.metalocus.es/en/news/zootopia-big-or-king-kongs-house",
+      "image_url": "https://www.metalocus.es/sites/default/files/big_zoo_metalocus_01_1280.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Large masterplan; full built implementation not established",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "education",
+        "food"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Rendering is proposal evidence, not proof of complete construction.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P047",
+      "title": "CopenHill",
+      "author": "BIG",
+      "status": "Built",
+      "typology": "Industrial recreation landscape",
+      "source_supported_function": "Waste-to-energy infrastructure with rooftop skiing, hiking and climbing.",
+      "illustrative_user_scenario": "A visitor skis over an operating industrial facility.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://big.dk/projects/copenhill-2391",
+      "image_url": "https://static.dezeen.com/uploads/2019/10/copenhill-big-architecture-power-plant-infrastructure-copenhagen-denmark-_dezeen_2364_col_6.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Recreation sessions",
+        "events",
+        "industrial operations"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Distinct operating businesses; energy/waste revenue does not automatically establish recreation profitability.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P048",
+      "title": "Svalbard Global Seed Vault",
+      "author": "Norway / NordGen / Crop Trust",
+      "status": "Built",
+      "typology": "Civilization backup repository",
+      "source_supported_function": "Safety duplicates of seeds held by genebanks worldwide.",
+      "illustrative_user_scenario": "Authorized staff deposit a collection for future recovery.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.fao.org/plant-treaty/areas-of-work/the-multilateral-system/svalbard/en",
+      "image_url": "https://images.wsj.net/im-191316/?size=1&width=1280",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Focused secure repository, not a public pay-to-experience mega campus.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P049",
+      "title": "Sahara Forest Project",
+      "author": "Sahara Forest Project team",
+      "status": "Built pilot facilities",
+      "typology": "Desert regeneration infrastructure",
+      "source_supported_function": "Saltwater-cooled greenhouses, solar energy and desert revegetation.",
+      "illustrative_user_scenario": "Growers and technicians coordinate cultivation with water and energy flows.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.saharaforestproject.com/project-development/",
+      "image_url": "https://network.bellona.org/content/uploads/sites/3/Sahara-Forest-Project1-1200x801.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Pilot image is Qatar; broader project also includes Jordan",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Produce",
+        "technical services",
+        "training"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P050",
+      "title": "Fun Palace",
+      "author": "Cedric Price with Joan Littlewood",
+      "status": "Unbuilt proposal",
+      "typology": "Reconfigurable participation institution",
+      "source_supported_function": "Adaptable environment for learning, recreation and performance.",
+      "illustrative_user_scenario": "Users and technicians reorganize spaces between a workshop and performance.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.moma.org/collection/works/842",
+      "image_url": "https://www.moma.org/media/W1siZiIsIjUzMDE0NCJdLFsicCIsImNvbnZlcnQiLCItcXVhbGl0eSA5MCAtcmVzaXplIDIwMDB4MjAwMFx1MDAzZSJdXQ.jpg?sha=f118cdbb0c90a503",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Courses",
+        "events",
+        "production space"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P051",
+      "title": "LUNA",
+      "author": "ESA–DLR",
+      "status": "Operational analogue facility",
+      "typology": "Off-Earth rehearsal facility",
+      "source_supported_function": "Lunar terrain and operating-condition simulation for training and technology testing.",
+      "illustrative_user_scenario": "Astronauts rehearse an equipment task with a mission team.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.esa.int/media/luna-europe-s-moon-on-earth",
+      "image_url": "https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2024/09/luna13/26326948-2-eng-GB/LUNA_pillars.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Institutional training/testing partnerships"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P052",
+      "title": "CYBATHLON",
+      "author": "ETH Zürich",
+      "status": "Competition event",
+      "typology": "Assistive technology challenge environment",
+      "source_supported_function": "Users and teams test assistive devices through practical tasks.",
+      "illustrative_user_scenario": "A user tackles an obstacle, then engineers adjust the device from feedback.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://cybathlon.com/de/news/9384/cybathlon-challenges-2024",
+      "image_url": "https://cybathlon.com/images/news_article/2024/Challenges-2024/2314/image-thumb__2314__news__gallery-thumb/ETH_CYBATHLON23_LEG_06%402x.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Event, not a designed permanent mega campus",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Partnerships",
+        "events",
+        "training extensions"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P053",
+      "title": "KidZania",
+      "author": "KidZania",
+      "status": "Built venue model",
+      "typology": "Role-play city",
+      "source_supported_function": "Children participate in professions and civic activities in a miniature city.",
+      "illustrative_user_scenario": "Children run services and exchange roles in a supervised play economy.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.accessiblebooksconsortium.org/en/web/wipo-magazine/articles/kidzania-get-ready-for-a-better-world-41009",
+      "image_url": "https://s03.s3c.es/imag/_v0/665x400/4/8/f/kidzania_reproduccion_ciudad.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "group visits",
+        "brand partnerships"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P054",
+      "title": "Sleep No More",
+      "author": "Punchdrunk / production partners",
+      "status": "Immersive theatre production",
+      "typology": "Participatory narrative environment",
+      "source_supported_function": "Audiences choose routes and encounter fragments of a live performance.",
+      "illustrative_user_scenario": "A masked audience member follows one character while others discover different scenes.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.jennyweinbloom.com/sleep-no-more",
+      "image_url": "https://images.squarespace-cdn.com/content/v1/60040eb247a6a51d6366daa3/1610954996210-020F5FMACZNNSVFPBW61/SNM-4.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Tickets",
+        "premium experiences",
+        "food/events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Reference format; current performances and availability not established.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P055",
+      "title": "In Orbit",
+      "author": "Tomás Saraceno",
+      "status": "Built installation, 2013",
+      "typology": "Collective balance environment",
+      "source_supported_function": "Visitors occupy a suspended net structure with shared movement effects.",
+      "illustrative_user_scenario": "Strangers adjust their movement in response to one another.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.tanyabonakdargallery.com/artists/28-tomas-saraceno/works/9587-tomas-saraceno-in-orbit-2013/",
+      "image_url": "https://artishockrevista.com/wp-content/uploads/2015/09/Saraceno_inorbit_CreditStudioSaraceno.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Installation; not a mega graduation project",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Exhibition admission",
+        "commissioned installations"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P056",
+      "title": "Museum of Broken Relationships",
+      "author": "Olinka Vištica and Dražen Grubišić",
+      "status": "Built cultural venue",
+      "typology": "Public archive of endings",
+      "source_supported_function": "Donated objects and stories represent ended relationships.",
+      "illustrative_user_scenario": "A donor contributes an object and story; visitors encounter others experiences.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.cromacultura.com/museo-relaciones-rotas/",
+      "image_url": "https://i0.wp.com/www.cromacultura.com/wp-content/uploads/2014/05/museo-de-las-relaciones-rotas.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Small reference retained for completeness",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Admission",
+        "retail",
+        "events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P057",
+      "title": "Blur Building",
+      "author": "Diller Scofidio + Renfro",
+      "status": "Built Expo installation, 2002",
+      "typology": "Atmospheric experience environment",
+      "source_supported_function": "A mist-producing pavilion makes changing visibility central to experience.",
+      "illustrative_user_scenario": "Visitors move through fog and re-emerge into a clear environment.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.architecturaldigest.com/gallery/see-more-of-diller-scofidio-renfros-influential-cultural-projects",
+      "image_url": "https://media.architecturaldigest.com/photos/5de7f828d792ac00083ec2b0/master/pass/03_Blur-Building_by_Beat_Widmer.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Temporary pavilion; not a mega project",
+      "new_this_round": false,
+      "revenue_hypotheses": [
+        "Commissioned experiences",
+        "timed events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Demand, operating costs and technical feasibility require assessment.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P058",
+      "title": "Spinning Loads",
+      "author": "See organizer attribution",
+      "status": "DANCING competition winner",
+      "typology": "Experimental club",
+      "source_supported_function": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "illustrative_user_scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dancing/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Do not infer a precise program from the title; scale unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P059",
+      "title": "Below 120",
+      "author": "See organizer attribution",
+      "status": "DANCING competition winner",
+      "typology": "Experimental club",
+      "source_supported_function": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "illustrative_user_scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dancing/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Do not infer a precise program from the title; scale unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P060",
+      "title": "Place",
+      "author": "See organizer attribution",
+      "status": "DANCING competition winner",
+      "typology": "Experimental club",
+      "source_supported_function": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "illustrative_user_scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.nonarchitecture.eu/dancing/",
+      "image_url": null,
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Area not established in this chat",
+      "new_this_round": false,
+      "revenue_hypotheses": [],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Do not infer a precise program from the title; scale unverified.",
+      "verification": "Source consulted in this conversation; earlier records were not all rechecked on the compilation date"
+    },
+    {
+      "id": "P061",
+      "title": "EGSC — Entertainment Genetic Sports Club",
+      "author": "Abdulrahman Hamza; project credited on page to Abdulrahman Thabet, Helwan University / Al Matarya",
+      "status": "Graduation proposal; published 2022",
+      "typology": "Speculative sports-capability campus",
+      "source_supported_function": "An entertainment and sports club in Al Marg, Cairo, framed by the author around genes and sporting aspirations. Images show a stadium, sports courts and a multi-building campus. The written brief does not establish a clinical genetic intervention or detailed enhancement protocol.",
+      "illustrative_user_scenario": "Proposed adaptation: a visitor books a capability-discovery day, tries several supervised movement challenges, receives coaching based on observed performance, then returns for a different challenge. This journey is our development idea, not the author’s documented program.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/148495121/Graduation-project-EGSC-Genetic-Sports-Club",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/22747e148495121.62d6b2af8050a.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Campus and stadium shown in source images; exact site and floor areas unverified. Land number 37 is a plot identifier, not an area.",
+      "new_this_round": true,
+      "revenue_hypotheses": [
+        "Coached challenge sessions",
+        "recurring training membership",
+        "team challenge bookings",
+        "competition events"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Partial match: novel genetic framing, but substantial conventional sports facilities. Genetic effects and enhancement efficacy are not established. A commercial adaptation needs a distinctive activity beyond an ordinary gym.",
+      "verification": "Behance brief and project images checked 27 November 2026; exact area and detailed scientific program not verified.",
+      "match_to_current_brief": "Partial match; closest new connection to NEO’s human-capability theme, not proof of a wholly new function",
+      "why_people_might_pay": "Discover and practice unfamiliar physical capabilities with coached progression and visible personal results.",
+      "architectural_generator": "A sequence of assessment, practice, challenge, recovery and spectator spaces; reconfigurable challenge arenas rather than only standard courts. Proposed adaptation.",
+      "repeat_visit_driver": "New challenge seasons and coaching progression; demand remains untested.",
+      "image_gallery": [
+        "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/22747e148495121.62d6b2af8050a.jpg",
+        "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/183ae6148495121.62d6b2af7540e.png"
+      ]
+    },
+    {
+      "id": "P062",
+      "title": "Branelss Media City — Simulation of Other Worlds",
+      "author": "Saif Osama",
+      "status": "Graduation proposal; published 2023",
+      "typology": "Constructed-world production and participation city",
+      "source_supported_function": "A media-production city proposed for New Alamein, Egypt. The author describes simulation of other worlds in the universe, referencing Carl Sagan’s cosmic calendar. The published text is brief; it does not establish public ticketing, role-play or actual altered-gravity technology.",
+      "illustrative_user_scenario": "Proposed adaptation: a group books a mission in a constructed world, receives characters and tasks, enters an instrumented set, performs a branching story with a production crew, then leaves with an edited scene. All public participation details are our development proposal.",
+      "scenario_provenance": "assistant interpretation, not a verified activity schedule",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "image_credit": "Named project author / source page; rights remain with their owners",
+      "scale_evidence": "Source aerial depicts a substantial multi-building city/campus proposal. Exact area, capacity and mega-project threshold are unverified.",
+      "new_this_round": true,
+      "revenue_hypotheses": [
+        "Participatory production sessions",
+        "studio and set rental",
+        "creator residencies without housing assumptions",
+        "corporate mission bookings",
+        "repeat story seasons"
+      ],
+      "commercial_validation": "Not established; no profitability or ROI claimed",
+      "constraints": "Partial match: the source function is media production; the paid public world-inhabitation experience is an adaptation. Set renewal, performers, media rights, throughput and resetting costs govern feasibility.",
+      "verification": "Behance brief and campus aerial checked 27 November 2026; exact area and visitor operations not verified.",
+      "match_to_current_brief": "Partial match; strongest new starting point for unusual paid participation, but public visitor use is not established in source",
+      "why_people_might_pay": "Become a participant in a physically constructed world and create a personal film, rather than only watch a screen.",
+      "architectural_generator": "Reusable world stages, sensory transition chambers, performer routes, prop logistics, control rooms and editing lounges. Proposed adaptation.",
+      "repeat_visit_driver": "Different worlds, roles, group missions and story outcomes; demand remains untested.",
+      "image_gallery": [
+        "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+        "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/677162176159229.64c013846e623.jpg"
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "id": "C01",
+      "title": "Pavilion of Humanity: First Contact",
+      "url": "https://architecturecompetitions.com/humanitypavilion/",
+      "type": "competition collection"
+    },
+    {
+      "id": "C02",
+      "title": "DYING",
+      "url": "https://www.nonarchitecture.eu/dying/",
+      "type": "competition collection"
+    },
+    {
+      "id": "C03",
+      "title": "DANCING",
+      "url": "https://www.nonarchitecture.eu/dancing/",
+      "type": "competition collection"
+    },
+    {
+      "id": "C04",
+      "title": "Museum of Emotions",
+      "url": "https://architecturecompetitions.com/museumofemotions",
+      "type": "competition collection"
+    }
+  ],
+  "typologies": [
+    {
+      "id": "T001",
+      "name": "Adventure park",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P001"
+      ],
+      "core_activity": "Amusement/adventure park with masterplan, three upper floor plans, park layout and sections. Rides are visible in the renderings.",
+      "scenario": "A group follows a sequence of rides, gathering spaces and viewing points during a day visit.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "ride packages",
+        "group bookings",
+        "food concessions"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Ride engineering, throughput, maintenance, seasonality and demand need assessment."
+    },
+    {
+      "id": "T002",
+      "name": "Participatory culinary complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P002"
+      ],
+      "core_activity": "Cooking and tasting journey combining open markets, plazas, interactive workshops, exhibition areas and edible gardens in Ismailia.",
+      "scenario": "Visitors select ingredients, join a cooking workshop and share a meal; returning groups explore another culinary theme.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Paid workshops",
+        "chef events",
+        "food retail leases",
+        "dining",
+        "private group bookings"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Food safety, class capacity, staffing and repeat demand govern viability."
+    },
+    {
+      "id": "T003",
+      "name": "Entertainment complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P003"
+      ],
+      "core_activity": "Entertainment-complex presentation located on its title board at Mazarine Island, El Alamein. The inspected images confirm entrance/reception design, not a complete activity schedule.",
+      "scenario": "A visitor arrives for a booked entertainment session; the actual attraction sequence needs further extraction from the full boards.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Session tickets if supported by final program",
+        "events",
+        "food concessions"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Limited written brief. Do not invent specific attractions or assume mega scale from the title."
+    },
+    {
+      "id": "T004",
+      "name": "Adventure and recreation destination",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P004"
+      ],
+      "core_activity": "Upper Galilee / Al-Qurn valley resort combining hiking, cable car, swimming, gym, spa and restaurant; accommodation is also part of the source program.",
+      "scenario": "Day visitors combine a landscape route and cable-car journey with recreation and food.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Day passes",
+        "guided activities",
+        "cable-car tickets",
+        "food",
+        "spa sessions"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Not a wholly new typology; ecological capacity, access and cable-car feasibility matter."
+    },
+    {
+      "id": "T005",
+      "name": "Human enhancement campus",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P005"
+      ],
+      "core_activity": "Neurotechnology and biomedical research exploring expanded human capabilities and wearable interfaces.",
+      "scenario": "A participant learns to use an assistive interface in collaboration with designers and clinicians.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Development contracts",
+        "training",
+        "device support",
+        "research leases"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative biomedical claims are not demonstrated outcomes. Clinical activity requires suitable governance and partners."
+    },
+    {
+      "id": "T006",
+      "name": "Assistive robotics city",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P006"
+      ],
+      "core_activity": "New Mansoura research city for medical/engineering AI, assistive robots and smart artificial limbs; academy and workspaces.",
+      "scenario": "A prosthetic user tests adjustments with engineers and returns for device adaptation.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Product development contracts",
+        "training",
+        "workspace leases",
+        "device support"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T007",
+      "name": "Human–robot innovation complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P007"
+      ],
+      "core_activity": "Port Said robotics/innovation proposal with multilevel drawings and a retractable exhibition. Detailed operations are not stated in the accessible text.",
+      "scenario": "Workers and engineers learn a shared robotic workflow and demonstrate a prototype.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Corporate training",
+        "prototype space rental",
+        "demonstrations",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T008",
+      "name": "Biotechnology incubator platform",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P008"
+      ],
+      "core_activity": "Baghdad laboratory/incubator complex for human/animal, plant and inheritance studies, with conferences and exhibition functions.",
+      "scenario": "A startup develops a biological prototype using shared laboratories and presents it to an industry partner.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Laboratory leases",
+        "shared equipment",
+        "contract research",
+        "professional conferences"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "High laboratory operating costs; source biomedical claims are conceptual, not validated."
+    },
+    {
+      "id": "T009",
+      "name": "Future-experience expo",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P009"
+      ],
+      "core_activity": "Salam City proposal with water/energy/horticulture pavilions, flying-robot/hologram halls, AR and simulated mobility experiences.",
+      "scenario": "A visitor tries a simulated vehicle while exhibitors demonstrate their technologies to clients.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Pavilion leases",
+        "launches",
+        "conferences",
+        "sponsorship",
+        "experience tickets"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Year-round utilization and replacement of obsolete media need planning."
+    },
+    {
+      "id": "T010",
+      "name": "Remote-operation technology center",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P010"
+      ],
+      "core_activity": "Programming, sensor and mechatronics laboratories, control center, hologram room and library.",
+      "scenario": "An operator controls a drone while a development team evaluates its sensors.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Technical training",
+        "workspace rental",
+        "maintenance",
+        "contract services"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Commercial service extensions are assistant proposals; airspace permissions depend on location."
+    },
+    {
+      "id": "T011",
+      "name": "Sensory participation hub",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P011"
+      ],
+      "core_activity": "Engagement farm, community kitchen, controlled rooms, interactive promenade and hologram corridors.",
+      "scenario": "Participants cultivate, cook and move through contrasting sensory environments.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Workshops",
+        "membership",
+        "group programs",
+        "food"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "The source label psychoactive planting and healing claims are not established clinical effects."
+    },
+    {
+      "id": "T012",
+      "name": "Physical–digital competition complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P012"
+      ],
+      "core_activity": "Drone racing, competition arenas, outdoor viewing and proposed laser-tag VR/hologram environments.",
+      "scenario": "Players alternate remote piloting and bodily gameplay while spectators follow the competition.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Play sessions",
+        "tournaments",
+        "training",
+        "broadcast partnerships",
+        "food"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T013",
+      "name": "Space-experience destination",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P013"
+      ],
+      "core_activity": "Shuttle and Mars simulators, proposed weightlessness experience, IMAX, planetarium, historical/cultural zones and themed accommodation.",
+      "scenario": "Visitors undertake a staged simulated space journey through several environmental experiences.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Experience tickets",
+        "school programs",
+        "events",
+        "themed stays"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Weightlessness is an unverified conceptual claim, not demonstrated engineering."
+    },
+    {
+      "id": "T014",
+      "name": "Historical role-play park",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P014"
+      ],
+      "core_activity": "Virtual/interactive museum in Al-Azbakieya Park where visitors experience the Khedivial era through physical and virtual media.",
+      "scenario": "A family moves through historical settings and participates in an interpreted daily-life scene.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "guided role-play",
+        "school visits",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T015",
+      "name": "Cinematic experience complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P015"
+      ],
+      "core_activity": "Downtown Cairo film/light-art proposal creating interactive cinematic scenarios around ancient Egypt.",
+      "scenario": "Visitors move through a timed narrative composed through light, scenery and film.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Timed experiences",
+        "production hire",
+        "workshops",
+        "special events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T016",
+      "name": "Displacement storytelling landscape",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P016"
+      ],
+      "core_activity": "Four phases connect Nubian life before displacement, dam/displacement, aftermath and hope of return.",
+      "scenario": "A visitor follows a changing temporal sequence from lost place to an imagined return.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "guided programs",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T017",
+      "name": "War memory landscape",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P017"
+      ],
+      "core_activity": "Subterranean/semi-subterranean war-remnants museum, forest, atria, memorial funnel and spiral ascent.",
+      "scenario": "Different generations follow a spatial sequence from war memory to reflection and rebirth.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "education programs",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Healing is a design intention, not a demonstrated therapeutic result."
+    },
+    {
+      "id": "T018",
+      "name": "Institutional reversal complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P018"
+      ],
+      "core_activity": "Former prison transformed into market, design hub, museum and park.",
+      "scenario": "Visitors move freely through spaces originally organized around confinement.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Market leases",
+        "workshops",
+        "events",
+        "workspace"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T019",
+      "name": "Immersive technology hub",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P019"
+      ],
+      "core_activity": "Metaverse/VR/AI public engagement proposal with multiple experience zones.",
+      "scenario": "Visitors try digital interfaces and compare physical and virtual interaction.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Experience sessions",
+        "courses",
+        "events",
+        "sponsorship"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T020",
+      "name": "Sleep and wakefulness institute",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P020"
+      ],
+      "core_activity": "Sleep studies, monitoring laboratories and public engagement including installations, library, cinema and experimental space.",
+      "scenario": "A participant follows a monitored sleep study while public visitors explore sleep-related installations.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Partner-led clinical services",
+        "research contracts",
+        "public programs"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Contains a tower element; not a fit for the current no-tower preference. Clinical feasibility unverified."
+    },
+    {
+      "id": "T021",
+      "name": "Inclusive multisensory arts center",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P021"
+      ],
+      "core_activity": "Educational, sensory-gallery and social routes consider visually impaired users and intersect at shared space.",
+      "scenario": "A visually impaired artist leads a workshop where visitors use touch and sound.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Workshops",
+        "performances",
+        "courses"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T022",
+      "name": "Archive of sensory experience",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P022"
+      ],
+      "core_activity": "Connected volumes and landscapes collect and share sensory experiences rather than only documents.",
+      "scenario": "People reconstruct a changing harbor through sound, smell, touch and memory.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Workshops",
+        "commissioned experiences",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T023",
+      "name": "Sentient migrating architecture",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P023"
+      ],
+      "core_activity": "Fictional slow-moving architectural beings support settlements and resource extraction.",
+      "scenario": "A settlement follows a walker across generations.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Architectural fiction; not a feasible paid-experience facility without major reinterpretation."
+    },
+    {
+      "id": "T024",
+      "name": "Speculative landscape narrative",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P024"
+      ],
+      "core_activity": "Monumental science-fiction interventions within painted landscapes.",
+      "scenario": "A traveler encounters a familiar landscape transformed by an enormous artificial intervention.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Storytelling reference rather than a verified operational typology."
+    },
+    {
+      "id": "T025",
+      "name": "Extraterrestrial communication pavilion",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P025"
+      ],
+      "core_activity": "Floating exhibition cubes organized through binary code communicate human civilization.",
+      "scenario": "An unfamiliar visitor interprets humanity through spatial relationships.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative competition premise; nonhuman visitor is fictional."
+    },
+    {
+      "id": "T026",
+      "name": "Contact amphitheater",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P026"
+      ],
+      "core_activity": "Circular amphitheater near Stanford Dish associates gathering with extraterrestrial communication.",
+      "scenario": "A gathering uses a shared performance to address an unknown audience.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Performances",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T027",
+      "name": "Pollinator research tower",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P027"
+      ],
+      "core_activity": "Pollinator habitat, scientific work and public observation corridors in Manhattan.",
+      "scenario": "A visitor observes pollinator activity while scientists study habitat systems.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Tower precedent retained for completeness; ecological effectiveness unverified."
+    },
+    {
+      "id": "T028",
+      "name": "Ethical dining landscape",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P028"
+      ],
+      "core_activity": "Partly buried communal dining room frames a cattle landscape.",
+      "scenario": "Diners confront the relationship between their meal and the animals outside.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Dining bookings",
+        "curated meals"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T029",
+      "name": "Emotional sequence sanctuary",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P029"
+      ],
+      "core_activity": "Waterborne arrival, walkways and contrasting light conditions create emotional transitions.",
+      "scenario": "A visitor arrives by boat and moves from isolation to illumination.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Timed visits",
+        "guided experiences"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T030",
+      "name": "Alternative cemetery",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P030"
+      ],
+      "core_activity": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Winner listing verified; do not infer individual functions from the title."
+    },
+    {
+      "id": "T031",
+      "name": "Alternative cemetery",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P031"
+      ],
+      "core_activity": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Winner listing verified; do not infer individual functions from the title."
+    },
+    {
+      "id": "T032",
+      "name": "Alternative cemetery",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P032"
+      ],
+      "core_activity": "Listed winning entry in the organizer archive; individual operating program was not inspected in this chat.",
+      "scenario": "A visitor participates in remembrance; precise entry-specific sequence remains unverified.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Winner listing verified; do not infer individual functions from the title."
+    },
+    {
+      "id": "T033",
+      "name": "Ocean waste-processing habitat",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P033"
+      ],
+      "core_activity": "Floating proposal collects and reprocesses ocean plastic.",
+      "scenario": "A remote work crew operates collection and processing systems.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative tower; technical/environmental outcomes unverified."
+    },
+    {
+      "id": "T034",
+      "name": "Seasonal water reserve",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P034"
+      ],
+      "core_activity": "Proposal stores and regulates water, including freezing it for future use.",
+      "scenario": "Operators coordinate stored water with downstream seasonal needs.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative tower and resource system; not demonstrated engineering."
+    },
+    {
+      "id": "T035",
+      "name": "Brewery bathing complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P035"
+      ],
+      "core_activity": "Brewery, beer spa, cafe/snack bar and souvenir shop.",
+      "scenario": "A guest combines a production visit, tasting and bathing ritual.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Bath sessions",
+        "tastings",
+        "food",
+        "retail"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T036",
+      "name": "Orbiting suspended building",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P036"
+      ],
+      "core_activity": "Tower suspended from an orbiting asteroid using a space-based support concept.",
+      "scenario": "Occupants coordinate journeys with a moving orbital address.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Highly speculative tower, not a demonstrated construction system."
+    },
+    {
+      "id": "T037",
+      "name": "Active bodily dwelling",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P037"
+      ],
+      "core_activity": "Uneven floors, poles and unusual geometry encourage conscious bodily engagement.",
+      "scenario": "A resident continuously adapts movement and uses surfaces inventively.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Housing reference retained for completeness; longevity premise is not an established medical effect."
+    },
+    {
+      "id": "T038",
+      "name": "Vertical animal production",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P038"
+      ],
+      "core_activity": "Pig farming and production processes stacked into a compact system.",
+      "scenario": "Animal caretakers navigate vertically organized production spaces.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Nonhuman/tower precedent; welfare and commercial outcomes not established."
+    },
+    {
+      "id": "T039",
+      "name": "Stacked landscape expedition",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P039"
+      ],
+      "core_activity": "Contrasting natural environments stacked within a tower.",
+      "scenario": "A visitor moves from aquatic scenery to cave, jungle and waterfall experiences.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Tower reference; environmental operation unverified."
+    },
+    {
+      "id": "T040",
+      "name": "Offshore habitat conversion",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P040"
+      ],
+      "core_activity": "Oil platforms reimagined as ecological, research and refuge structures.",
+      "scenario": "Former industrial workers become habitat caretakers alongside researchers.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative ecological conversion; technical claims unverified."
+    },
+    {
+      "id": "T041",
+      "name": "Inhabited landscape perimeter",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P041"
+      ],
+      "core_activity": "Excavated Central Park enclosed by a continuous horizontal building.",
+      "scenario": "People descend from streets into a valley framed by occupied edges.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Speculative mega excavation; residential components retained as historical context."
+    },
+    {
+      "id": "T042",
+      "name": "Suspended public retreat",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P042"
+      ],
+      "core_activity": "Inflatable transparent bubble projects from a facade with seating and plants.",
+      "scenario": "A visitor experiences retreat while remaining visible from the square.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Timed installations",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T043",
+      "name": "Floating productive greenhouse",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P043"
+      ],
+      "core_activity": "Hydroponic greenhouse and solar water-distillation on a modular floating platform.",
+      "scenario": "Growers work on water and connect productive platforms to shared spaces.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Produce",
+        "workshops",
+        "visits"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T044",
+      "name": "Disaster rehearsal institute",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P044"
+      ],
+      "core_activity": "Full-scale earthquake testing reproduces structural damage processes.",
+      "scenario": "Researchers observe a full-scale test then evaluate the damaged specimen.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Research contracts",
+        "testing services"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Public rescue/flood/fire campus was an assistant extension, not the source facility program."
+    },
+    {
+      "id": "T045",
+      "name": "Controlled ecosystem complex",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P045"
+      ],
+      "core_activity": "Rainforest, ocean, desert and other mesocosms support ecological research.",
+      "scenario": "Scientists monitor different environments while visitors follow interpretation routes.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Research funding",
+        "visits",
+        "education"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T046",
+      "name": "Immersive wildlife landscape",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P046"
+      ],
+      "core_activity": "Visitor facilities integrated into animal-habitat landscape for Givskud Zoo.",
+      "scenario": "Visitors move through concealed routes while animal movement remains the focus.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "education",
+        "food"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Rendering is proposal evidence, not proof of complete construction."
+    },
+    {
+      "id": "T047",
+      "name": "Industrial recreation landscape",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P047"
+      ],
+      "core_activity": "Waste-to-energy infrastructure with rooftop skiing, hiking and climbing.",
+      "scenario": "A visitor skis over an operating industrial facility.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Recreation sessions",
+        "events",
+        "industrial operations"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Distinct operating businesses; energy/waste revenue does not automatically establish recreation profitability."
+    },
+    {
+      "id": "T048",
+      "name": "Civilization backup repository",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P048"
+      ],
+      "core_activity": "Safety duplicates of seeds held by genebanks worldwide.",
+      "scenario": "Authorized staff deposit a collection for future recovery.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Focused secure repository, not a public pay-to-experience mega campus."
+    },
+    {
+      "id": "T049",
+      "name": "Desert regeneration infrastructure",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P049"
+      ],
+      "core_activity": "Saltwater-cooled greenhouses, solar energy and desert revegetation.",
+      "scenario": "Growers and technicians coordinate cultivation with water and energy flows.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Produce",
+        "technical services",
+        "training"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T050",
+      "name": "Reconfigurable participation institution",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P050"
+      ],
+      "core_activity": "Adaptable environment for learning, recreation and performance.",
+      "scenario": "Users and technicians reorganize spaces between a workshop and performance.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Courses",
+        "events",
+        "production space"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T051",
+      "name": "Off-Earth rehearsal facility",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P051"
+      ],
+      "core_activity": "Lunar terrain and operating-condition simulation for training and technology testing.",
+      "scenario": "Astronauts rehearse an equipment task with a mission team.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Institutional training/testing partnerships"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T052",
+      "name": "Assistive technology challenge environment",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P052"
+      ],
+      "core_activity": "Users and teams test assistive devices through practical tasks.",
+      "scenario": "A user tackles an obstacle, then engineers adjust the device from feedback.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Partnerships",
+        "events",
+        "training extensions"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T053",
+      "name": "Role-play city",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P053"
+      ],
+      "core_activity": "Children participate in professions and civic activities in a miniature city.",
+      "scenario": "Children run services and exchange roles in a supervised play economy.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "group visits",
+        "brand partnerships"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T054",
+      "name": "Participatory narrative environment",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P054"
+      ],
+      "core_activity": "Audiences choose routes and encounter fragments of a live performance.",
+      "scenario": "A masked audience member follows one character while others discover different scenes.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Tickets",
+        "premium experiences",
+        "food/events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Reference format; current performances and availability not established."
+    },
+    {
+      "id": "T055",
+      "name": "Collective balance environment",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P055"
+      ],
+      "core_activity": "Visitors occupy a suspended net structure with shared movement effects.",
+      "scenario": "Strangers adjust their movement in response to one another.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Exhibition admission",
+        "commissioned installations"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T056",
+      "name": "Public archive of endings",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P056"
+      ],
+      "core_activity": "Donated objects and stories represent ended relationships.",
+      "scenario": "A donor contributes an object and story; visitors encounter others experiences.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Admission",
+        "retail",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T057",
+      "name": "Atmospheric experience environment",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P057"
+      ],
+      "core_activity": "A mist-producing pavilion makes changing visibility central to experience.",
+      "scenario": "Visitors move through fog and re-emerge into a clear environment.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [
+        "Commissioned experiences",
+        "timed events"
+      ],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Demand, operating costs and technical feasibility require assessment."
+    },
+    {
+      "id": "T058",
+      "name": "Experimental club",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P058"
+      ],
+      "core_activity": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Do not infer a precise program from the title; scale unverified."
+    },
+    {
+      "id": "T059",
+      "name": "Experimental club",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P059"
+      ],
+      "core_activity": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Do not infer a precise program from the title; scale unverified."
+    },
+    {
+      "id": "T060",
+      "name": "Experimental club",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P060"
+      ],
+      "core_activity": "Winning entry listed in DANCING archive; detailed individual program was not inspected.",
+      "scenario": "Participants experience music and movement; entry-specific scenario requires further source inspection.",
+      "evidence_status": "Function is source-backed as qualified in project; scenario is assistant interpretation",
+      "revenue_hypotheses": [],
+      "site_requirements_to_assess": [
+        "Access and transport",
+        "Utilities and servicing",
+        "Environmental constraints",
+        "Market catchment"
+      ],
+      "nest_use": "Concept retrieval only; no automatic site suitability or profit score",
+      "constraints": "Do not infer a precise program from the title; scale unverified."
+    },
+    {
+      "id": "T061",
+      "name": "Embassy for nonhuman species",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Negotiate land and water access",
+      "scenario": "Humans gather at shared habitat edges while other species occupy protected routes.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Gatherings",
+        "education"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Species compatibility and management"
+    },
+    {
+      "id": "T062",
+      "name": "School for disappearing professions",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Learn endangered practical skills",
+      "scenario": "The last practitioners train apprentices using working tools and production spaces.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Courses",
+        "products",
+        "workshops"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Evidence of practitioners, demand and supply chain"
+    },
+    {
+      "id": "T063",
+      "name": "Seasonal city of absence",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Change occupation seasonally",
+      "scenario": "A settlement switches from a human program to habitat or resource functions after visitors leave.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Seasonal activities",
+        "services"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Seasonality, habitat disturbance and maintenance"
+    },
+    {
+      "id": "T064",
+      "name": "Public house for endings",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Mark a life transition",
+      "scenario": "People gather for leaving a city, retirement or the end of a friendship.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Private ceremonies",
+        "facilitated events"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Privacy and cultural relevance"
+    },
+    {
+      "id": "T065",
+      "name": "Quarantine for objects",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Recover damaged possessions",
+      "scenario": "Owners bring flood-damaged objects through drying, repair and eventual reunion.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Repair",
+        "restoration",
+        "storage"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Contamination control and treatment expertise"
+    },
+    {
+      "id": "T066",
+      "name": "Interspecies succession campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Design for changing occupants",
+      "scenario": "Human programs gradually relinquish parts of a building to ecological occupation.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Education",
+        "research partnerships"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Cannot assume ecological benefit"
+    },
+    {
+      "id": "T067",
+      "name": "Migrating service institution",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Follow seasonal populations",
+      "scenario": "A mobile school, clinic or market changes location with users.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Service contracts",
+        "market leases"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Transport and service continuity"
+    },
+    {
+      "id": "T068",
+      "name": "Landscape hospital",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Restore damaged environments",
+      "scenario": "Teams treat soil and propagate plants or coral before returning them to a damaged site.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Restoration contracts",
+        "training"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Scientific outcomes require verification"
+    },
+    {
+      "id": "T069",
+      "name": "Collaborative cooking environment",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Cook through collective action",
+      "scenario": "A group must coordinate shared workstations to prepare a meal.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Classes",
+        "group bookings"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Food safety and accessible participation"
+    },
+    {
+      "id": "T070",
+      "name": "Climate-sequence sleep experience",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Experience changing sleeping environments",
+      "scenario": "Participants choose contrasting controlled sleep environments under appropriate supervision.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Booked stays",
+        "partner studies"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "No therapeutic claim without evidence"
+    },
+    {
+      "id": "T071",
+      "name": "Timed encounter building",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Meet through controlled visibility",
+      "scenario": "Two routes periodically reveal and conceal participants before a shared meeting.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Performance tickets",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Consent, accessibility and evacuation"
+    },
+    {
+      "id": "T072",
+      "name": "Disaster rehearsal campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Practice response and recovery",
+      "scenario": "Rescue crews enter a simulated flooded district while researchers observe from protected routes.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Training contracts",
+        "testing"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Hazards, separation and reset costs"
+    },
+    {
+      "id": "T073",
+      "name": "Ecosystem recovery campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Rehabilitate ecological systems",
+      "scenario": "Biologists and growers move damaged samples through recovery, monitoring and propagation.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Restoration services",
+        "training"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Environmental results unverified"
+    },
+    {
+      "id": "T074",
+      "name": "Interspecies sanctuary",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Care for wildlife with controlled encounters",
+      "scenario": "Animals cross above visitors while caretakers use an independent treatment network.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Visits",
+        "education"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Welfare and carrying capacity"
+    },
+    {
+      "id": "T075",
+      "name": "Resource recovery park",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Turn discarded materials into products",
+      "scenario": "Demolition components move through sorting and repair into workshops and a public market.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Salvage sales",
+        "workshop leases",
+        "repair"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Material quality, logistics and processing costs"
+    },
+    {
+      "id": "T076",
+      "name": "Living heritage recovery campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Preserve practices and biological diversity",
+      "scenario": "A community deposits crop samples and teaches its cultivation knowledge.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Courses",
+        "products",
+        "institutional support"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Seed and knowledge governance"
+    },
+    {
+      "id": "T077",
+      "name": "Desert regeneration institute",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Generate productive microclimates",
+      "scenario": "Farmers move through shaded cultivation courts and learn water/salt/energy flows.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Produce",
+        "training",
+        "technical services"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Water balance and ecological feasibility"
+    },
+    {
+      "id": "T078",
+      "name": "Public experimentation megastructure",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Collectively build and reconfigure",
+      "scenario": "Technicians turn a morning workshop platform into an evening theatre.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Workshops",
+        "events",
+        "production hire"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Changeover time and moving-system safety"
+    },
+    {
+      "id": "T079",
+      "name": "Sensory exchange campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Record and share sensations",
+      "scenario": "A perfumer, musician and fisherman reconstruct a disappearing harbor through sensory media.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Commissions",
+        "workshops",
+        "admission"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Sensory inclusion and authenticity"
+    },
+    {
+      "id": "T080",
+      "name": "Off-Earth rehearsal institute",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Practice unfamiliar planetary routines",
+      "scenario": "A mixed professional team undertakes a simulated mission with delayed communication.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Training",
+        "testing",
+        "visits"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Simulations must distinguish real from represented physics"
+    },
+    {
+      "id": "T081",
+      "name": "Human–machine adaptation campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Learn to use assistive devices",
+      "scenario": "Users and engineers alternate fabrication with adjustable obstacle testing.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Development",
+        "training",
+        "support"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Clinical and technical partnerships"
+    },
+    {
+      "id": "T082",
+      "name": "City of alternative lives",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Rehearse roles and social systems",
+      "scenario": "Participants run a fictional city facing resource scarcity and negotiate decisions.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Sessions",
+        "school visits",
+        "corporate programs"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Facilitation, consent and repeat content"
+    },
+    {
+      "id": "T083",
+      "name": "Narrative production city",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Participate in branching stories",
+      "scenario": "Visitors take roles as witnesses or messengers across simultaneous performance districts.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Tickets",
+        "productions",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Performer costs, throughput and story renewal"
+    },
+    {
+      "id": "T084",
+      "name": "Collective balance institute",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Coordinate shared bodily movement",
+      "scenario": "A group negotiates a flexible environment where movement changes others footing.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Sessions",
+        "training",
+        "performances"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Structural dynamics and accessible alternatives"
+    },
+    {
+      "id": "T085",
+      "name": "Public institute for endings",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Transform objects connected to loss",
+      "scenario": "A participant chooses to archive, remake or privately retain an object.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Workshops",
+        "ceremonies",
+        "events"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Privacy; avoid unsupported clinical claims"
+    },
+    {
+      "id": "T086",
+      "name": "Atmospheric experience institute",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Navigate constructed weather",
+      "scenario": "A crowd follows sound through mist before reuniting in a clear court.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Timed experiences",
+        "performances",
+        "hire"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Water/energy use, visibility and escape"
+    },
+    {
+      "id": "T087",
+      "name": "Human–robot collaboration campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Train shared industrial workflows",
+      "scenario": "Workers rehearse tasks with robots before deployment to workplaces.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Corporate training",
+        "testing",
+        "leases"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Anchor clients and equipment renewal"
+    },
+    {
+      "id": "T088",
+      "name": "New bodily capabilities campus",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Develop and learn interfaces",
+      "scenario": "A user tests wearable assistance and returns for adaptation and support.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Development",
+        "training",
+        "support"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Feasibility and long-term support costs"
+    },
+    {
+      "id": "T089",
+      "name": "Participatory gastronomy destination",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Harvest, cook and taste",
+      "scenario": "Visitors gather ingredients, prepare food with chefs and share a meal in an edible landscape.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Courses",
+        "dining",
+        "events",
+        "retail"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Customer repeat rate and food operations"
+    },
+    {
+      "id": "T090",
+      "name": "Adventure sequence destination",
+      "record_type": "assistant original proposal",
+      "project_ids": [],
+      "core_activity": "Buy a progression of challenges",
+      "scenario": "Visitors choose a route by intensity, pause in shared spaces and repeat another route.",
+      "evidence_status": "Concept hypothesis; not an existing verified project",
+      "revenue_hypotheses": [
+        "Passes",
+        "sessions",
+        "group events"
+      ],
+      "site_requirements_to_assess": [
+        "Access",
+        "Utilities",
+        "Environmental sensitivity",
+        "Market demand",
+        "Operations"
+      ],
+      "nest_use": "Brainstorming and retrieval; require independent validation before scoring or recommendation",
+      "constraints": "Ride safety, capacity and maintenance"
+    },
+    {
+      "id": "T091",
+      "name": "Speculative sports-capability campus",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P061"
+      ],
+      "core_activity": "An entertainment and sports club in Al Marg, Cairo, framed by the author around genes and sporting aspirations. Images show a stadium, sports courts and a multi-building campus. The written brief does not establish a clinical genetic intervention or detailed enhancement protocol.",
+      "scenario": "Proposed adaptation: a visitor books a capability-discovery day, tries several supervised movement challenges, receives coaching based on observed performance, then returns for a different challenge. This journey is our development idea, not the author’s documented program.",
+      "evidence_status": "Partial match. Source program and proposed customer journey are distinguished in project record.",
+      "revenue_hypotheses": [
+        "Coached challenge sessions",
+        "recurring training membership",
+        "team challenge bookings",
+        "competition events"
+      ],
+      "constraints": "Partial match: novel genetic framing, but substantial conventional sports facilities. Genetic effects and enhancement efficacy are not established. A commercial adaptation needs a distinctive activity beyond an ordinary gym.",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/22747e148495121.62d6b2af8050a.jpg",
+      "source_url": "https://www.behance.net/gallery/148495121/Graduation-project-EGSC-Genetic-Sports-Club",
+      "nest_use": "Concept retrieval only"
+    },
+    {
+      "id": "T092",
+      "name": "Constructed-world production and participation city",
+      "record_type": "source-linked inspiration",
+      "project_ids": [
+        "P062"
+      ],
+      "core_activity": "A media-production city proposed for New Alamein, Egypt. The author describes simulation of other worlds in the universe, referencing Carl Sagan’s cosmic calendar. The published text is brief; it does not establish public ticketing, role-play or actual altered-gravity technology.",
+      "scenario": "Proposed adaptation: a group books a mission in a constructed world, receives characters and tasks, enters an instrumented set, performs a branching story with a production crew, then leaves with an edited scene. All public participation details are our development proposal.",
+      "evidence_status": "Partial match. Source program and proposed customer journey are distinguished in project record.",
+      "revenue_hypotheses": [
+        "Participatory production sessions",
+        "studio and set rental",
+        "creator residencies without housing assumptions",
+        "corporate mission bookings",
+        "repeat story seasons"
+      ],
+      "constraints": "Partial match: the source function is media production; the paid public world-inhabitation experience is an adaptation. Set renewal, performers, media rights, throughput and resetting costs govern feasibility.",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "nest_use": "Concept retrieval only"
+    },
+    {
+      "id": "T093",
+      "name": "Capability Discovery Exchange",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P061"
+      ],
+      "core_activity": "Buy a day of unfamiliar bodily skills, not a gym workout",
+      "scenario": "An adult rotates through balance, coordination and reaction challenges with a coach, chooses a new skill to develop and returns for a harder route.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Coached sessions",
+        "membership"
+      ],
+      "user_journey": "Assessment → practice → challenge → recovery → feedback",
+      "architectural_generator": "Physical thresholds and adjustable equipment generate the rooms and circulation.",
+      "constraints": "Staffing, accessible alternatives and differentiation from ordinary sports clubs",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/22747e148495121.62d6b2af8050a.jpg",
+      "source_url": "https://www.behance.net/gallery/148495121/Graduation-project-EGSC-Genetic-Sports-Club",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    },
+    {
+      "id": "T094",
+      "name": "Human Team Trials",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P061"
+      ],
+      "core_activity": "Solve physical challenges that one person cannot complete alone",
+      "scenario": "A team enters connected apparatus where coordinated timing and movement are necessary to finish a mission; a second booking uses a different configuration.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Group bookings",
+        "company training",
+        "league fees"
+      ],
+      "user_journey": "Briefing → team calibration → shared challenge → replay",
+      "architectural_generator": "Interdependent platforms and simultaneous team routes organize the building.",
+      "constraints": "Dynamic structure, supervision and equipment reset; no genetic claim",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/22747e148495121.62d6b2af8050a.jpg",
+      "source_url": "https://www.behance.net/gallery/148495121/Graduation-project-EGSC-Genetic-Sports-Club",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    },
+    {
+      "id": "T095",
+      "name": "Become the Protagonist City",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P062"
+      ],
+      "core_activity": "Live and film a branching fictional role",
+      "scenario": "A group chooses roles, rehearses, enters a world set with performers, makes decisions that change the scene and watches its edited episode.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Session tickets",
+        "premium edited films",
+        "repeat chapters"
+      ],
+      "user_journey": "Casting → rehearsal → world threshold → live scenes → screening",
+      "architectural_generator": "Public narrative routes interweave with concealed performer and production networks.",
+      "constraints": "High performer costs and queues; source is media production, this use is proposed",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    },
+    {
+      "id": "T096",
+      "name": "World Builders Exchange",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P062"
+      ],
+      "core_activity": "Build a temporary world and invite others to inhabit it",
+      "scenario": "A creator team books a modular district, constructs an environment with technicians and sells a limited-run participatory performance to audiences.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Stage hire",
+        "fabrication services",
+        "ticket revenue share"
+      ],
+      "user_journey": "Design booth → fabrication → set assembly → public performance → reuse",
+      "architectural_generator": "Large-span stages connect directly to scenery workshops and storage.",
+      "constraints": "Anchor creator demand, load-in dimensions and intellectual-property agreements",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    },
+    {
+      "id": "T097",
+      "name": "Alternative Society Rehearsal",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P062"
+      ],
+      "core_activity": "Temporarily operate a fictional society with unfamiliar rules",
+      "scenario": "Participants receive roles in a simulated settlement, negotiate resources and collectively decide how to respond to a changing scenario.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Facilitated sessions",
+        "education contracts",
+        "corporate groups"
+      ],
+      "user_journey": "Briefing → role distribution → settlement → crisis → debrief",
+      "architectural_generator": "Adaptable meeting chambers, resource stations and observation/control routes generate a functioning playable district.",
+      "constraints": "Facilitation and repeat content; no claim this is an existing author program",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    },
+    {
+      "id": "T098",
+      "name": "Other-World Body Mission",
+      "record_type": "assistant original proposal",
+      "project_ids": [
+        "P062"
+      ],
+      "core_activity": "Learn a fictional planetary routine through physical performance",
+      "scenario": "Participants practice unusual tools and movement tasks, enter a scenographic terrain and complete a filmed mission with their team.",
+      "evidence_status": "New design proposal inspired by the linked student project; not a documented author program.",
+      "revenue_hypotheses": [
+        "Mission tickets",
+        "training packages",
+        "production rental"
+      ],
+      "user_journey": "Equipment fitting → practice → terrain mission → recovery → screening",
+      "architectural_generator": "Terrain stages, overhead technical zones and equipment fitting chambers define the section.",
+      "constraints": "Earth gravity still applies; any harness or special effect requires actual engineering and supervision",
+      "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/1400_webp/e85a43176159229.64c0138463266.jpg",
+      "source_url": "https://www.behance.net/gallery/176159229/Branelss-Media-city-(Simulation-of-other-worlds-)",
+      "nest_use": "Future concept development; do not score as an existing or proven commercial typology"
+    }
+  ],
+  "commercial_screening_questions": [
+    "Who pays for the core activity?",
+    "What encourages repeat visits?",
+    "How many paying users can be served per hour?",
+    "What are staffing, reset, maintenance and utility costs?",
+    "Can several compatible revenue streams use the same infrastructure?",
+    "Which components can open in phases?",
+    "What permits, specialists and technical systems are essential?"
+  ],
+  "suggested_retrieval_fields": [
+    "typology",
+    "core_activity",
+    "scenario",
+    "status",
+    "scale_evidence",
+    "source_url",
+    "revenue_hypotheses",
+    "constraints"
+  ],
+  "example_query": "Find non-residential experiential complexes with repeatable participatory activities and direct customer revenue; exclude research, museums, towers and unverified area claims."
+}

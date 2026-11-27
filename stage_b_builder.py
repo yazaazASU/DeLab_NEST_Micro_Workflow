@@ -240,132 +240,18 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
     site_area_m2 = site_m.area
     site_feddans = site_area_m2 / FEDDAN_M2
 
-    # 1. Landscape Zones (100.0% area reconciliation, non-overlapping)
-    z_seeds = seed.get("landscape_zones") or [
-        {"name": "Coastal Preserve Buffer", "family": "Ecological Preserve", "intervention": "Preserve", "share_pct": 28, "why_here": "Protects sensitive edge.", "outdoor_activities": "Boardwalk viewing"},
-        {"name": "Native Restoration Belt", "family": "Ecological Restoration", "intervention": "Restore", "share_pct": 24, "why_here": "Rebuilds native flora.", "outdoor_activities": "Botanical trails"},
-        {"name": "Shaded Spine & Cisterns", "family": "Climate & Water", "intervention": "Enhance", "share_pct": 22, "why_here": "Channels runoff and breeze.", "outdoor_activities": "Shaded promenade"},
-        {"name": "Public Arrival & Forum", "family": "Civic Activation", "intervention": "Activate", "share_pct": 26, "why_here": "Anchors buildings & plaza.", "outdoor_activities": "Evening market & forum"},
-    ]
-    shares = [float(z.get("share_pct", 25.0)) for z in z_seeds]
-    bearing = float(seed.get("site_bearing_deg", 15.0))
-    zone_polys = _slice_polygon_by_shares(site_m, shares, bearing_deg=bearing)
-
-    landscape_zones = []
-    preserve_geoms = []
-    for idx, (zs, zp) in enumerate(zip(z_seeds, zone_polys), 1):
-        interv = str(zs.get("intervention", "Enhance"))
-        col = zs.get("color") or ZONE_COLORS.get(interv.lower(), "#0d9488")
-        a_m2 = zp.area
-        sh_pct = (a_m2 / max(site_area_m2, 1.0)) * 100.0
-        if "preserve" in interv.lower():
-            preserve_geoms.append(zp)
-        landscape_zones.append({
-            "id": f"L-0{idx}",
-            "name": zs["name"],
-            "family": zs.get("family", interv),
-            "intervention": interv,
-            "why_here": zs.get("why_here", ""),
-            "outdoor_activities": zs.get("outdoor_activities", ""),
-            "area_m2": round(a_m2),
-            "area_ha": round(a_m2 / 10000.0, 2),
-            "area_feddans": round(a_m2 / FEDDAN_M2, 2),
-            "share_pct": round(sh_pct, 1),
-            "color": col,
-            "geom": mapping(proj.geom_to_lonlat(zp)),
-        })
-
-    # 2. Buildable area & Footprints (0 Preserve encroachment, target coverage)
-    preserve_u = unary_union(preserve_geoms).buffer(4.0) if preserve_geoms else Polygon()
-    buildable_m = _ensure_poly(site_m.difference(preserve_u)) if not preserve_u.is_empty else site_m.buffer(-4.0)
-    if buildable_m.is_empty:
-        buildable_m = site_m.buffer(-3.0)
-
+    # 1. Volume Space Program (compute building ground footprint first for buildable-envelope check)
     vols_seed = seed.get("volumes") or []
-    occupied = Polygon()
-    footprints = []
+    footprints: list[dict] = []
     volumes_out = []
     total_gfa_m2 = 0
+    total_footprint_m2 = 0.0
 
-    b_pt = buildable_m.representative_point()
-    bx0, by0 = b_pt.x, b_pt.y
-
-    # Steer footprints into the least-built open quadrant via RasterBundle (if available)
-    if raster_bundle is not None and (raster_bundle.worldcover is not None or raster_bundle.ghs_built_10m is not None or raster_bundle.ghs_built is not None):
-        try:
-            minx, miny, maxx, maxy = buildable_m.bounds
-            gx = np.linspace(minx + (maxx - minx) * 0.15, maxx - (maxx - minx) * 0.15, 5)
-            gy = np.linspace(miny + (maxy - miny) * 0.15, maxy - (maxy - miny) * 0.15, 5)
-            cand_pts = [(float(px), float(py)) for py in gy for px in gx if buildable_m.contains(Point(px, py))]
-            if cand_pts:
-                best_pt = cand_pts[0]
-                best_score = 999.0
-                for px, py in cand_pts:
-                    offs = [(-45, -45), (0, -45), (45, -45), (-45, 0), (0, 0), (45, 0), (-45, 45), (0, 45), (45, 45)]
-                    lls = [proj.geom_to_lonlat(Point(px + dx, py + dy)) for dx, dy in offs]
-                    _, bm = raster_bundle.sample_water_built_masks(
-                        np.array([p.x for p in lls], dtype=np.float64),
-                        np.array([p.y for p in lls], dtype=np.float64),
-                    )
-                    b_frac = float(np.mean(bm)) if bm is not None and len(bm) > 0 else 0.0
-                    if b_frac < best_score:
-                        best_score = b_frac
-                        best_pt = (px, py)
-                bx0, by0 = best_pt
-
-            # Also carve 10m raster built-up cells out of buildable_m when plenty of open land remains
-            b_ll = proj.geom_to_lonlat(buildable_m).bounds
-            rb_polys = raster_bundle.built_polygons_in_window(b_ll[0], b_ll[1], b_ll[2], b_ll[3], proj)
-            if rb_polys:
-                unbuilt_m = _ensure_poly(buildable_m.difference(unary_union(rb_polys).buffer(4.0)))
-                if not unbuilt_m.is_empty and unbuilt_m.area >= max(20000.0, buildable_m.area * 0.25):
-                    buildable_m = unbuilt_m
-                    if not buildable_m.contains(Point(bx0, by0)):
-                        rp = buildable_m.representative_point()
-                        bx0, by0 = rp.x, rp.y
-        except Exception:
-            pass
-
-    rad_angle = math.radians(bearing)
-    ux, uy = math.cos(rad_angle), math.sin(rad_angle)
-
-    for v_idx, vs in enumerate(vols_seed):
+    for vs in vols_seed:
         v_gfa = int(vs.get("area_m2", 12000))
         total_gfa_m2 += v_gfa
         floors = max(1, int(vs.get("floors", 2)))
-        fp_target_m2 = max(350.0, v_gfa / floors)
-        is_bridge = bool(vs.get("bridge_or_pile_allowed", False))
-
-        offset = (v_idx - (len(vols_seed) - 1) / 2.0) * math.sqrt(fp_target_m2) * 1.45
-        cx = bx0 + ux * offset
-        cy = by0 + uy * offset
-        fp_m = _make_archetype_footprint(cx, cy, fp_target_m2, vs.get("archetype", "bar"), bearing)
-
-        if not is_bridge:
-            safe_buildable = buildable_m.buffer(-2.0)
-            if safe_buildable.is_empty:
-                safe_buildable = buildable_m
-            clipped = _ensure_poly(fp_m.intersection(safe_buildable))
-            if clipped.is_empty or clipped.area < fp_target_m2 * 0.4:
-                rem = _ensure_poly(safe_buildable.difference(occupied.buffer(6.0))) if not occupied.is_empty else safe_buildable
-                rp = (rem if not rem.is_empty else safe_buildable).representative_point()
-                fp_m = _make_archetype_footprint(rp.x, rp.y, fp_target_m2, vs.get("archetype", "bar"), bearing)
-                clipped = _ensure_poly(fp_m.intersection(safe_buildable))
-            if not occupied.is_empty and not clipped.is_empty:
-                clipped2 = _ensure_poly(clipped.difference(occupied.buffer(6.0)))
-                if not clipped2.is_empty:
-                    clipped = clipped2
-            if clipped.is_empty and not safe_buildable.is_empty:
-                clipped = _ensure_poly(safe_buildable.representative_point().buffer(15.0).intersection(safe_buildable))
-            fp_m = clipped
-            occupied = unary_union([occupied, fp_m]).buffer(0)
-
-        footprints.append({
-            "label": f"{vs['name']} — {v_gfa:,} m²",
-            "idiom": seed.get("idiom", "landform"),
-            "bridge_or_pile_allowed": is_bridge,
-            "geom": mapping(proj.geom_to_lonlat(fp_m)),
-        })
+        total_footprint_m2 += v_gfa / float(floors)
         iz_reconciled = _reconcile_interior_zones(vs.get("interior_zones") or [], v_gfa)
         tare_m2 = sum(int(z.get("area_m2", 0)) for z in iz_reconciled if _is_tare_role(z.get("role", "")))
         nsf_m2 = max(0, v_gfa - tare_m2)
@@ -382,6 +268,21 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
             "shape_reason": vs.get("shape_reason", ""),
             "interior_zones": iz_reconciled,
         })
+
+    # 2. GIS-Driven 5-Tier Organic Landscape Zones + Verified Buildable Envelope
+    from landscape_zoning import build_gis_landscape_zones
+
+    z_seeds = seed.get("landscape_zones") or []
+    bearing = float(seed.get("site_bearing_deg", 15.0))
+    landscape_zones, buildable_envelope = build_gis_landscape_zones(
+        site_m=site_m,
+        proj=proj,
+        raster_bundle=raster_bundle,
+        cand=cand,
+        z_seeds=z_seeds,
+        site_bearing_deg=bearing,
+        built_footprint_m2=total_footprint_m2,
+    )
 
     fin, econ = _compute_financials(seed, total_gfa_m2, site_area_m2)
 
@@ -417,6 +318,7 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
         "thesis_summary": seed["thesis_summary"],
         "thesis_detailed": seed["thesis_detailed"],
         "engine_trace": seed["engine_trace"],
+        "engine_reasoning": seed.get("engine_reasoning") or {},
         "nature_to_bldg": seed["nature_to_bldg"],
         "bldg_to_nature": seed["bldg_to_nature"],
         "experience_arc": seed.get("experience_arc") or {
@@ -445,6 +347,7 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
             for i, z in enumerate(landscape_zones)
         ),
         "landscape_zones": landscape_zones,
+        "buildable_envelope": buildable_envelope,
         "landscape_landforms": seed.get("landscape_landforms", []),
         "landscape_elements": seed.get("landscape_elements", []),
         "fin": fin,
@@ -1023,6 +926,7 @@ def main():
     ap.add_argument("--seeds-dir", type=Path, default=None, help="Optional directory with site_*_seed.json files")
     ap.add_argument("--seed-file", type=Path, default=None, help="Optional single JSON file containing list of site seeds")
     ap.add_argument("--data-dir", type=Path, default=None, help="Optional GIS plot folder for extra context")
+    ap.add_argument("--no-rag", action="store_true", help="Disable NEST-Portable-RAG-v3 code & precedent citations")
     args = ap.parse_args()
 
     stage_a_path = args.run_dir / "intermediates" / "stage_a_summary.json"
@@ -1071,12 +975,40 @@ def main():
     for w in div_warnings:
         print(f"[Diversity Warn] {w}")
 
+    plot_lbl = stage_a.get("plot_label", args.run_dir.name)
+    if not args.no_rag:
+        try:
+            from nest_rag_client import batch_dual_search, build_stage_b_queries
+            rag_items = []
+            for p in projects:
+                cq, rq = build_stage_b_queries(p, plot_lbl)
+                rag_items.append({"key": str(p["rank"]), "code_query": cq, "ref_query": rq})
+            rag_res = batch_dual_search(rag_items, k_codes=3, k_refs=3)
+            by_key = {str(r["key"]): r for r in rag_res}
+            for p in projects:
+                hit = by_key.get(str(p["rank"]))
+                if hit:
+                    p["rag_citations"] = {
+                        "codes": hit.get("codes") or [],
+                        "precedents": hit.get("precedents") or [],
+                    }
+            print(f"[Stage B RAG] Attached cited Egyptian codes & precedents to {len(by_key)}/{len(projects)} projects")
+        except Exception as exc:
+            print(f"[Stage B RAG] Skipped ({exc})")
+
     out_path = args.run_dir / "stage_b_projects.json"
     out_path.write_text(json.dumps(projects, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[Stage B Builder] Built {len(projects)} reconciled projects -> {out_path}")
 
+    # Export standalone QGIS/CAD-ready landscape_zones.geojson
+    try:
+        from landscape_zoning import export_landscape_zones_geojson
+        lz_gj = export_landscape_zones_geojson(args.run_dir, projects)
+        print(f"[Stage B Builder] Exported GIS landscape zones -> {lz_gj.name}")
+    except Exception as exc:
+        print(f"[Stage B Builder] Skipped landscape_zones.geojson export ({exc})")
+
     # Export standalone space_program.json & space_program.csv
-    plot_lbl = stage_a.get("plot_label", args.run_dir.name)
     sp_projects = []
     sp_csv_rows = []
     for p in projects:
@@ -1170,6 +1102,9 @@ def main():
         fin = p.get("fin") or {}
         vols = (p.get("massing_rationale") or {}).get("volumes") or []
         ts = p.get("thesis_summary") or {}
+        er = p.get("engine_reasoning") or {}
+        et = p.get("engine_trace") or {}
+        synth_note = et.get("synthesis_note", "") if isinstance(et, dict) else str(et)
         lines += [
             "",
             "---",
@@ -1177,7 +1112,21 @@ def main():
             f"## Site #{p['rank']}: {p['title']}",
             f"*{p.get('subtitle', '')}* — **{p['area_feddans']} feddans** (`{p['lat']:.5f}, {p['lon']:.5f}`)",
             "",
-            f"- **Site Selection & GIS Rationale:** {ts.get('why_here', '')} *(Access: {p.get('access', '—')}/100 · {p.get('engine_trace', '')})*",
+            f"- **Site Selection & GIS Rationale:** {ts.get('why_here', '')} *(Lead Engine: {p.get('engine', 'Crystals')} · Access: {p.get('access', '—')}/100)*",
+        ]
+        if er.get("lead") or er.get("peers"):
+            lines.append("")
+            lines.append("### Engine Reasoning (First-Person Trace)")
+            if er.get("lead"):
+                lines.append(f"- **{p.get('engine', 'Lead')} (Lead):** {er['lead']}")
+            peers = er.get("peers") or {}
+            for pk, pv in peers.items():
+                if pv:
+                    lines.append(f"- **{pk.title()} (Peer):** {pv}")
+            lines.append("")
+        elif synth_note:
+            lines.append(f"- **Engine Synthesis:** {synth_note}")
+        lines += [
             f"- **Architectural Thesis:** {ts.get('gesture_line', '')} — {p.get('thesis_detailed', '')}",
             f"- **Orientation & Massing:** {(p.get('massing_rationale') or {}).get('orientation', '')} {(p.get('massing_rationale') or {}).get('shape_logic', '')}",
             "",
@@ -1210,6 +1159,12 @@ def main():
             lines += ["", "### Commercial Viability Screening *(Unvalidated Hypotheses)*"]
             for csi, cs in enumerate(cs_items, 1):
                 lines.append(f"{csi}. **{cs['question']}** — {cs['answer']}")
+        if p.get("rag_citations"):
+            try:
+                from nest_rag_client import format_stage_b_rag_markdown
+                lines.extend(format_stage_b_rag_markdown(p.get("rag_citations")))
+            except Exception:
+                pass
     rep_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[Stage B Builder] Wrote Evidence-First report -> {rep_path}")
 

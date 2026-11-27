@@ -3,10 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Large GIS inputs & generated run outputs
+# Large GIS inputs, local RAG index/venv & generated run outputs
 GIS_Data/
 Outputs/
 outputs*/
+NOV 27 TESTS/
+NEST-Portable-RAG-v3/
+.venv/
+*.sqlite
 *.3dm
 
 # OS / Editor

@@ -33,6 +33,38 @@ def _space_names(project: dict) -> list[str]:
     return [s for s in out if s]
 
 
+def _norm_pointer(ptr, default_label: str, default_dist: float) -> dict:
+    if isinstance(ptr, dict):
+        return {"label": str(ptr.get("label") or default_label), "distance_m": float(ptr.get("distance_m") or default_dist)}
+    if isinstance(ptr, str) and ptr.strip():
+        m = re.search(r"\((\d+(?:\.\d+)?)\s*m\)", ptr)
+        dist = float(m.group(1)) if m else default_dist
+        lbl = re.sub(r"\s*\(\d+(?:\.\d+)?\s*m\)\s*$", "", ptr).strip() or default_label
+        return {"label": lbl, "distance_m": dist}
+    return {"label": default_label, "distance_m": default_dist}
+
+
+def _pick_distinct_pointers(ptrs: list) -> tuple[dict, dict]:
+    normed = [_norm_pointer(x, "Primary Site Feature", 0.0) for x in (ptrs or [])]
+    if not normed:
+        return {"label": "Primary Site Feature", "distance_m": 0.0}, {"label": "Adjacent Corridor", "distance_m": 150.0}
+    p0 = normed[0]
+
+    def _core_name(lbl: str) -> str:
+        s = lbl.split(":", 1)[-1].strip().lower()
+        return re.sub(r"\s+", " ", s)
+
+    c0 = _core_name(p0["label"])
+    p1 = None
+    for cand in normed[1:]:
+        if _core_name(cand["label"]) != c0:
+            p1 = cand
+            break
+    if p1 is None:
+        p1 = normed[1] if len(normed) > 1 else {"label": "Adjacent Corridor", "distance_m": 150.0}
+    return p0, p1
+
+
 def generate_skills_for_project(project: dict) -> list[dict]:
     rank = int(project.get("rank", 1))
     title = project.get("title", f"Project #{rank}")
@@ -41,8 +73,7 @@ def generate_skills_for_project(project: dict) -> list[dict]:
     feddans = project.get("area_feddans", 55.0)
     strat = str(project.get("strategy", "Select"))
     ptrs = project.get("map_pointers") or []
-    p0 = ptrs[0] if len(ptrs) >= 1 else {"label": "Primary Site Feature", "distance_m": 0}
-    p1 = ptrs[1] if len(ptrs) >= 2 else {"label": "Adjacent Corridor", "distance_m": 150}
+    p0, p1 = _pick_distinct_pointers(ptrs)
     ta = project.get("terrain_analysis") or {}
     relief = float(ta.get("relief_m", 4.0))
     slope = float(ta.get("slope_mean_deg", 1.5))
@@ -188,8 +219,8 @@ def generate_skills_for_project(project: dict) -> list[dict]:
                 {"resource": f"{p1.get('label')} ({p1.get('distance_m', 0):.0f} m)", "potential": "Public & logistics access", "constraints": ["Buffer traffic noise from quiet courts"]},
             ],
             "branches": [
-                {"direction": "Shaded pedestrian promenade linking arrival to main courtyard", "maturity": "Maturing", "application": "Continuous pergola spine", "tool": ["Autodesk Forma", "Grasshopper"]},
-                {"direction": "Rear earth-bermed service court for deliveries", "maturity": "Specialized", "application": "Acoustic service apron", "tool": ["Revit", "QGIS"]},
+                {"direction": "Shaded pedestrian promenade linking arrival to main courtyard", "maturity": "Maturing", "application": "Continuous pergola spine", "tool": []},
+                {"direction": "Rear earth-bermed service court for deliveries", "maturity": "Specialized", "application": "Acoustic service apron", "tool": ["QGIS"]},
             ],
             "symbiosis": [
                 {"with": [p0.get("label", "Natural Edge"), p1.get("label", "Access Corridor")], "shared_intention": "Turn a transit edge into a shaded public gateway."}
@@ -268,7 +299,7 @@ def generate_skills_for_project(project: dict) -> list[dict]:
                 {"resource": f"{len(sp_names)} program zones across {gfa}", "potential": "Shared parking, lobbies, and shaded plazas across day/night shifts", "constraints": ["Secure restricted lab cores after hours"]},
             ],
             "branches": [
-                {"direction": "Lockable glazed viewing gallery along research labs", "maturity": "Specialized", "application": "Public perimeter gallery", "tool": ["Revit", "Autodesk Forma"]},
+                {"direction": "Lockable glazed viewing gallery along research labs", "maturity": "Specialized", "application": "Public perimeter gallery", "tool": []},
             ],
             "symbiosis": [
                 {"with": ["Daytime Research/Craft", "Evening Community Forum"], "shared_intention": "Shared infrastructure cuts idle space and energy peaks."}
@@ -357,7 +388,7 @@ def generate_skills_for_project(project: dict) -> list[dict]:
             },
             "adaptation_moves": [
                 {"move": "Integrate flush matte-dark PV louvers into timber/steel shade canopies", "reversibility": "Phased", "tools": ["Ladybug", "Honeybee"]},
-                {"move": "Proportion courtyards (H:W >= 1:1.5) to trap cool night air and shade walls", "reversibility": "Permanent", "tools": ["Grasshopper", "Ladybug"]},
+                {"move": "Proportion courtyards (H:W >= 1:1.5) to trap cool night air and shade walls", "reversibility": "Permanent", "tools": []},
             ],
             "limits_and_proof": {
                 "constraints": ["Avoid tilted shiny blue-black roof racks", "Control windblown sand at intakes"],
@@ -398,7 +429,7 @@ def generate_skills_for_project(project: dict) -> list[dict]:
                 "value_unlocked": "Lower embodied carbon, local jobs, and easy future expansion",
             },
             "adaptation_moves": [
-                {"move": "Use excavated site rock/earth for retaining berms and Phase 0 test pavilions", "reversibility": "Reversible", "tools": ["Revit", "Grasshopper"]},
+                {"move": "Use excavated site rock/earth for retaining berms and Phase 0 test pavilions", "reversibility": "Reversible", "tools": []},
             ],
             "limits_and_proof": {
                 "constraints": ["Verify local quarry/soil compressive strength", "Keep Phase 0 self-sufficient"],

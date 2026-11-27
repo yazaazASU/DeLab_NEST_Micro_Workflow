@@ -685,12 +685,12 @@ ALL_LAYERS.forEach(name => {
   if (name === 'Hidden Potential' || name === 'Best-Fit Typology' || name === 'Mixed-Use (2+)' || name === 'Mixed-Use (3+)') return;
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'layer-chip';
+  btn.className = 'layer-chip score-explain';
   btn.dataset.layer = name;
+  btn.setAttribute('data-score-key', name);
   const tIdx = TYP_NAMES.indexOf(name);
   const dot = tIdx >= 0 ? `<span class="chip-dot" style="background:${TYP_COLORS[tIdx]}"></span>` : '';
   btn.innerHTML = dot + (SHORT_FORCE_LABELS[name] || name);
-  btn.title = name;
   btn.onclick = () => setLayerByStage(1, name);
   stage1Chips.appendChild(btn);
 });
@@ -885,9 +885,17 @@ function renderDrawer() {
         `;
       }).join('');
 
+      const topDrvSummary = (topF || []).slice(0, 3).map(d => `${d[0]} (+${d[1]})`).join(', ');
       const bars = TYP_NAMES.map((n, idx) => ({ n, idx, sc: scores[idx] }))
         .sort((a, b) => b.sc - a.sc)
-        .map(x => `<div class="bar-row"><span style="width:146px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:${x.idx === bestIdx ? '800' : '600'}" title="${x.n}">${x.n}</span><div class="bar-bg"><div class="bar-fill" style="width:${x.sc}%;background:${TYP_COLORS[x.idx]}"></div></div><span class="score-explain" tabindex="0" data-score-key="${x.n}" style="min-width:28px;justify-content:flex-end;font-weight:800">${x.sc}</span></div>`).join('');
+        .map(x => {
+          const band = x.sc >= 75 ? 'Peak signal' : (x.sc >= 50 ? 'Strong signal' : (x.sc >= 25 ? 'Moderate signal' : 'Low / distant signal'));
+          const why = x.idx === bestIdx && topDrvSummary
+            ? `${band} (${x.sc}/100) — dominant force for this cell, driven by ${topDrvSummary} × ${affVal.toFixed(2)} ${terrainLbl} affinity.`
+            : `${band} (${x.sc}/100) under ${eng.title} after ×${affVal.toFixed(2)} ${terrainLbl} terrain weighting; ${x.sc >= 50 ? 'strong supporting GIS proximity/density here.' : 'weaker or more distant GIS features for this layer at this cell.'}`;
+          const safeWhy = why.replace(/"/g, '&quot;');
+          return `<div class="bar-row score-explain" tabindex="0" data-score-key="${x.n}" data-score-val="${x.sc}" data-score-why="${safeWhy}" style="cursor:help"><span style="width:146px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:${x.idx === bestIdx ? '800' : '600'}">${x.n}</span><div class="bar-bg"><div class="bar-fill" style="width:${x.sc}%;background:${TYP_COLORS[x.idx]}"></div></div><span style="min-width:28px;text-align:right;font-weight:800">${x.sc}</span></div>`;
+        }).join('');
 
       const hVal = hiddenSc !== undefined ? hiddenSc : scores[bestIdx];
       const verdictTxt = hVal >= 70 ? 'Peak Spot' : (hVal >= 45 ? 'Moderate' : 'Low');
@@ -996,6 +1004,16 @@ const SCORE_EXPLAINERS = {
   synergy_3: { title: 'Balanced Trio (3+) Synergy', scale: '0 – 100', desc: 'Pinpoints rare flagship peaks where 3+ compatible forces align at similar strength.', formula: '<b>Formula:</b> <code>max(0, Average − Spread)</code> across valid 3+ force trios.', bands: '<b>Trigger:</b> ≥60 auto-activates 3+ flagship program.' },
   affinity:  { title: 'Engine Terrain Multiplier', scale: '×0.35 – ×1.00', desc: 'Scales raw GIS signals according to the terrain each engine prefers (Dry Land vs Shoreline vs Corridors).', formula: '<b>Effect:</b> <code>Final Force = Raw GIS Weighted Sum × Terrain Multiplier</code>.', bands: '<b>Reading:</b> ×1.00 Full Strength · ×0.68–0.85 Moderate · ≤×0.42 Penalized' },
   driver_pts:{ title: 'GIS Driver Point Contribution', scale: '+pts toward 100', desc: 'Exact points this GIS rule adds to the cell\\'s 0–100 Dominant Force score after engine terrain weighting.', formula: '<b>Math:</b> <code>Operator(0–1) × (Rule Weight / Total Weight) × 100 × Affinity</code>.', bands: '<b>Reading:</b> Larger +pts = stronger physical pull from that GIS layer.' },
+  'Corridor & Network Connectivity': { title: 'Corridor & Network Connectivity', scale: '0 – 100', desc: 'Measures how well a site connects to regional highways, paved roads, tracks, ports, ferries, and transit corridors. High scores = strong arrival access & movement seams; low scores = remote or off-grid.', formula: '<b>What drives the score:</b> Proximity to main roads, arterial highways, ports/stations, and multi-road intersections × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Direct Highway/Corridor · 45–74 Secondary Road · &lt;45 Remote/Off-Grid' },
+  'Hydrology & Waterfront': { title: 'Hydrology & Waterfront', scale: '0 – 100', desc: 'Measures proximity and edge interface with seas, rivers, canals, lakes, wetlands, and seasonal wadi drainage channels.', formula: '<b>What drives the score:</b> Distance to mapped shorelines, water bodies, and hydrological runoff corridors × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Direct Water/Wadi Edge · 45–74 Near Drainage/Water · &lt;45 Dry Inland' },
+  'Solar & Climate Intensity': { title: 'Solar & Climate Intensity', scale: '0 – 100', desc: 'Measures solar radiation potential, open sky exposure, diurnal thermal swing, and passive cooling/wind-harvesting opportunity.', formula: '<b>What drives the score:</b> Open unshaded canvas, topographic exposure/relief, and climatic intensity × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Peak Solar/Passive Potential · 45–74 Strong · &lt;45 Sheltered/Shaded' },
+  'Biodiversity & Ecology': { title: 'Biodiversity & Ecology', scale: '0 – 100', desc: 'Measures ecological richness from protected areas, GBIF wildlife & migratory bird sightings, green corridors, and sensitive habitats.', formula: '<b>What drives the score:</b> Proximity to protected zones, species/flyway records, and natural vegetation × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 High Ecological Value · 45–74 Buffer/Transition · &lt;45 Low Habitat Signal' },
+  'Heritage & Culture Gravity': { title: 'Heritage & Culture Gravity', scale: '0 – 100', desc: 'Measures cultural pull and sightline proximity to archaeological sites, ancient Roman/caravan routes, land art, and historic landmarks.', formula: '<b>What drives the score:</b> Ring-standoff &amp; proximity to mapped heritage/cultural POIs × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Prime Landmark Ring · 45–74 Cultural Corridor · &lt;45 No Nearby Heritage' },
+  'Civic & Service Deficit': { title: 'Civic & Service Deficit', scale: '0 – 100', desc: 'Measures where nearby communities or travelers lack schools, clinics, markets, shade, or public civic amenities.', formula: '<b>What drives the score:</b> Local population/visitor catchment minus existing civic facilities within service radius × Engine Affinity.', bands: '<b>Bands:</b> 75–100 High Unmet Civic Need · 45–74 Moderate Gap · &lt;45 Well-Served / Unpopulated' },
+  'Hidden Potential': { title: 'Untapped Potential (Stage 3)', scale: '0 – 100', desc: 'Reveals overlooked, under-built pockets where strong spatial forces converge without dense existing urban clutter.', formula: '<b>Math:</b> Dominant/Synergy forces + Under-built Canvas + Natural Evidence.', bands: '<b>Bands:</b> 75–100 Prime Shortlist Site · 50–74 Promising · &lt;50 Saturated/Low' },
+  'Best-Fit Typology': { title: 'Dominant Spatial Force (Stage 2)', scale: 'Categorical', desc: 'Colors each 50×50 m cell by whichever of the 6 spatial forces scored highest under that engine\\'s rules.', formula: '<b>Math:</b> <code>argmax</code> across the 6 engine-weighted force layers.', bands: '<b>Use:</b> See which single force leads in each zone of the plot.' },
+  'Mixed-Use (2+)': { title: 'Balanced Pair Synergy (2+)', scale: '0 – 100', desc: 'Highlights cells where 2+ compatible forces are both high AND balanced — penalizing lopsided pairs.', formula: '<b>Formula:</b> <code>max(0, Average − Spread)</code> across compatible pairs.', bands: '<b>Trigger:</b> ≥60 auto-activates 2+ mixed-use program.' },
+  'Mixed-Use (3+)': { title: 'Balanced Trio Synergy (3+)', scale: '0 – 100', desc: 'Pinpoints rare convergence zones where 3+ compatible forces align at similar strength.', formula: '<b>Formula:</b> <code>max(0, Average − Spread)</code> across compatible trios.', bands: '<b>Trigger:</b> ≥60 auto-activates 3+ flagship program.' },
 };
 Object.keys(OP_META).forEach(k => {
   SCORE_EXPLAINERS['op_' + k] = {
@@ -1012,9 +1030,13 @@ Object.keys(OP_META).forEach(k => {
   if (!tip) return;
   let activeEl = null;
   function showTip(el) {
-    const key = el.getAttribute('data-score-key');
+    const key = el.getAttribute('data-score-key') || el.getAttribute('data-layer');
+    const val = el.getAttribute('data-score-val');
+    const why = el.getAttribute('data-score-why');
     const info = SCORE_EXPLAINERS[key] || { title: key || 'Spatial Force Score', scale: '0 – 100', desc: 'Normalized 50×50 m spatial force score weighted by this engine\\'s rules and terrain affinity.', formula: '<b>Math:</b> Weighted sum of GIS spatial operators × Engine Terrain Multiplier.', bands: '<b>Bands:</b> 70–100 Peak · 45–69 Strong · &lt;45 Secondary' };
-    tip.innerHTML = `<div class="tip-hdr"><span class="tip-title">${info.title}</span><span class="tip-scale">${info.scale}</span></div><div class="tip-desc">${info.desc}</div><div class="tip-formula">${info.formula}</div><div class="tip-bands">${info.bands}</div>`;
+    const scaleTxt = val !== null && val !== '' ? `${val} / 100` : info.scale;
+    const whyBlock = why ? `<div style="margin:5px 0;padding:5px 7px;border-radius:6px;background:#FFF5F2;border-left:3px solid #FF614C;color:#231E1C;font-size:11px;line-height:1.38"><b>Why this score:</b> ${why}</div>` : '';
+    tip.innerHTML = `<div class="tip-hdr"><span class="tip-title">${info.title}</span><span class="tip-scale">${scaleTxt}</span></div><div class="tip-desc">${info.desc}</div>${whyBlock}<div class="tip-formula">${info.formula}</div><div class="tip-bands">${info.bands}</div>`;
     tip.classList.add('visible');
     const r = el.getBoundingClientRect();
     const tw = tip.offsetWidth || 340, th = tip.offsetHeight || 140;

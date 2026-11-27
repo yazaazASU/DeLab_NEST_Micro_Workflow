@@ -40,6 +40,22 @@ def b64_uri(path: Path, mime: str) -> str:
     return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode("ascii")
 
 
+def b64_png_thumb(path: Path, max_px: int = 96) -> str:
+    if not path.exists():
+        return ""
+    try:
+        import io
+        from PIL import Image
+        with Image.open(path) as im:
+            im = im.convert("RGBA")
+            im.thumbnail((max_px, max_px), Image.Resampling.LANCZOS)
+            buf = io.BytesIO()
+            im.save(buf, format="PNG", optimize=True)
+            return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception:
+        return b64_uri(path, "image/png")
+
+
 def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str, root_dir: Path) -> Path:
     base_dash = run_dir / "intermediates" / "3engines_base_dashboard.html"
     if not base_dash.exists():
@@ -60,8 +76,58 @@ def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str
     ui_dir = root_dir / "UI Handover"
     nest_logo = b64_uri(ui_dir / "logos" / "nest-wordmark-black.png", "image/png") or b64_uri(ui_dir / "logos" / "nest-wordmark-black.svg", "image/svg+xml")
     delab_logo = b64_uri(ui_dir / "logos" / "delab-colour.png", "image/png") or b64_uri(ui_dir / "logos" / "delab-colour.svg", "image/svg+xml")
+    eng_gfx_dir = root_dir / "NEST Engine Graphics"
+    engine_icons = {
+        "Crystals": b64_png_thumb(eng_gfx_dir / "Crystals.png", 96),
+        "Cells": b64_png_thumb(eng_gfx_dir / "Cells.png", 96),
+        "Corals": b64_png_thumb(eng_gfx_dir / "Corals.png", 96),
+    }
     font_uri = b64_uri(ui_dir / "fonts" / "FunnelDisplay.ttf", "font/ttf")
     font_face_css = f"{font_face_css}" if font_uri else ""
+
+    pdf_slug = re.sub(r"[^A-Za-z0-9_-]+", "_", (run_dir.name or "NEST_Plot").strip()).strip("_")[:60]
+    prebuilt_pdf_name = f"NEST_Proposals_{pdf_slug}.pdf"
+    has_prebuilt_pdf = (run_dir / prebuilt_pdf_name).is_file()
+
+    # Load full Stage C skill JSON files for Tab 3 (Stage C Skills Dashboard)
+    all_stage_c_skills: list[dict] = []
+    skills_root = run_dir / "skills"
+    proj_by_rank = {int(p.get("rank", idx + 1)): p for idx, p in enumerate(projects)}
+    if skills_root.is_dir():
+        for pdir in sorted(skills_root.glob("project_*")):
+            if not pdir.is_dir():
+                continue
+            m_rk = re.match(r"project_(\d+)", pdir.name)
+            p_rk = int(m_rk.group(1)) if m_rk else 0
+            p_obj = proj_by_rank.get(p_rk, {})
+            for jf in sorted(pdir.glob("*.json")):
+                try:
+                    sk_raw = json.loads(jf.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                eng_raw = str(sk_raw.get("parent_engine") or sk_raw.get("engine") or "Crystals")
+                ekey = "Cells" if "cell" in eng_raw.lower() else ("Corals" if "coral" in eng_raw.lower() else "Crystals")
+                attrs = sk_raw.get("attributes") or {}
+                tools_set: list[str] = []
+                for grp_key, t_key in (("facets", "tool"), ("adaptation_moves", "tools"), ("branches", "tool")):
+                    for item in attrs.get(grp_key) or []:
+                        t_vals = item.get(t_key) or item.get("tools") or item.get("tool") or []
+                        if isinstance(t_vals, str):
+                            t_vals = [t_vals]
+                        for tv in t_vals:
+                            if tv and tv not in tools_set:
+                                tools_set.append(str(tv))
+                act = sk_raw.get("action") or {}
+                all_stage_c_skills.append({
+                    "uid": f"p{p_rk}_{sk_raw.get('skill_id') or jf.stem}",
+                    "filename": jf.name,
+                    "project_rank": p_rk,
+                    "project_title": p_obj.get("title") or f"Project #{p_rk}",
+                    "engine_key": ekey,
+                    "action_type": str(act.get("type") or "Guidance"),
+                    "tools": tools_set,
+                    "raw": sk_raw,
+                })
 
     # Detect whether optional external editorial renders exist & ensure asset paths
     for p in projects:
@@ -78,18 +144,6 @@ def build_nest_22_dashboard(run_dir: Path, projects: list[dict], plot_title: str
         p["hero_render"] = f"renders/site_{rk}_hero.jpg" if hero_render.exists() else ""
         if p["has_editorial_render"]:
             p["render"] = f"renders/site_{rk}.jpg"
-        journey_items = (p.get("experience_arc") or {}).get("journey") or []
-        m_renders = []
-        for mi in range(1, max(len(journey_items), 1) + 1):
-            m_jpg = run_dir / "renders" / f"site_{rk}_moment_{mi}.jpg"
-            m_png = run_dir / "renders" / f"site_{rk}_moment_{mi}.png"
-            if m_jpg.exists():
-                m_renders.append(f"renders/site_{rk}_moment_{mi}.jpg")
-            elif m_png.exists():
-                m_renders.append(f"renders/site_{rk}_moment_{mi}.png")
-            else:
-                m_renders.append("")
-        p["moment_renders"] = m_renders
 
     nest_css = f"""
 {font_face_css}
@@ -112,9 +166,9 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .mtab-btn {{ padding: 7px 14px; border-radius: 9px; border: 1px solid var(--nest-line); background: #FFFFFF; color: var(--nest-ink); font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }}
 .mtab-btn:hover {{ background: var(--nest-soft); border-color: var(--nest-edge); }}
 .mtab-btn.active {{ background: var(--nest-coral); color: #302B2A; border-color: var(--nest-edge); box-shadow: 0 3px 0 var(--nest-edge); }}
-#tab-proposals {{ flex: 1; overflow-y: auto; padding: 18px 22px 54px; background: var(--nest-paper); }}
+#tab-proposals {{ flex: 1; overflow-y: auto; padding: 0 0 48px; background: var(--nest-paper); }}
 #tab-maps {{ flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }}
-.prop-toolbar {{ max-width: 1380px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 12px; padding: 10px 16px; }}
+.prop-toolbar {{ max-width: none; width: 100%; margin: 0 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: #FFFFFF; border-bottom: 1px solid var(--nest-line); border-radius: 0; padding: 10px 20px; }}
 .jump-bar {{ display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; }}
 .jbtn {{ padding: 5px 11px; border-radius: 8px; border: 1px solid var(--nest-line); background: var(--nest-soft); color: var(--nest-ink); font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }}
 .jbtn:hover {{ border-color: var(--nest-edge); background: #FFFFFF; }}
@@ -124,8 +178,27 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .btn-outline {{ display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 9px; background: #FFFFFF; color: var(--nest-ink); border: 1px solid var(--nest-line); font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }}
 .btn-outline:hover {{ background: var(--nest-soft); border-color: var(--nest-edge); }}
 
-.cards-stack {{ max-width: 1380px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }}
-.proj-card {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 18px; overflow: hidden; box-shadow: 0 10px 28px rgba(48,43,42,0.07); }}
+.cards-stack {{ max-width: none; width: 100%; margin: 0; display: flex; flex-direction: column; gap: 24px; }}
+.proj-card {{ background: #FFFFFF; border-top: 1px solid var(--nest-line); border-bottom: 1px solid var(--nest-line); border-left: 0; border-right: 0; border-radius: 0; overflow: hidden; box-shadow: 0 8px 22px rgba(48,43,42,0.06); }}
+.proj-card-shell {{ display: grid; grid-template-columns: 70% 30%; align-items: stretch; width: 100%; }}
+.proj-card-main {{ min-width: 0; display: flex; flex-direction: column; }}
+.proj-card-rail {{ min-width: 0; border-left: 1px solid var(--nest-line); background: #F7F3F0; padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 12px; }}
+.eng-rail-hdr {{ display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--nest-line); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--nest-edge); }}
+.eng-rail-card {{ flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; border-radius: 12px; padding: 12px 13px; border: 1px solid var(--nest-line); background: #FFFFFF; box-shadow: 0 2px 8px rgba(48,43,42,0.04); }}
+.eng-rail-top {{ display: flex; align-items: center; justify-content: space-between; gap: 6px; }}
+.eng-rail-title {{ display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }}
+.eng-rail-role {{ font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase; }}
+.eng-rail-defn {{ font-size: 10.5px; line-height: 1.35; font-style: italic; opacity: 0.9; padding-bottom: 6px; border-bottom: 1px dashed rgba(48,43,42,0.14); }}
+.eng-rail-words {{ font-size: 12px; line-height: 1.48; color: #231E1C; }}
+.eng-rail-map {{ width: 100%; border-radius: 9px; overflow: hidden; border: 1px solid rgba(48,43,42,0.15); background: #EFE9E3; cursor: pointer; transition: border-color 140ms ease, box-shadow 140ms ease; }}
+.eng-rail-map:hover {{ border-color: var(--nest-coral); box-shadow: 0 4px 12px rgba(48,43,42,0.14); }}
+.eng-rail-map svg {{ display: block; width: 100%; height: auto; }}
+.eng-rail-drivers {{ display: flex; flex-wrap: wrap; gap: 5px; padding-top: 2px; }}
+.eng-drv-pill {{ display: inline-flex; align-items: center; gap: 4px; font-size: 10.2px; font-weight: 700; line-height: 1.25; color: #3D3532; background: rgba(255,255,255,0.92); border: 1px solid rgba(48,43,42,0.14); border-radius: 999px; padding: 3px 8px; }}
+@media (max-width: 1100px) {{
+  .proj-card-shell {{ grid-template-columns: 1fr; }}
+  .proj-card-rail {{ border-left: 0; border-top: 1px solid var(--nest-line); }}
+}}
 
 /* Top Split Visual Stage (Render / Aerial + Live Tri-Layer Leaflet Satellite Map) */
 .card-visuals {{ display: grid; grid-template-columns: 1.25fr 1fr; border-bottom: 1px solid var(--nest-line); }}
@@ -281,6 +354,35 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .narrative-body p:last-child {{ margin-bottom: 0; }}
 .jury-pull-line {{ display: block; margin-top: 8px; padding-left: 10px; border-left: 3px solid var(--nest-coral); font-weight: 700; font-style: italic; color: var(--nest-edge); }}
 
+/* Tab 3: Stage C Skills Dashboard */
+#tab-skills {{ display: none; flex: 1 1 auto; overflow-y: auto; padding: 18px 24px 44px; background: var(--nest-paper); }}
+.skills-wrap {{ max-width: 1440px; margin: 0 auto; }}
+.skills-toolbar {{ display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: #FFFAF7; border: 1px solid var(--nest-line); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; }}
+.skills-filters {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
+.sk-sel {{ font-family: inherit; font-size: 12px; font-weight: 700; color: var(--nest-ink); background: #fff; border: 1px solid var(--nest-line); border-radius: 9px; padding: 6px 10px; cursor: pointer; }}
+.skills-lanes {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }}
+@media (max-width: 1080px) {{ .skills-lanes {{ grid-template-columns: 1fr; }} }}
+.sk-lane {{ border-radius: 14px; border: 1px solid var(--nest-line); padding: 12px; }}
+.sk-lane-hdr {{ display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }}
+.sk-lane-def {{ font-size: 11px; color: var(--nest-muted); line-height: 1.4; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.07); }}
+.sk-card {{ background: #fff; border: 1px solid var(--nest-line); border-radius: 11px; padding: 10px 12px; margin-bottom: 9px; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }}
+.sk-card:hover {{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(48,43,42,.08); border-color: var(--nest-coral); }}
+.sk-card-top {{ display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }}
+.sk-card-title {{ font-size: 13px; font-weight: 800; color: var(--nest-ink); line-height: 1.3; margin-bottom: 4px; }}
+.sk-card-def {{ font-size: 11.5px; color: var(--nest-muted); line-height: 1.42; margin-bottom: 7px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }}
+.sk-tools-row {{ display: flex; flex-wrap: wrap; gap: 4px; }}
+.sk-tool {{ font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; background: #F5F2F0; color: #4A413D; border: 1px solid #E2D9D5; }}
+.sk-drawer-backdrop {{ display: none; position: fixed; inset: 0; background: rgba(48,43,42,.38); z-index: 2000; justify-content: flex-end; }}
+.sk-drawer-backdrop.open {{ display: flex; }}
+.sk-drawer {{ width: min(620px, 94vw); height: 100%; background: #FFFAF7; border-left: 1px solid var(--nest-line); box-shadow: -12px 0 36px rgba(48,43,42,.18); display: flex; flex-direction: column; overflow: hidden; }}
+.sk-drawer-hdr {{ padding: 14px 18px; border-bottom: 1px solid var(--nest-line); background: #fff; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }}
+.sk-drawer-body {{ padding: 16px 18px 28px; overflow-y: auto; flex: 1 1 auto; }}
+.sk-sec {{ background: #fff; border: 1px solid var(--nest-line); border-radius: 11px; padding: 10px 12px; margin-bottom: 10px; }}
+.sk-sec-lbl {{ font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .45px; color: var(--nest-edge); margin-bottom: 6px; }}
+.sk-kv {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }}
+.sk-kv-item {{ background: #FAF7F5; border: 1px solid #EAE1DD; border-radius: 8px; padding: 6px 8px; font-size: 11.5px; }}
+.sk-kv-item b {{ display: block; font-size: 9.5px; text-transform: uppercase; color: var(--nest-muted); margin-bottom: 2px; }}
+
 /* Print / PDF Auto-Expand */
 body.print-all .story-pane {{ display: block !important; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--nest-line); }}
 body.print-all .full-brief-drawer {{ display: block !important; }}
@@ -320,6 +422,7 @@ body.print-all .full-brief-drawer {{ display: block !important; }}
   <div class="nest-main-tabs">
     <button type="button" id="btn-tab-proposals" class="mtab-btn active" onclick="switchMainTab('proposals')">Project Proposals ({len(projects)} Interactive Cards)</button>
     <button type="button" id="btn-tab-maps" class="mtab-btn" onclick="switchMainTab('maps')">3-Engine Analysis Maps</button>
+    <button type="button" id="btn-tab-skills" class="mtab-btn" onclick="switchMainTab('skills')">Stage C Skills ({len(all_stage_c_skills)})</button>
   </div>
 </header>
 
@@ -343,11 +446,52 @@ body.print-all .full-brief-drawer {{ display: block !important; }}
 </section>
 
 <section id="tab-maps">
+<div id="tab2-engine-reasoning" style="max-width:1420px;margin:0 auto 14px;padding:12px 14px;background:#FFFAF7;border:1px solid var(--nest-line);border-radius:14px"></div>
 {tab2_inner}
 </section>
 
+<section id="tab-skills">
+  <div class="skills-wrap">
+    <div class="skills-toolbar">
+      <div class="skills-filters">
+        <span style="font-size:11.5px;font-weight:800;color:#625753;text-transform:uppercase;letter-spacing:.35px">Filter Skills:</span>
+        <select id="sk-filter-project" class="sk-sel" onchange="renderSkillsTab()">
+          <option value="All">All Projects</option>
+        </select>
+        <select id="sk-filter-engine" class="sk-sel" onchange="renderSkillsTab()">
+          <option value="All">All Engines</option>
+          <option value="Crystals">Crystals (Development)</option>
+          <option value="Cells">Cells (Adaptation)</option>
+          <option value="Corals">Corals (Coordination)</option>
+        </select>
+        <select id="sk-filter-tool" class="sk-sel" onchange="renderSkillsTab()">
+          <option value="All">All Channels / Tools</option>
+          <option value="__agnostic__">Tool-Agnostic (Design Principle)</option>
+        </select>
+        <select id="sk-filter-action" class="sk-sel" onchange="renderSkillsTab()">
+          <option value="All">All Action Types</option>
+        </select>
+        <span id="sk-count-badge" class="pill" style="font-size:11px">0 skills</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" class="btn-outline" onclick="resetSkillFilters()">Reset</button>
+        <button type="button" class="btn-coral" onclick="exportFilteredSkillsPack()">⬇ Export Filtered Skills (.json)</button>
+      </div>
+    </div>
+    <div id="skills-lanes" class="skills-lanes"></div>
+  </div>
+</section>
+
+<div id="sk-drawer-backdrop" class="sk-drawer-backdrop" onclick="if(event.target===this) closeSkillInspector()">
+  <div class="sk-drawer" role="dialog" aria-modal="true">
+    <div id="sk-drawer-hdr" class="sk-drawer-hdr"></div>
+    <div id="sk-drawer-body" class="sk-drawer-body"></div>
+  </div>
+</div>
+
 <script>
 const NEST_PROJECTS = {json.dumps(projects)};
+const NEST_STAGE_C_SKILLS = {json.dumps(all_stage_c_skills)};
 const miniMaps = [];
 const miniMapRegistry = {{}};
 const webglRegistry = {{}};
@@ -355,11 +499,189 @@ const cardStepState = {{}};
 
 const STORY_LABELS = [
   ['1', 'The Experience'],
-  ['2', 'Constellation'],
-  ['3', 'Nature & Landscape'],
-  ['4', 'Site & GIS'],
-  ['5', 'Feasibility']
+  ['2', 'Nature & Landscape'],
+  ['3', 'Site & GIS'],
+  ['4', 'Feasibility']
 ];
+
+const ENGINE_ICONS = {json.dumps(engine_icons)};
+
+function engineIconSVG(engineName, size = 18, color = 'currentColor') {{
+  const k = String(engineName || '').toLowerCase();
+  const key = k.includes('cell') ? 'Cells' : (k.includes('coral') ? 'Corals' : 'Crystals');
+  const uri = ENGINE_ICONS[key];
+  if (uri) {{
+    const px = Math.max(size + 4, 18);
+    return `<img src="${{uri}}" width="${{px}}" height="${{px}}" alt="${{key}}" style="display:inline-block;vertical-align:middle;object-fit:contain;flex:none" />`;
+  }}
+  const st = `display:inline-block;vertical-align:-2.5px;flex:none`;
+  if (key === 'Cells') {{
+    return `<svg width="${{size}}" height="${{size}}" viewBox="0 0 24 24" fill="none" stroke="${{color}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="${{st}}" aria-hidden="true"><path d="M12 2.8c4.6 0 8.7 2.8 9.2 7.4.5 4.9-2.8 10.2-8.2 10.8-5.3.6-9.8-3.4-10.1-8.5C2.6 7.2 6.8 2.8 12 2.8Z"/><circle cx="12.2" cy="11.8" r="3.2" fill="${{color}}" fill-opacity="0.22"/><circle cx="16.4" cy="7.6" r="1.2" fill="${{color}}" stroke="none"/><circle cx="8.1" cy="15.7" r="1.1" fill="${{color}}" stroke="none"/></svg>`;
+  }}
+  if (key === 'Corals') {{
+    return `<svg width="${{size}}" height="${{size}}" viewBox="0 0 24 24" fill="none" stroke="${{color}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="${{st}}" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c-3.2 0-5.5-2.2-5.5-5.5V6"/><path d="M12 14c3.2 0 5.5-2.2 5.5-5.5V6"/><path d="M12 14V7.5"/><circle cx="6.5" cy="5" r="2" fill="${{color}}" fill-opacity="0.25"/><circle cx="12" cy="5.5" r="2" fill="${{color}}" fill-opacity="0.25"/><circle cx="17.5" cy="5" r="2" fill="${{color}}" fill-opacity="0.25"/><path d="M8.5 21h7"/></svg>`;
+  }}
+  return `<svg width="${{size}}" height="${{size}}" viewBox="0 0 24 24" fill="none" stroke="${{color}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="${{st}}" aria-hidden="true"><polygon points="12 2 19.5 8.5 16.5 21 7.5 21 4.5 8.5 12 2" fill="${{color}}" fill-opacity="0.16"/><polyline points="12 2 12 21"/><polyline points="4.5 8.5 12 11.5 19.5 8.5"/></svg>`;
+}}
+
+function buildEngineElementMapSVG(p, engName, ec, words, driverTxt, isLead = false) {{
+  const W = 340, H = isLead ? 168 : 138;
+  const lat0 = Number(p.lat || 0), lon0 = Number(p.lon || 0);
+  const cosLat = Math.cos(lat0 * Math.PI / 180) || 1;
+  const mPerLon = 111320 * cosLat, mPerLat = 110540;
+  const toXY = (lon, lat) => [((lon - lon0) * mPerLon), ((lat - lat0) * mPerLat)];
+
+  const rings = [];
+  const gj = p.geojson || null;
+  if (gj && gj.type === 'Polygon' && gj.coordinates && gj.coordinates[0]) rings.push(gj.coordinates[0]);
+  else if (gj && gj.type === 'MultiPolygon' && gj.coordinates) gj.coordinates.forEach(poly => {{ if (poly[0]) rings.push(poly[0]); }});
+  let maxExt = 380;
+  rings.forEach(r => r.forEach(pt => {{
+    const [mx, my] = toXY(pt[0], pt[1]);
+    maxExt = Math.max(maxExt, Math.abs(mx) * 1.45, Math.abs(my) * 1.9);
+  }}));
+  const halfH = maxExt * 0.72;
+  const halfW = halfH * (W / H);
+  const proj = (lon, lat) => {{
+    const [mx, my] = toXY(lon, lat);
+    return [W / 2 + (mx / halfW) * (W / 2), H / 2 - (my / halfH) * (H / 2)];
+  }};
+  const polyPath = (geom) => {{
+    if (!geom || !geom.coordinates) return '';
+    const rlist = geom.type === 'Polygon' ? [geom.coordinates[0]] : (geom.type === 'MultiPolygon' ? geom.coordinates.map(c => c[0]) : []);
+    return rlist.filter(Boolean).map(r => 'M' + r.map(pt => proj(pt[0], pt[1]).map(v => v.toFixed(1)).join(',')).join('L') + 'Z').join(' ');
+  }};
+  const geomCenter = (geom) => {{
+    if (!geom || !geom.coordinates) return [W / 2, H / 2];
+    const pts = [];
+    const walk = (c) => {{ if (typeof c[0] === 'number') pts.push(proj(c[0], c[1])); else c.forEach(walk); }};
+    walk(geom.coordinates);
+    if (!pts.length) return [W / 2, H / 2];
+    return [pts.reduce((s, a) => s + a[0], 0) / pts.length, pts.reduce((s, a) => s + a[1], 0) / pts.length];
+  }};
+
+  let roadPaths = '';
+  try {{
+    const rdFeats = (typeof REF_RD !== 'undefined' && REF_RD && REF_RD.features) ? REF_RD.features : [];
+    const lines = [];
+    rdFeats.forEach(f => {{
+      const g = f.geometry;
+      if (!g || !g.coordinates) return;
+      const segs = g.type === 'LineString' ? [g.coordinates] : (g.type === 'MultiLineString' ? g.coordinates : []);
+      segs.forEach(seg => {{
+        const ppts = seg.map(pt => proj(pt[0], pt[1]));
+        if (ppts.some(([x, y]) => x >= -20 && x <= W + 20 && y >= -20 && y <= H + 20)) {{
+          lines.push('M' + ppts.map(([x, y]) => `${{x.toFixed(1)}},${{y.toFixed(1)}}`).join('L'));
+        }}
+      }});
+    }});
+    if (lines.length) roadPaths = `<path d="${{lines.slice(0, 28).join(' ')}}" fill="none" stroke="#B5A69E" stroke-width="1.35" stroke-linecap="round"/>`;
+  }} catch (e) {{}}
+
+  const sitePath = polyPath(gj);
+  const zones = p.landscape_zones || [];
+  const fps = p.footprints || [];
+
+  const rawPtrs = (p.map_pointers || []).map(pt => typeof pt === 'string' ? pt : `${{pt.label || ''}} (${{Math.round(pt.distance_m || 0)}} m)`);
+  const cleanLabel = (s) => {{
+    let t = String(s || '').replace(/^[^:]+:\s*/, '').trim();
+    t = t.replace(/\[ANALYSED:\s*/i, '').replace(/\]/g, '').trim();
+    t = t.replace(/^unclassified\b/i, 'Access Track').replace(/^track_grade\d\b/i, 'Desert Track').replace(/^path\b/i, 'Site Trail');
+    return t.length > 30 ? t.slice(0, 28) + '…' : t;
+  }};
+  const findPtr = (re) => rawPtrs.find(s => re.test(s));
+
+  const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const pinTag = (x, y, text, fillCol, anchor = 'middle') => {{
+    const tx = Math.max(46, Math.min(W - 46, x));
+    const ty = Math.max(17, Math.min(H - 12, y));
+    const lbl = esc(text);
+    const pw = Math.min(182, Math.max(54, lbl.length * 4.8 + 14));
+    const rx = anchor === 'start' ? Math.min(W - pw - 4, tx + 5) : (anchor === 'end' ? Math.max(4, tx - pw - 5) : Math.max(4, Math.min(W - pw - 4, tx - pw / 2)));
+    return `<g><circle cx="${{x.toFixed(1)}}" cy="${{y.toFixed(1)}}" r="4" fill="${{fillCol}}" stroke="#FFFFFF" stroke-width="1.5"/>` +
+      `<rect x="${{rx.toFixed(1)}}" y="${{(ty - 15).toFixed(1)}}" width="${{pw.toFixed(1)}}" height="15" rx="4" fill="rgba(255,250,247,0.96)" stroke="${{fillCol}}" stroke-width="1"/>` +
+      `<text x="${{(rx + pw / 2).toFixed(1)}}" y="${{(ty - 4.8).toFixed(1)}}" text-anchor="middle" font-size="8.2" font-weight="800" fill="${{fillCol}}">${{lbl}}</text></g>`;
+  }};
+
+  let overlayHtml = '';
+  const eKey = engName.toLowerCase();
+
+  if (eKey === 'crystals') {{
+    const fpPaths = fps.map(fp => `<path d="${{polyPath(fp.geom)}}" fill="#8C3325" fill-opacity="0.78" stroke="#FFFFFF" stroke-width="0.7"/>`).join('');
+    const poiStr = findPtr(/roman|antinoopolis|deir abu shaar|desert breath|safari|garage|cultural|heritage|point of interest/i) || findPtr(/main roads|طريق/i) || rawPtrs[2] || rawPtrs[0] || 'Anchor POI';
+    const roadStr = findPtr(/main roads|طريق|road network/i) || 'Access Track';
+    const fpC = fps[0] ? geomCenter(fps[0].geom) : [W * 0.44, H * 0.42];
+    const poiPos = [W * 0.72, H * 0.78];
+    const rdPos = [W * 0.25, H * 0.22];
+    overlayHtml =
+      `<circle cx="${{fpC[0].toFixed(1)}}" cy="${{fpC[1].toFixed(1)}}" r="42" fill="none" stroke="#8C3325" stroke-width="1.15" stroke-dasharray="3.5,2.5" opacity="0.7"/>` +
+      fpPaths +
+      `<line x1="${{fpC[0].toFixed(1)}}" y1="${{fpC[1].toFixed(1)}}" x2="${{poiPos[0].toFixed(1)}}" y2="${{poiPos[1].toFixed(1)}}" stroke="#8C3325" stroke-width="1.4" stroke-dasharray="3,2"/>` +
+      pinTag(fpC[0], fpC[1] - 4, 'Build Anchor', '#8C3325') +
+      pinTag(poiPos[0], poiPos[1], cleanLabel(poiStr), '#D94432') +
+      pinTag(rdPos[0], rdPos[1], cleanLabel(roadStr), '#524844');
+  }} else if (eKey === 'cells') {{
+    let topoHtml = '';
+    const tg = p.terrain_grid;
+    if (tg && Array.isArray(tg.z) && tg.z.length) {{
+      const zs = tg.z.flat().filter(v => typeof v === 'number' && !isNaN(v));
+      const zMin = Math.min(...zs), zMax = Math.max(...zs), zSpan = Math.max(0.5, zMax - zMin);
+      const ny = tg.z.length, nx = tg.z[0].length;
+      for (let iy = 0; iy < ny; iy++) {{
+        for (let ix = 0; ix < nx; ix++) {{
+          const zv = tg.z[iy][ix];
+          if (typeof zv !== 'number' || isNaN(zv)) continue;
+          const t = (zv - zMin) / zSpan;
+          const cx = W * 0.24 + (ix / Math.max(1, nx - 1)) * (W * 0.52);
+          const cy = H * 0.20 + (iy / Math.max(1, ny - 1)) * (H * 0.60);
+          topoHtml += `<circle cx="${{cx.toFixed(1)}}" cy="${{cy.toFixed(1)}}" r="${{(1.8 + t * 2.6).toFixed(1)}}" fill="#1D4ED8" fill-opacity="${{(0.14 + t * 0.44).toFixed(2)}}"/>`;
+        }}
+      }}
+    }}
+    // Pull relief strictly from THIS site's driverTxt or terrain_analysis (never from peer cross-site mentions)
+    const drvRel = String(driverTxt || '').match(/(\d+(?:\.\d+)?)\s*m\s*(?:DEM|relief|slope|escarpment|grade)/i);
+    const reliefM = drvRel
+      ? `${{drvRel[1]}} m Relief`
+      : ((p.terrain_analysis && p.terrain_analysis.relief_m != null) ? `${{Number(p.terrain_analysis.relief_m).toFixed(1)}} m Relief` : 'Terrain Slope');
+    const adaptMatch = String(driverTxt || p.nature_to_bldg || '').match(/(solar|wind|cistern|star bowl|escarpment|reedbed|tensile|vault)/i);
+    const adaptLbl = adaptMatch ? `Adapt: ${{adaptMatch[1]}}` : 'Climate Adaptation';
+    const fpPaths = fps.map(fp => `<path d="${{polyPath(fp.geom)}}" fill="#1D4ED8" fill-opacity="0.34" stroke="#1D4ED8" stroke-width="0.9"/>`).join('');
+    overlayHtml =
+      topoHtml + fpPaths +
+      `<path d="M40,28 L92,56" stroke="#1D4ED8" stroke-width="1.8" stroke-dasharray="3.5,2"/>` +
+      `<polygon points="94,57 85,57 89,50" fill="#1D4ED8"/>` +
+      pinTag(66, 25, 'NNW Breeze / Solar', '#1D4ED8') +
+      pinTag(W * 0.68, H * 0.38, reliefM, '#1D4ED8') +
+      pinTag(W * 0.50, H * 0.82, adaptLbl, '#1E40AF');
+  }} else {{
+    const zPaths = zones.map(z => `<path d="${{polyPath(z.geom)}}" fill="${{z.color || '#0F766E'}}" fill-opacity="0.32" stroke="${{z.color || '#0F766E'}}" stroke-width="1"/>`).join('');
+    const z0 = zones[0] ? geomCenter(zones[0].geom) : [W * 0.28, H * 0.34];
+    const zLast = zones[zones.length - 1] ? geomCenter(zones[zones.length - 1].geom) : [W * 0.72, H * 0.68];
+    const midPt = [(z0[0] + zLast[0]) / 2, Math.min(z0[1], zLast[1]) - 22];
+    const el1 = findPtr(/farm|bird|motacilla|preserve|شايب/i) || (zones[0] ? zones[0].name : 'Ecology');
+    const el2 = findPtr(/main roads|طريق|roman|deir abu shaar|highway/i) || (zones[zones.length - 1] ? zones[zones.length - 1].name : 'Civic Seam');
+    overlayHtml =
+      zPaths +
+      `<path d="M${{z0[0].toFixed(1)}},${{z0[1].toFixed(1)}} Q${{midPt[0].toFixed(1)}},${{midPt[1].toFixed(1)}} ${{zLast[0].toFixed(1)}},${{zLast[1].toFixed(1)}}" fill="none" stroke="#0F766E" stroke-width="2.2" stroke-dasharray="4.5,2.5"/>` +
+      pinTag(z0[0], z0[1], cleanLabel(el1), '#0F766E') +
+      pinTag(zLast[0], zLast[1], cleanLabel(el2), '#0D9488') +
+      pinTag(W / 2, H * 0.85, 'Symbiotic Loop', '#115E59');
+  }}
+
+  const satBg = p.satellite_lock
+    ? `<image href="${{p.satellite_lock}}" x="0" y="0" width="${{W}}" height="${{H}}" preserveAspectRatio="xMidYMid slice" opacity="0.26"/>`
+    : '';
+  return `<div class="eng-rail-map" onclick="jumpTo3EngineMap(${{p.rank}})" title="Click to inspect ${{engName}} elements on the 3-Engine Map">` +
+    `<svg viewBox="0 0 ${{W}} ${{H}}" xmlns="http://www.w3.org/2000/svg">` +
+      `<rect width="${{W}}" height="${{H}}" fill="#F2ECE6"/>` +
+      satBg +
+      `<rect width="${{W}}" height="${{H}}" fill="rgba(247,243,238,0.42)"/>` +
+      roadPaths +
+      (sitePath ? `<path d="${{sitePath}}" fill="${{ec.bg}}" fill-opacity="0.48" stroke="${{ec.fg}}" stroke-width="1.6" stroke-dasharray="4.5,2.5"/>` : '') +
+      overlayHtml +
+      `<g transform="translate(${{W - 18}}, 15)"><circle r="8.5" fill="rgba(48,43,42,0.86)"/><text y="3" text-anchor="middle" font-size="8" font-weight="800" fill="#FFFAF7">N</text></g>` +
+    `</svg></div>`;
+}}
 
 // --- HELPER PARSERS FOR REAL-DATA SVG DIAGRAMS ---
 function parseNumber(str, fallback = 0) {{
@@ -414,12 +736,15 @@ function formatDetailedNarrative(txt) {{
 
 // --- CUSTOM INTERACTIVE SVG ARCHITECTURAL DIAGRAMS ---
 function buildSignalRadarSVG(p) {{
+  const drv = (p.engine_trace && p.engine_trace.drivers) || {{}};
+  const ptr0 = (p.map_pointers || []).map(pt => typeof pt === 'string' ? pt : `${{pt.label || ''}} (${{Math.round(pt.distance_m || 0)}} m)`).slice(0, 3).join('; ');
   const vals = [
-    {{ lbl: 'Crystals', v: p.scores.crystals || 0 }},
-    {{ lbl: 'Cells', v: p.scores.cells || 0 }},
-    {{ lbl: 'Corals', v: p.scores.corals || 0 }},
-    {{ lbl: 'Access', v: p.access || 0 }}
+    {{ lbl: 'Crystals', key: 'crystals', v: p.scores.crystals || 0, why: drv.crystals || `Development score from nearby POIs & corridors (${{ptr0 || 'site landmarks'}}).` }},
+    {{ lbl: 'Cells', key: 'cells', v: p.scores.cells || 0, why: drv.cells || `Adaptation score from terrain relief, solar intensity & natural edge gradients.` }},
+    {{ lbl: 'Corals', key: 'corals', v: p.scores.corals || 0, why: drv.corals || `Coordination score from bridging adjacent land uses, corridors & ecology.` }},
+    {{ lbl: 'Access', key: 'Corridor & Network Connectivity', v: p.access || 0, why: `Regional road & arrival accessibility score (${{p.access || 0}}/100) based on distance to mapped roads & highways.` }}
   ];
+  const escAttr = (s) => String(s || '').replace(/"/g, '&quot;');
   const cx = 135, cy = 96, R = 64;
   const angles = [-Math.PI/2, 0, Math.PI/2, Math.PI];
   const pt = (val, i) => {{
@@ -434,12 +759,13 @@ function buildSignalRadarSVG(p) {{
   const axes = angles.map((a, i) => {{
     const x2 = cx + Math.cos(a)*R, y2 = cy + Math.sin(a)*R;
     const lx = cx + Math.cos(a)*(R + 24), ly = cy + Math.sin(a)*(R + 18) + 4;
+    const d = vals[i];
     return `<line x1="${{cx}}" y1="${{cy}}" x2="${{x2.toFixed(1)}}" y2="${{y2.toFixed(1)}}" stroke="#D5C9C5" stroke-width="1"/>` +
-           `<text x="${{lx.toFixed(1)}}" y="${{ly.toFixed(1)}}" text-anchor="middle" font-size="10" font-weight="800" fill="#625753">${{vals[i].lbl}} ${{vals[i].v}}</text>`;
+           `<text class="score-explain" data-score-key="${{d.key}}" data-score-val="${{d.v}}" data-score-why="${{escAttr(d.why)}}" x="${{lx.toFixed(1)}}" y="${{ly.toFixed(1)}}" text-anchor="middle" font-size="10" font-weight="800" fill="#625753" style="cursor:help">${{d.lbl}} ${{d.v}}</text>`;
   }}).join('');
   const dots = vals.map((d, i) => {{
     const [x, y] = pt(d.v, i);
-    return `<circle cx="${{x.toFixed(1)}}" cy="${{y.toFixed(1)}}" r="4" fill="#FF614C" stroke="#A3473A" stroke-width="1.5"/>`;
+    return `<circle class="score-explain" data-score-key="${{d.key}}" data-score-val="${{d.v}}" data-score-why="${{escAttr(d.why)}}" cx="${{x.toFixed(1)}}" cy="${{y.toFixed(1)}}" r="5" fill="#FF614C" stroke="#A3473A" stroke-width="1.5" style="cursor:help"/>`;
   }}).join('');
   return `<svg viewBox="0 0 270 192" style="width:100%;max-height:185px;display:block;margin:0 auto">
     ${{rings}}${{axes}}
@@ -940,7 +1266,8 @@ function resetMiniMap(rank) {{
 }}
 
 function goStoryStep(rank, stepIdx) {{
-  const idx = ((stepIdx % 5) + 5) % 5;
+  const nSteps = STORY_LABELS.length;
+  const idx = ((stepIdx % nSteps) + nSteps) % nSteps;
   cardStepState[rank] = idx;
   const card = document.getElementById('site-card-' + rank);
   if (!card) return;
@@ -1002,6 +1329,17 @@ function toggleDetailed() {{
 }}
 
 function exportProposalsPdf() {{
+  const prebuilt = {json.dumps(prebuilt_pdf_name if has_prebuilt_pdf else "")};
+  if (prebuilt) {{
+    const a = document.createElement('a');
+    a.href = prebuilt;
+    a.target = '_blank';
+    a.download = prebuilt;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return;
+  }}
   document.body.classList.add('print-all');
   window.print();
   setTimeout(() => document.body.classList.remove('print-all'), 300);
@@ -1010,16 +1348,30 @@ function exportProposalsPdf() {{
 function switchMainTab(tab) {{
   document.getElementById('tab-proposals').style.display = tab === 'proposals' ? 'block' : 'none';
   document.getElementById('tab-maps').style.display = tab === 'maps' ? 'flex' : 'none';
+  const skTab = document.getElementById('tab-skills');
+  if (skTab) skTab.style.display = tab === 'skills' ? 'block' : 'none';
   document.getElementById('btn-tab-proposals').classList.toggle('active', tab === 'proposals');
   document.getElementById('btn-tab-maps').classList.toggle('active', tab === 'maps');
+  const skBtn = document.getElementById('btn-tab-skills');
+  if (skBtn) skBtn.classList.toggle('active', tab === 'skills');
   if (tab === 'proposals') {{
     setTimeout(() => miniMaps.forEach(m => m.invalidateSize()), 80);
-  }} else {{
+  }} else if (tab === 'maps') {{
     setTimeout(() => {{
       if (typeof maps !== 'undefined') maps.forEach(m => m.invalidateSize());
       window.dispatchEvent(new Event('resize'));
     }}, 80);
+  }} else if (tab === 'skills') {{
+    renderSkillsTab();
   }}
+}}
+
+function jumpToProjectSkills(rank) {{
+  const sel = document.getElementById('sk-filter-project');
+  if (sel) sel.value = String(rank);
+  const engSel = document.getElementById('sk-filter-engine');
+  if (engSel) engSel.value = 'All';
+  switchMainTab('skills');
 }}
 
 function jumpTo3EngineMap(rank) {{
@@ -1114,12 +1466,30 @@ function renderProjectCards() {{
     const zBarSegs = zones.map((z, zi) =>
       `<div class="zstack-seg" style="width:${{z.share_pct}}%;background:${{z.color}}" onclick="focus3Way(${{p.rank}}, 'zones', ${{zi}}, null)" title="${{z.name}} (${{z.share_pct}}%)">${{z.share_pct >= 10 ? z.share_pct + '%' : ''}}</div>`
     ).join('');
-    const zTiles = zones.map((z, zi) =>
-      `<div class="zone-tile" style="--zc:${{z.color}}" onclick="focus3Way(${{p.rank}}, 'zones', ${{zi}}, this)" title="Click to highlight in 3D &amp; map">` +
-      `<div class="zt-top"><span class="zt-pct">${{z.share_pct}}%</span><span class="pill" style="border-color:${{z.color}};background:${{z.color}}18;font-size:10px">${{z.intervention}}</span></div>` +
-      `<div class="zt-name">${{z.short_name || z.name}} <span style="font-weight:600;color:#625753">(${{z.area_feddans}} fed.)</span></div>` +
-      `<div class="zt-act">${{z.outdoor_activities || z.why_here || ''}}</div></div>`
-    ).join('');
+    const zTiles = zones.map((z, zi) => {{
+      const accBadge = z.access_level ? `<span class="pill" style="font-size:9.5px;padding:1px 6px">Access: ${{z.access_level}}</span>` : '';
+      const watBadge = z.water_demand ? `<span class="pill" style="font-size:9.5px;padding:1px 6px">Water: ${{z.water_demand}}</span>` : '';
+      const confBadge = z.confidence ? `<span class="pill" style="font-size:9.5px;padding:1px 6px;background:${{z.confidence === 'Measured GIS' ? '#EAF5EF' : '#FFF5E5'}};color:${{z.confidence === 'Measured GIS' ? '#246247' : '#775014'}}">${{z.confidence}}</span>` : '';
+      const bldBadge = z.buildable === false ? `<span class="pill" style="font-size:9.5px;padding:1px 6px;background:#FCEEF0;color:#A12B3A">0% Buildable</span>` : (z.intervention === 'Activate' ? `<span class="pill ok" style="font-size:9.5px;padding:1px 6px">Buildable Interface</span>` : '');
+      const evLine = z.gis_evidence ? `<div style="font-size:10.5px;color:#625753;margin-top:4px;border-top:1px dashed #E5DDD9;padding-top:3px"><b>GIS Evidence:</b> ${{z.gis_evidence}}</div>` : '';
+      return `<div class="zone-tile" style="--zc:${{z.color}}" onclick="focus3Way(${{p.rank}}, 'zones', ${{zi}}, this)" title="Click to highlight on map">` +
+        `<div class="zt-top"><span class="zt-pct">${{z.id || ''}} · ${{z.share_pct}}%</span><span class="pill" style="border-color:${{z.color}};background:${{z.color}}18;color:${{z.color}};font-size:10px;font-weight:800">${{z.intervention}}</span></div>` +
+        `<div class="zt-name">${{z.short_name || z.name}} <span style="font-weight:600;color:#625753">(${{z.area_feddans}} fed. · ${{Number(z.area_m2 || 0).toLocaleString()}} m²)</span></div>` +
+        `<div class="zt-act">${{z.outdoor_activities || z.why_here || ''}}</div>` +
+        `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px">${{bldBadge}}${{accBadge}}${{watBadge}}${{confBadge}}</div>` +
+        evLine +
+        `</div>`;
+    }}).join('');
+    const bEnv = p.buildable_envelope || null;
+    const buildableEnvBar = bEnv ? `
+      <div style="margin:8px 0;padding:9px 12px;border-radius:10px;background:${{bEnv.fits_envelope ? '#EAF5EF' : '#FFF5E5'}};border:1px solid ${{bEnv.fits_envelope ? '#B7DFC7' : '#E7C88B'}};font-size:11.5px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div><b style="color:${{bEnv.fits_envelope ? '#246247' : '#775014'}}">${{bEnv.fits_envelope ? '✓' : '⚠'}} Verified Development Interface (Buildable Envelope):</b> <b>${{Number(bEnv.net_buildable_m2 || 0).toLocaleString()}} m²</b> net buildable vs. <b>${{Number(bEnv.building_footprint_m2 || 0).toLocaleString()}} m²</b> building footprint (<b>${{bEnv.envelope_coverage_pct}}%</b> coverage)</div>
+          <div style="font-size:10.5px;color:#4A413D"><b>${{bEnv.preserve_locked_pct}}%</b> locked 0% buildable (Preserve + Minimal Intervention) · <a href="landscape_zones.geojson" target="_blank" style="color:#A3473A;font-weight:700">landscape_zones.geojson ↗</a></div>
+        </div>
+        ${{bEnv.zoning_rationale ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed ${{bEnv.fits_envelope ? '#B7DFC7' : '#E7C88B'}};color:#231E1C;line-height:1.45"><b style="color:#302B2A">Why This Site Is Zoned This Way:</b> ${{bEnv.zoning_rationale}}</div>` : ''}}
+        ${{bEnv.method_summary ? `<div style="margin-top:4px;font-size:10.5px;color:#625753"><b>GIS Priority Order:</b> ${{bEnv.method_summary}}</div>` : ''}}
+      </div>` : '';
     const elChips = (p.landscape_elements || []).map((el, ei) =>
       `<button type="button" class="el-chip" onclick="focus3Way(${{p.rank}}, 'elements', ${{ei}}, this)">● ${{el.label}}</button>`
     ).join('');
@@ -1148,24 +1518,6 @@ function renderProjectCards() {{
     const hasStay = !!(exp.visit_mode ? exp.visit_mode.toLowerCase().includes('stay') || exp.visit_mode.toLowerCase().includes('night') : (exp.stay_overnight && !exp.stay_overnight.toLowerCase().includes('day-only')));
     const visitMode = exp.visit_mode || (hasStay ? 'Day-to-Night · Eco-Stay' : 'Full-Day Experience');
     const natureHero = p.nature_hero || ((p.thesis_summary && p.thesis_summary.why_here) ? p.thesis_summary.why_here.split('.')[0].slice(0, 42) : 'Sun, Wind & Coast');
-    const rawJourney = Array.isArray(exp.journey) && exp.journey.length
-      ? exp.journey.map((m, mi) => [`${{mi + 1}} · ${{m.moment || m.title || 'Moment'}}`, m.detail || m.desc || ''])
-      : [
-          ['1 · Arrival', exp.arrival],
-          ['2 · Core Encounter', exp.core_encounter],
-          ['3 · Activities & Trails', exp.activities_loop],
-          ['4 · Dining & Retail', exp.dining_retail],
-          ['5 · Stay & Overnight', exp.stay_overnight],
-          ['6 · Atmosphere', exp.atmosphere],
-        ].filter(([, v]) => !!v);
-    const mRenders = Array.isArray(p.moment_renders) ? p.moment_renders : [];
-    const expBeats = rawJourney.map(([k, v], mi) => {{
-      const mImg = mRenders[mi] || '';
-      const mediaHtml = mImg
-        ? `<img class="jcard-media" src="${{mImg}}" alt="${{k}}" loading="lazy" />`
-        : `<div class="jcard-slot"><b>Moment #${{mi + 1}} · Awaiting Render</b><span>renders/site_${{p.rank}}_moment_${{mi + 1}}.jpg</span></div>`;
-      return `<div class="jcard">${{mediaHtml}}<div class="jcard-body"><div class="mk" style="margin-bottom:4px">${{k}}</div><div style="font-size:12px;line-height:1.45;color:var(--ink)">${{v}}</div></div></div>`;
-    }}).join('');
     const actPills = (p.activities || []).map(a =>
       `<span class="pill ok" style="font-size:11px;padding:4px 9px">${{a}}</span>`
     ).join('');
@@ -1173,18 +1525,79 @@ function renderProjectCards() {{
     const tectonicTxt = (p.thesis_summary && p.thesis_summary.gesture_line) || exp.core_idea || '';
     const atmoTxt = exp.atmosphere || 'Warm directional light, deep courtyard shade, and tactile local stone.';
 
-    const skillsList = (p.generated_skills || []).map(sk =>
-      `<div class="mchip" style="min-width:190px;flex:1"><div class="mk">${{sk.engine || 'Engine'}} · ${{sk.role || ''}}</div><b>${{sk.name || sk.skill_id || 'Skill'}}</b><br><span style="color:#625753">${{sk.summary || sk.description || ''}}</span></div>`
-    ).join('');
+    const engColors = {{
+      Crystals: {{ bg: '#FFF5F2', bd: '#E8B5A8', fg: '#8C3325', theme: 'Development', defn: 'Finding points of interest to build around, in, or at.' }},
+      Cells: {{ bg: '#F2F7FF', bd: '#B5CCF5', fg: '#1D4ED8', theme: 'Adaptation', defn: 'Finding elements in site, nature, or context to unlock their full potential by adapting them into something new or better.' }},
+      Corals: {{ bg: '#F0FAF8', bd: '#A5DCD2', fg: '#0F766E', theme: 'Coordination', defn: 'Finding elements in site, nature, or context to use better together or introduce a beneficial relationship.' }}
+    }};
+    const er = p.engine_reasoning || {{}};
+    const etDrivers = (p.engine_trace && p.engine_trace.drivers) || {{}};
+    const leadEng = p.engine || 'Crystals';
+    const allEnginesOrder = [leadEng, ...['Crystals', 'Cells', 'Corals'].filter(e => e !== leadEng)];
+    const peersLower = Object.fromEntries(Object.entries(er.peers || {{}}).map(([k, v]) => [k.toLowerCase(), v]));
+    const driversLower = Object.fromEntries(Object.entries(etDrivers).map(([k, v]) => [k.toLowerCase(), v]));
+    const engineRailCards = allEnginesOrder.map(engName => {{
+      const ec = engColors[engName] || engColors.Crystals;
+      const isLead = engName === leadEng;
+      const eKey = engName.toLowerCase();
+      const words = isLead
+        ? (er.lead || (p.thesis_summary && p.thesis_summary.why_here) || '')
+        : (peersLower[eKey] || `From my ${{ec.theme}} lens, this site supports ${{driversLower[eKey] || 'complementary site forces'}}.`);
+      const driverTxt = driversLower[eKey] || '';
+      const roleBg = isLead ? ec.fg : '#FFFFFF';
+      const roleFg = isLead ? '#FFFAF7' : ec.fg;
+      const roleLbl = isLead ? 'Lead' : 'Peer';
+      const drvParts = String(driverTxt || '').split(/\s*\+\s*/).map(s => s.trim()).filter(Boolean);
+      const matchForceKey = (txt) => {{
+        const low = txt.toLowerCase();
+        if (low.includes('corridor') || low.includes('connectivity') || low.includes('highway') || low.includes('road')) return 'Corridor & Network Connectivity';
+        if (low.includes('solar') || low.includes('climate')) return 'Solar & Climate Intensity';
+        if (low.includes('hydrology') || low.includes('water') || low.includes('wadi') || low.includes('cistern')) return 'Hydrology & Waterfront';
+        if (low.includes('biodiversity') || low.includes('ecology') || low.includes('bird') || low.includes('farm') || low.includes('protected')) return 'Biodiversity & Ecology';
+        if (low.includes('heritage') || low.includes('roman') || low.includes('desert breath') || low.includes('safari')) return 'Heritage & Culture Gravity';
+        if (low.includes('civic') || low.includes('service')) return 'Civic & Service Deficit';
+        return engName.toLowerCase();
+      }};
+      const drvPills = drvParts.map(dp => {{
+        const fk = matchForceKey(dp);
+        const numM = dp.match(/\((\d+(?:\.\d+)?)\)/);
+        const valAttr = numM ? ` data-score-val="${{numM[1]}}"` : '';
+        const whyAttr = ` data-score-why="${{dp.replace(/"/g, '&quot;')}} — primary GIS signal cited by ${{engName}} Engine for Site #${{p.rank}}."`;
+        return `<span class="eng-drv-pill score-explain" tabindex="0" data-score-key="${{fk}}"${{valAttr}}${{whyAttr}} style="border-color:${{ec.bd}};cursor:help"><span style="color:${{ec.fg}}">●</span>${{dp}}</span>`;
+      }}).join('');
+      return `<div class="eng-rail-card" style="background:${{isLead ? ec.bg : '#FFFFFF'}};border-color:${{ec.bd}};${{isLead ? `border-left:4px solid ${{ec.fg}};` : ''}}">` +
+        `<div class="eng-rail-top">` +
+          `<span class="eng-rail-title" style="color:${{ec.fg}}">${{engineIconSVG(engName, 17, ec.fg)}}<span>${{engName}} · ${{ec.theme}}</span></span>` +
+          `<span class="eng-rail-role" style="background:${{roleBg}};color:${{roleFg}};border:1px solid ${{ec.bd}}">${{roleLbl}}</span>` +
+        `</div>` +
+        `<div class="eng-rail-defn" style="color:${{ec.fg}}">${{ec.defn}}</div>` +
+        `<div class="eng-rail-words">${{words}}</div>` +
+        buildEngineElementMapSVG(p, engName, ec, words, driverTxt, isLead) +
+        (drvPills ? `<div class="eng-rail-drivers">${{drvPills}}</div>` : '') +
+      `</div>`;
+    }}).join('');
+    const engineRailHtml = `
+      <aside class="proj-card-rail" aria-label="3-Engine First-Person Words">
+        <div class="eng-rail-hdr"><span>3 Engines · Site Voice</span><span style="font-weight:700;color:#625753">First-Person</span></div>
+        ${{engineRailCards}}
+      </aside>`;
+
+    const skillsList = (p.generated_skills || []).map(sk => {{
+      const sEng = sk.engine || 'Crystals';
+      const sCol = (engColors[sEng.replace(/\s*Engine/i, '')] || engColors.Crystals).fg;
+      return `<div class="mchip" style="min-width:190px;flex:1"><div class="mk" style="display:flex;align-items:center;gap:4px;color:${{sCol}}">${{engineIconSVG(sEng, 13, sCol)}}<span>${{sEng}} · ${{sk.role || ''}}</span></div><b>${{sk.name || sk.skill_id || 'Skill'}}</b><br><span style="color:#625753">${{sk.summary || sk.description || ''}}</span></div>`;
+    }}).join('');
     const skillsBox = skillsList
-      ? `<div class="box" style="margin-top:10px"><div class="sec-lbl">Stage C Generated Design Skills (${{p.generated_skills.length}})</div><div class="micro-chips" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${{skillsList}}</div></div>`
+      ? `<div class="box" style="margin-top:10px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px"><div class="sec-lbl" style="margin:0">Stage C Generated Design Skills (${{p.generated_skills.length}})</div><button type="button" class="btn-outline" style="font-size:11px;padding:3px 9px" onclick="jumpToProjectSkills(${{p.rank}})">Inspect in Stage C Skills Tab →</button></div><div class="micro-chips" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${{skillsList}}</div></div>`
       : '';
 
     card.innerHTML = `
+      <div class="proj-card-shell">
+      <div class="proj-card-main">
       <div class="card-visuals">
         <div id="render-wrap-${{p.rank}}" class="render-wrap">
           <img id="card-img-${{p.rank}}" class="static-media" style="display:block" src="${{p.has_editorial_render ? p.render : p.satellite_lock}}" alt="Site #${{p.rank}}" />
-          <div class="rank-chip">${{engBadge.toUpperCase()}} • PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</div>
+          <div class="rank-chip" style="display:inline-flex;align-items:center;gap:5px">${{engineIconSVG(leadEng, 13, '#FFFAF7')}}<span>${{engBadge.toUpperCase()}} • PROJECT #${{p.rank}} • ${{p.area_feddans}} FEDDANS • ${{p.built_gfa}}</span></div>
           <div class="media-toggle-bar">
             ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Whole-Site Aerial</button>` : ''}}
             ${{p.has_hero_render ? `<button type="button" class="media-tbtn" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.hero_render}}', this)">Hero Experience</button>` : ''}}
@@ -1193,7 +1606,7 @@ function renderProjectCards() {{
         </div>
         <div class="mini-map-wrap">
           <div id="mini-map-${{p.rank}}" class="mini-map"></div>
-          <div class="map-legend-pill"><span><b style="color:#FF614C">▭</b> Site Boundary</span><span><b style="color:#2563EB">■</b> Footprints</span><span><b style="color:#0D9488">■</b> Landscape Zones</span></div>
+          <div class="map-legend-pill"><span><b style="color:#15803d">■</b> Preserve</span><span><b style="color:#64748b">■</b> Minimal</span><span><b style="color:#65a30d">■</b> Restore</span><span><b style="color:#0d9488">■</b> Enhance</span><span><b style="color:#d97706">■</b> Activate</span></div>
           <div class="map-meta-bar">
             <span class="map-coord-pill">${{Number(p.lat).toFixed(4)}}, ${{Number(p.lon).toFixed(4)}} · ${{p.area_feddans}} fed.</span>
             <button type="button" class="jump-map-btn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
@@ -1206,7 +1619,7 @@ function renderProjectCards() {{
           <h2>${{p.title}}</h2>
           <div class="sub">${{p.subtitle}}</div>
           <div class="badge-row">
-            <span class="pill" style="background:#302B2A;color:#FFFAF7;border-color:#302B2A">${{engBadge}}</span>
+            <span class="pill" style="display:inline-flex;align-items:center;gap:5px;background:#302B2A;color:#FFFAF7;border-color:#302B2A">${{engineIconSVG(leadEng, 13, '#FFFAF7')}}${{engBadge}}</span>
             <span class="pill tier">${{visitMode}}</span>
             <span class="pill ok">Nature Hero: ${{natureHero}}</span>
             <span class="pill">${{p.area_feddans}} Feddans · ${{vols.length || 1}} Components</span>
@@ -1236,19 +1649,13 @@ function renderProjectCards() {{
               <div class="exp-cue"><div class="mk">Atmosphere</div>${{atmoTxt}}</div>
             </div>
           </div>
-          <div class="diag-lbl"><span>Guest Journey Storyboard (${{rawJourney.length}} Moments)</span><span>${{visitMode}}</span></div>
-          <div class="journey-board">${{expBeats}}</div>
-        </div>
-
-        <!-- STEP 2: DISTRIBUTED CONSTELLATION -->
-        <div class="story-pane">
-          <div class="diag-lbl"><span>2 · Project Components &amp; Spaces (${{p.built_gfa}} across ${{vols.length || 1}} Components)</span><span>Any Architectural Typology</span></div>
+          <div class="diag-lbl"><span>Space Program (${{p.built_gfa}} across ${{vols.length || 1}} Components)</span><span>${{visitMode}}</span></div>
           <div class="mass-bar-list">${{groupedConstellation}}</div>
         </div>
 
-        <!-- STEP 3: NATURE & LANDSCAPE -->
+        <!-- STEP 2: NATURE & LANDSCAPE -->
         <div class="story-pane">
-          <div class="diag-lbl"><span>3 · Two-Way Nature Loop &amp; Whole-Site Landscape (${{p.area_feddans}} Feddans)</span><span>Click any zone to zoom on map</span></div>
+          <div class="diag-lbl"><span>2 · Two-Way Nature Loop &amp; Whole-Site Landscape (${{p.area_feddans}} Feddans)</span><span>Click any zone to zoom on map</span></div>
           <div class="nature-loop-wrap" style="margin-bottom:10px">
             <div class="nat-col">
               <div class="nat-node in">
@@ -1267,16 +1674,17 @@ function renderProjectCards() {{
             </div>
           </div>
           <div class="zstack-bar">${{zBarSegs}}</div>
+          ${{buildableEnvBar}}
           <div class="zone-grid">${{zTiles}}</div>
           ${{elChips ? `<div style="margin-top:8px"><div style="font-size:10.5px;font-weight:800;text-transform:uppercase;color:#625753;margin-bottom:5px">Outdoor Destinations:</div>${{elChips}}</div>` : ''}}
           <div class="risk-strip" style="margin-top:8px"><b>⚠ Environmental &amp; Resource Guardrail:</b> ${{p.landscape_summary.tradeoffs_risk}}</div>
         </div>
 
-        <!-- STEP 4: SITE & GIS SIGNAL -->
+        <!-- STEP 3: SITE & GIS SIGNAL -->
         <div class="story-pane">
           <div class="story-grid">
             <div class="diag-card">
-              <div class="diag-lbl"><span>4 · Site Signal Radar &amp; Real GIS Drivers</span><span>Click pins to locate</span></div>
+              <div class="diag-lbl"><span>3 · Site Signal Radar &amp; Real GIS Drivers</span><span>Click pins to locate</span></div>
               ${{buildSignalRadarSVG(p)}}
               <div class="pin-row">${{pinBtns}}</div>
             </div>
@@ -1292,11 +1700,11 @@ function renderProjectCards() {{
           </div>
         </div>
 
-        <!-- STEP 5: FEASIBILITY & BLUEPRINT -->
+        <!-- STEP 4: FEASIBILITY & BLUEPRINT -->
         <div class="story-pane">
           <div class="story-grid">
             <div class="diag-card">
-              <div class="diag-lbl"><span>5 · Whole-Site CapEx Split &amp; Revenue Mix</span><span>Building + Landscape</span></div>
+              <div class="diag-lbl"><span>4 · Whole-Site CapEx Split &amp; Revenue Mix</span><span>Building + Landscape</span></div>
               ${{buildCapexDonutSVG(p)}}
               <div style="margin-top:8px">${{revBars}}</div>
             </div>
@@ -1334,7 +1742,7 @@ function renderProjectCards() {{
               <thead><tr><th>Space / Zone</th><th style="text-align:right">Area</th><th style="text-align:right">Hours</th></tr></thead>
               <tbody>${{spaceRows}}</tbody>
             </table>
-            <div style="font-size:11.5px;color:#625753"><b>Engine Synthesis:</b> ${{p.engine_trace.synthesis_note}}</div>
+            <div style="font-size:11.5px;color:#625753"><b>Engine Reasoning:</b> ${{(p.engine_reasoning && p.engine_reasoning.lead) || (p.engine_trace && p.engine_trace.synthesis_note) || ''}}</div>
           </div>
         </div>
         <div class="box">
@@ -1345,7 +1753,11 @@ function renderProjectCards() {{
           </table>
           <div style="font-size:11.5px"><b>Scenarios:</b> ${{p.fin.scenarios}} · <b>Phase 0 Pilot:</b> ${{p.fin.pilot}}</div>
         </div>
+        ${{((p.rag_citations && ((p.rag_citations.codes && p.rag_citations.codes.length) || (p.rag_citations.precedents && p.rag_citations.precedents.length))) ? `<div class="box" style="margin-top:10px"><div class="sec-lbl" style="display:flex;justify-content:space-between;align-items:center"><span>Egyptian Codes &amp; Architectural Precedents (Cited RAG)</span><span style="font-size:10px;color:#5c534e;font-weight:600">NEST Portable RAG v3 · Reference Only</span></div><div class="two-col" style="margin-top:6px"><div><div style="font-size:11px;font-weight:700;color:#8c3b2b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Egyptian Codes &amp; Regulations</div>${{(p.rag_citations.codes || []).map(c => `<div style="font-size:11px;line-height:1.4;background:#FFFAF7;border:1px solid var(--nest-line);border-radius:8px;padding:7px 9px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:3px"><b style="color:#2b2320">${{c.doc_name || c.file}}</b><span style="white-space:nowrap;font-size:10px;background:#F3E7E1;color:#7a3324;padding:1px 6px;border-radius:999px;font-weight:700">p. ${{c.page}}${{c.extraction && c.extraction !== 'text' ? ' · OCR' : ''}}</span></div><div style="color:#5c524e">${{c.excerpt}}</div></div>`).join('')}}</div><div><div style="font-size:11px;font-weight:700;color:#1f6f5b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Architectural &amp; Climate Precedents</div>${{(p.rag_citations.precedents || []).map(r => `<div style="font-size:11px;line-height:1.4;background:#F7FCFA;border:1px solid var(--nest-line);border-radius:8px;padding:7px 9px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:3px"><b style="color:#2b2320">${{r.doc_name || r.file}}</b><span style="white-space:nowrap;font-size:10px;background:#E2F3EC;color:#195948;padding:1px 6px;border-radius:999px;font-weight:700">p. ${{r.page}}</span></div><div style="color:#5c524e">${{r.excerpt}}</div></div>`).join('')}}</div></div></div>` : '')}}
         ${{skillsBox}}
+      </div>
+      </div>
+      ${{engineRailHtml}}
       </div>
     `;
 
@@ -1429,7 +1841,353 @@ window.filterByEngine = function(eng, btn) {{
   }});
 }};
 
+window.renderTab2EngineReasoning = function() {{
+  const box = document.getElementById('tab2-engine-reasoning');
+  if (!box) return;
+  const engMeta = [
+    {{ key: 'Crystals', sub: 'Development — Finding points of interest to build around, in, or at.', bg: '#FFF5F2', bd: '#E8B5A8', fg: '#8C3325' }},
+    {{ key: 'Cells', sub: 'Adaptation — Unlocking an element’s full potential by adapting it into something new or better.', bg: '#F2F7FF', bd: '#B5CCF5', fg: '#1D4ED8' }},
+    {{ key: 'Corals', sub: 'Coordination — Using elements better together or introducing a beneficial relationship.', bg: '#F0FAF8', bd: '#A5DCD2', fg: '#0F766E' }},
+  ];
+  const anyReason = NEST_PROJECTS.some(p => p.engine_reasoning && p.engine_reasoning.lead);
+  if (!anyReason) {{
+    box.innerHTML = `<div style="font-size:12px;color:#625753"><b>3-Engine First-Person Reasoning:</b> Author <code>engine_reasoning</code> in Stage B seeds to display each engine's site-selection narrative here.</div>`;
+    return;
+  }}
+  const cols = engMeta.map(em => {{
+    const led = NEST_PROJECTS.filter(p => (p.engine || 'Crystals') === em.key);
+    const items = led.length ? led.map(p => {{
+      const leadTxt = (p.engine_reasoning && p.engine_reasoning.lead) || (p.thesis_summary && p.thesis_summary.why_here) || '';
+      return `<div style="background:#fff;border:1px solid ${{em.bd}};border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;line-height:1.42"><div style="font-weight:800;color:${{em.fg}};margin-bottom:2px">Site #${{p.rank}} · ${{p.title}}</div><div style="color:#2b2320">${{leadTxt}}</div></div>`;
+    }}).join('') : `<div style="font-size:11.5px;color:#7a6f6a">No projects led by ${{em.key}} on this plot.</div>`;
+    return `<div style="background:${{em.bg}};border:1px solid ${{em.bd}};border-radius:11px;padding:9px 11px"><div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:${{em.fg}}">${{engineIconSVG(em.key, 16, em.fg)}}<span>${{em.key}} Engine</span></div><div style="font-size:10.5px;color:#625753;margin-bottom:7px;margin-top:2px">${{em.sub}}</div>${{items}}</div>`;
+  }}).join('');
+  box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;font-weight:800;color:#231E1C;text-transform:uppercase;letter-spacing:.4px">How Each Engine Read This Plot (First-Person Reasoning)</span><span style="font-size:10.5px;color:#625753">Agent-Authored Stage B Engine Trace</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">${{cols}}</div>`;
+}};
+
+(function upgradeAnalysisLayerTooltips() {{
+  const EXTRA = {{
+    'Corridor & Network Connectivity': {{ title: 'Corridor & Network Connectivity', scale: '0 – 100', desc: 'Measures how well a site connects to regional highways, paved roads, tracks, ports, ferries, and transit corridors. High scores = strong arrival access & movement seams; low scores = remote/off-grid.', formula: '<b>What drives the score:</b> Proximity to highways, paved roads, ports/stations, and multi-road intersections × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Direct Highway/Corridor · 45–74 Secondary Road · &lt;45 Remote' }},
+    'Hydrology & Waterfront': {{ title: 'Hydrology & Waterfront', scale: '0 – 100', desc: 'Measures proximity and edge interface with seas, rivers, canals, lakes, wetlands, and seasonal wadi drainage channels.', formula: '<b>What drives the score:</b> Distance to mapped shorelines, water bodies, and hydrological runoff corridors × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Direct Water/Wadi Edge · 45–74 Near Drainage · &lt;45 Dry Inland' }},
+    'Solar & Climate Intensity': {{ title: 'Solar & Climate Intensity', scale: '0 – 100', desc: 'Measures solar radiation potential, open sky exposure, diurnal thermal swing, and passive cooling/wind-harvesting opportunity.', formula: '<b>What drives the score:</b> Open unshaded canvas, topographic exposure/relief, and climatic intensity × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Peak Solar/Passive Potential · 45–74 Strong · &lt;45 Sheltered' }},
+    'Biodiversity & Ecology': {{ title: 'Biodiversity & Ecology', scale: '0 – 100', desc: 'Measures ecological richness from protected areas, GBIF wildlife & migratory bird sightings, green corridors, and sensitive habitats.', formula: '<b>What drives the score:</b> Proximity to protected zones, species/flyway records, and natural vegetation × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 High Ecological Value · 45–74 Buffer/Transition · &lt;45 Low Signal' }},
+    'Heritage & Culture Gravity': {{ title: 'Heritage & Culture Gravity', scale: '0 – 100', desc: 'Measures cultural pull and sightline proximity to archaeological sites, ancient Roman/caravan routes, land art, and historic landmarks.', formula: '<b>What drives the score:</b> Ring-standoff & proximity to mapped heritage/cultural POIs × Engine Terrain Affinity.', bands: '<b>Bands:</b> 75–100 Prime Landmark Ring · 45–74 Cultural Corridor · &lt;45 No Nearby Heritage' }},
+    'Civic & Service Deficit': {{ title: 'Civic & Service Deficit', scale: '0 – 100', desc: 'Measures where nearby communities or travelers lack schools, clinics, markets, shade, or public civic amenities.', formula: '<b>What drives the score:</b> Local population/visitor catchment minus existing civic facilities within service radius × Engine Affinity.', bands: '<b>Bands:</b> 75–100 High Unmet Civic Need · 45–74 Moderate Gap · &lt;45 Well-Served' }},
+    'Hidden Potential': {{ title: 'Untapped Potential (Stage 3)', scale: '0 – 100', desc: 'Reveals overlooked, under-built pockets where strong spatial forces converge without dense existing urban clutter.', formula: '<b>Math:</b> Dominant/Synergy forces + Under-built Canvas + Natural Evidence.', bands: '<b>Bands:</b> 75–100 Prime Shortlist Site · 50–74 Promising · &lt;50 Saturated/Low' }},
+    'Best-Fit Typology': {{ title: 'Dominant Spatial Force (Stage 2)', scale: 'Categorical', desc: 'Colors each 50×50 m cell by whichever of the 6 spatial forces scored highest under that engine’s rules.', formula: '<b>Math:</b> <code>argmax</code> across the 6 engine-weighted force layers.', bands: '<b>Use:</b> See which single force leads in each zone of the plot.' }},
+    'Mixed-Use (2+)': {{ title: 'Balanced Pair Synergy (2+)', scale: '0 – 100', desc: 'Highlights cells where 2+ compatible forces are both high AND balanced — penalizing lopsided pairs.', formula: '<b>Formula:</b> <code>max(0, Average − Spread)</code> across compatible pairs.', bands: '<b>Trigger:</b> ≥60 auto-activates 2+ mixed-use program.' }},
+    'Mixed-Use (3+)': {{ title: 'Balanced Trio Synergy (3+)', scale: '0 – 100', desc: 'Pinpoints rare convergence zones where 3+ compatible forces align at similar strength.', formula: '<b>Formula:</b> <code>max(0, Average − Spread)</code> across compatible trios.', bands: '<b>Trigger:</b> ≥60 auto-activates 3+ flagship program.' }},
+  }};
+  if (typeof SCORE_EXPLAINERS !== 'undefined') Object.assign(SCORE_EXPLAINERS, EXTRA);
+
+  // Attach rich hover tooltips to all Stage 1/2/3 layer chips (removing native title so custom tooltip shines)
+  document.querySelectorAll('.layer-chip[data-layer]').forEach(btn => {{
+    btn.classList.add('score-explain');
+    btn.setAttribute('data-score-key', btn.getAttribute('data-layer'));
+    btn.removeAttribute('title');
+  }});
+
+  // Upgrade tooltip rendering to show dynamic "Why this score" whenever present
+  const tip = document.getElementById('nest-score-tip');
+  if (tip) {{
+    document.addEventListener('mouseover', e => {{
+      const el = e.target.closest('.score-explain');
+      if (!el) return;
+      const key = el.getAttribute('data-score-key') || el.getAttribute('data-layer');
+      const val = el.getAttribute('data-score-val');
+      let why = el.getAttribute('data-score-why');
+      if (!why && el.closest('.bar-row')) {{
+        const row = el.closest('.bar-row');
+        const num = (row.textContent.match(/(\d+)\s*$/) || [])[1];
+        if (num) {{
+          const sc = Number(num);
+          const band = sc >= 75 ? 'Peak signal' : (sc >= 50 ? 'Strong signal' : (sc >= 25 ? 'Moderate signal' : 'Low / distant signal'));
+          const cardHdr = (row.closest('.eng-card')?.querySelector('h4')?.textContent || 'this engine').trim();
+          why = `${{band}} (${{sc}}/100) under ${{cardHdr}}; ${{sc >= 50 ? 'strong mapped GIS proximity/density for this layer at the clicked 50 m cell.' : 'weaker or more distant GIS features for this layer here.'}}`;
+        }}
+      }}
+      const info = (typeof SCORE_EXPLAINERS !== 'undefined' && SCORE_EXPLAINERS[key]) || EXTRA[key];
+      if (!info) return;
+      const scaleTxt = (val !== null && val !== '') ? `${{val}} / 100` : info.scale;
+      const whyBlock = why ? `<div style="margin:5px 0;padding:5px 7px;border-radius:6px;background:#FFF5F2;border-left:3px solid #FF614C;color:#231E1C;font-size:11px;line-height:1.38"><b>Why this score:</b> ${{why}}</div>` : '';
+      tip.innerHTML = `<div class="tip-hdr"><span class="tip-title">${{info.title}}</span><span class="tip-scale">${{scaleTxt}}</span></div><div class="tip-desc">${{info.desc}}</div>${{whyBlock}}<div class="tip-formula">${{info.formula}}</div><div class="tip-bands">${{info.bands}}</div>`;
+      tip.classList.add('visible');
+    }}, true);
+  }}
+}})();
+
+// --- TAB 3: STAGE C SKILLS DASHBOARD & INTERACTIVE INSPECTOR ---
+let _skillsInitDone = false;
+let _lastFilteredSkills = [];
+
+function _escHtml(s) {{
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}}
+
+function _triggerJsonDownload(filename, obj) {{
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {{ type: 'application/json' }});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}}
+
+function initSkillsFilters() {{
+  if (_skillsInitDone) return;
+  _skillsInitDone = true;
+  const pSel = document.getElementById('sk-filter-project');
+  const tSel = document.getElementById('sk-filter-tool');
+  const aSel = document.getElementById('sk-filter-action');
+  if (!pSel || !tSel || !aSel) return;
+
+  NEST_PROJECTS.forEach(p => {{
+    const opt = document.createElement('option');
+    opt.value = String(p.rank);
+    opt.textContent = `Site #${{p.rank}} · ${{p.title}}`;
+    pSel.appendChild(opt);
+  }});
+
+  const tools = [...new Set(NEST_STAGE_C_SKILLS.flatMap(s => s.tools || []))].sort();
+  tools.forEach(t => {{
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    tSel.appendChild(opt);
+  }});
+
+  const acts = [...new Set(NEST_STAGE_C_SKILLS.map(s => s.action_type || 'Guidance'))].sort();
+  acts.forEach(a => {{
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    aSel.appendChild(opt);
+  }});
+}}
+
+function resetSkillFilters() {{
+  ['sk-filter-project', 'sk-filter-engine', 'sk-filter-tool', 'sk-filter-action'].forEach(id => {{
+    const el = document.getElementById(id);
+    if (el) el.value = 'All';
+  }});
+  renderSkillsTab();
+}}
+
+function getFilteredSkills() {{
+  const pf = (document.getElementById('sk-filter-project') || {{ value: 'All' }}).value;
+  const ef = (document.getElementById('sk-filter-engine') || {{ value: 'All' }}).value;
+  const tf = (document.getElementById('sk-filter-tool') || {{ value: 'All' }}).value;
+  const af = (document.getElementById('sk-filter-action') || {{ value: 'All' }}).value;
+  return NEST_STAGE_C_SKILLS.filter(s => {{
+    if (pf !== 'All' && String(s.project_rank) !== pf) return false;
+    if (ef !== 'All' && s.engine_key !== ef) return false;
+    if (tf === '__agnostic__') {{
+      if ((s.tools || []).length > 0) return false;
+    }} else if (tf !== 'All' && !(s.tools || []).includes(tf)) {{
+      return false;
+    }}
+    if (af !== 'All' && (s.action_type || '') !== af) return false;
+    return true;
+  }});
+}}
+
+function renderSkillsTab() {{
+  initSkillsFilters();
+  const container = document.getElementById('skills-lanes');
+  const badge = document.getElementById('sk-count-badge');
+  if (!container) return;
+
+  const filtered = getFilteredSkills();
+  _lastFilteredSkills = filtered;
+  if (badge) badge.textContent = `${{filtered.length}} of ${{NEST_STAGE_C_SKILLS.length}} skills`;
+
+  if (!NEST_STAGE_C_SKILLS.length) {{
+    container.innerHTML = `<div class="box" style="grid-column:1/-1"><b>No Stage C skills generated yet.</b> Run <code>python stage_c_skills.py --run-dir &lt;run_dir&gt; --all</code> and rebuild the dashboard.</div>`;
+    return;
+  }}
+
+  const lanes = [
+    {{ key: 'Crystals', theme: 'Development', defn: 'Finding points of interest to build around, in, or at.', bg: '#FFF5F2', bd: '#E8B5A8', fg: '#8C3325' }},
+    {{ key: 'Cells', theme: 'Adaptation', defn: 'Finding elements in site, nature, or context to unlock their full potential by adapting them into something new or better.', bg: '#F2F7FF', bd: '#B5CCF5', fg: '#1D4ED8' }},
+    {{ key: 'Corals', theme: 'Coordination', defn: 'Finding elements in site, nature, or context to use better together or introduce a beneficial relationship.', bg: '#F0FAF8', bd: '#A5DCD2', fg: '#0F766E' }},
+  ];
+
+  container.innerHTML = lanes.map(ln => {{
+    const items = filtered.filter(s => s.engine_key === ln.key);
+    const cardsHtml = items.length ? items.map(s => {{
+      const raw = s.raw || {{}};
+      const actType = s.action_type || 'Guidance';
+      const actBg = actType === 'Warning' ? '#FCEEF0' : (actType === 'Study' ? '#FFF5E5' : '#EAF5EF');
+      const actFg = actType === 'Warning' ? '#A12B3A' : (actType === 'Study' ? '#775014' : '#246247');
+      const toolChips = (s.tools || []).length
+        ? (s.tools || []).map(t => `<span class="sk-tool">${{_escHtml(t)}}</span>`).join('')
+        : `<span class="sk-tool" style="background:#EAF5EF;color:#246247;border-color:#24624733">Design Principle (Tool-Agnostic)</span>`;
+      return `<div class="sk-card" onclick="openSkillInspector('${{_escHtml(s.uid)}}')">` +
+        `<div class="sk-card-top">` +
+          `<span class="pill" style="font-size:10px;padding:2px 6px">Site #${{s.project_rank}}</span>` +
+          `<span class="pill" style="font-size:10px;padding:2px 6px;background:${{actBg}};color:${{actFg}};border-color:${{actFg}}44">${{_escHtml(actType)}}</span>` +
+        `</div>` +
+        `<div class="sk-card-title">${{_escHtml(raw.title || raw.skill_id)}}</div>` +
+        `<div class="sk-card-def">${{_escHtml(raw.definition || '')}}</div>` +
+        `<div class="sk-tools-row">${{toolChips}}</div>` +
+      `</div>`;
+    }}).join('') : `<div style="font-size:11.5px;color:#7a6f6a;padding:8px 4px">No matching ${{ln.key}} skills.</div>`;
+
+    return `<div class="sk-lane" style="background:${{ln.bg}};border-color:${{ln.bd}}">` +
+      `<div class="sk-lane-hdr">` +
+        `<span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:${{ln.fg}}">${{engineIconSVG(ln.key, 18, ln.fg)}}<span>${{ln.key}} (${{ln.theme}})</span></span>` +
+        `<span class="pill" style="background:#fff;border-color:${{ln.bd}};color:${{ln.fg}};font-size:10.5px">${{items.length}}</span>` +
+      `</div>` +
+      `<div class="sk-lane-def">${{_escHtml(ln.defn)}}</div>` +
+      `${{cardsHtml}}` +
+    `</div>`;
+  }}).join('');
+}}
+
+function openSkillInspector(uid) {{
+  const s = NEST_STAGE_C_SKILLS.find(x => x.uid === uid);
+  if (!s) return;
+  const raw = s.raw || {{}};
+  const attrs = raw.attributes || {{}};
+  const act = raw.action || {{}};
+  const engColors = {{
+    Crystals: {{ fg: '#8C3325', bg: '#FFF5F2', bd: '#E8B5A8', theme: 'Development' }},
+    Cells: {{ fg: '#1D4ED8', bg: '#F2F7FF', bd: '#B5CCF5', theme: 'Adaptation' }},
+    Corals: {{ fg: '#0F766E', bg: '#F0FAF8', bd: '#A5DCD2', theme: 'Coordination' }},
+  }};
+  const ec = engColors[s.engine_key] || engColors.Crystals;
+
+  const hdr = document.getElementById('sk-drawer-hdr');
+  const body = document.getElementById('sk-drawer-body');
+  if (!hdr || !body) return;
+
+  hdr.innerHTML = `<div>` +
+    `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">` +
+      `<span class="pill" style="display:inline-flex;align-items:center;gap:5px;background:${{ec.bg}};border-color:${{ec.bd}};color:${{ec.fg}};font-size:10.5px">${{engineIconSVG(s.engine_key, 15, ec.fg)}}${{s.engine_key}} (${{ec.theme}})</span>` +
+      `<span class="pill" style="font-size:10.5px">Site #${{s.project_rank}} · ${{_escHtml(s.project_title)}}</span>` +
+      `<span class="pill" style="font-size:10.5px">${{_escHtml(raw.role_in_project || '')}}</span>` +
+    `</div>` +
+    `<div style="font-size:15px;font-weight:800;color:var(--nest-ink)">${{_escHtml(raw.title || raw.skill_id)}}</div>` +
+    `<div style="font-size:11px;color:var(--nest-muted);margin-top:2px"><code>${{_escHtml(raw.skill_id || s.filename)}}</code></div>` +
+  `</div>` +
+  `<div style="display:flex;gap:6px;flex:none">` +
+    `<button type="button" class="btn-coral" style="font-size:11px;padding:6px 10px" onclick="downloadSingleSkill('${{_escHtml(s.uid)}}')">⬇ Download .json</button>` +
+    `<button type="button" class="btn-outline" style="font-size:12px;padding:6px 10px" onclick="closeSkillInspector()">✕</button>` +
+  `</div>`;
+
+  const triggersHtml = (raw.trigger || []).map(t => `<li style="margin-bottom:3px">${{_escHtml(t)}}</li>`).join('');
+  let anatomyHtml = '';
+
+  if (s.engine_key === 'Crystals') {{
+    const ax = attrs.axes || {{}};
+    const facetsHtml = (attrs.facets || []).map(f =>
+      `<div style="padding:6px 8px;background:#FAF7F5;border:1px solid #EAE1DD;border-radius:8px;margin-bottom:5px;font-size:11.5px"><b>${{_escHtml(f.capability)}}</b><div class="sk-tools-row" style="margin-top:4px">${{(f.tool || []).map(t => `<span class="sk-tool">${{_escHtml(t)}}</span>`).join('')}}</div></div>`
+    ).join('');
+    const mem = attrs.memory || {{}};
+    anatomyHtml = `
+      <div class="sk-sec"><div class="sk-sec-lbl">Crystals Geometry &amp; Governance</div>
+        <div class="sk-kv">
+          <div class="sk-kv-item"><b>Scale</b>${{_escHtml(attrs.scale)}}</div>
+          <div class="sk-kv-item"><b>Field</b>${{_escHtml(attrs.field)}}</div>
+          <div class="sk-kv-item"><b>State / Density</b>${{_escHtml(attrs.state)}} · ${{_escHtml(attrs.density)}}</div>
+          <div class="sk-kv-item"><b>Growth / Resilience</b>${{_escHtml(attrs.growth)}} · ${{_escHtml(attrs.resilience)}}</div>
+          <div class="sk-kv-item"><b>Space Axis</b>${{_escHtml(ax.space)}}</div>
+          <div class="sk-kv-item"><b>Time / Depth</b>${{_escHtml(ax.time)}} (${{_escHtml(ax.depth)}})</div>
+        </div>
+      </div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Facets &amp; CAD/BIM Tools</div>${{facetsHtml}}</div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Bonds &amp; Memory</div>
+        <div style="margin-bottom:6px">${{(attrs.bonds || []).map(b => `<span class="pill" style="font-size:10.5px;margin-right:4px">${{_escHtml(b)}}</span>`).join('')}}</div>
+        <div style="font-size:11.5px;color:#4A413D"><b>Derived From:</b> ${{(mem.past_experiences || []).map(_escHtml).join(' · ')}}<br><b>Lessons:</b> ${{(mem.lessons_learned || []).map(_escHtml).join(' · ')}}</div>
+      </div>`;
+  }} else if (s.engine_key === 'Cells') {{
+    const he = attrs.host_element || {{}};
+    const tr = attrs.transformation || {{}};
+    const lim = attrs.limits_and_proof || {{}};
+    const movesHtml = (attrs.adaptation_moves || []).map(m =>
+      `<div style="padding:6px 8px;background:#FAF7F5;border:1px solid #EAE1DD;border-radius:8px;margin-bottom:5px;font-size:11.5px"><b>${{_escHtml(m.move)}}</b> <span class="pill" style="font-size:10px;padding:1px 6px">${{_escHtml(m.reversibility)}}</span><div class="sk-tools-row" style="margin-top:4px">${{(m.tools || []).map(t => `<span class="sk-tool">${{_escHtml(t)}}</span>`).join('')}}</div></div>`
+    ).join('');
+    anatomyHtml = `
+      <div class="sk-sec"><div class="sk-sec-lbl">Host Element &amp; Transformation (From → To)</div>
+        <div class="sk-kv" style="margin-bottom:6px">
+          <div class="sk-kv-item"><b>Host Element (${{_escHtml(he.category)}})</b>${{_escHtml(he.element)}}</div>
+          <div class="sk-kv-item"><b>Current Condition</b>${{_escHtml(he.current_condition)}}</div>
+        </div>
+        <div style="padding:8px 10px;background:#F2F7FF;border:1px solid #B5CCF5;border-radius:9px;font-size:11.5px">
+          <div><b>From:</b> ${{_escHtml(tr.from_state)}}</div>
+          <div style="margin-top:3px"><b>To:</b> ${{_escHtml(tr.to_state)}}</div>
+          <div style="margin-top:3px;color:#1D4ED8"><b>Value Unlocked:</b> ${{_escHtml(tr.value_unlocked)}}</div>
+        </div>
+      </div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Adaptation Moves &amp; Tools</div>${{movesHtml}}</div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Limits, Site Checks &amp; Fallback (${{_escHtml(attrs.maturity || 'Concept')}})</div>
+        <div style="font-size:11.5px;color:#4A413D;line-height:1.45">
+          <b>Constraints:</b> ${{(lim.constraints || []).map(_escHtml).join(' · ')}}<br>
+          <b>Site Checks Needed:</b> ${{(lim.site_checks_needed || []).map(_escHtml).join(' · ')}}<br>
+          <b>Fallback:</b> ${{_escHtml(lim.fallback)}}
+        </div>
+      </div>`;
+  }} else {{
+    const resHtml = (attrs.resources || []).map(r =>
+      `<div style="padding:6px 8px;background:#FAF7F5;border:1px solid #EAE1DD;border-radius:8px;margin-bottom:5px;font-size:11.5px"><b>${{_escHtml(r.resource)}}</b> — ${{_escHtml(r.potential)}}<div style="font-size:10.5px;color:#625753;margin-top:2px">Constraints: ${{(r.constraints || []).map(_escHtml).join('; ')}}</div></div>`
+    ).join('');
+    const brHtml = (attrs.branches || []).map(b =>
+      `<div style="padding:6px 8px;background:#FAF7F5;border:1px solid #EAE1DD;border-radius:8px;margin-bottom:5px;font-size:11.5px"><b>${{_escHtml(b.direction)}}</b> <span class="pill" style="font-size:10px;padding:1px 6px">${{_escHtml(b.maturity)}}</span><div style="font-size:11px;color:#4A413D;margin-top:2px">${{_escHtml(b.application)}}</div><div class="sk-tools-row" style="margin-top:4px">${{(b.tool || []).map(t => `<span class="sk-tool">${{_escHtml(t)}}</span>`).join('')}}</div></div>`
+    ).join('');
+    const symHtml = (attrs.symbiosis || []).map(sy =>
+      `<div style="padding:7px 9px;background:#F0FAF8;border:1px solid #A5DCD2;border-radius:9px;font-size:11.5px;margin-bottom:5px"><b>${{(sy.with || []).map(_escHtml).join(' ↔ ')}}</b><br>${{_escHtml(sy.shared_intention)}}</div>`
+    ).join('');
+    const ev = attrs.evaluation || {{}};
+    const ar = attrs.archive || {{}};
+    anatomyHtml = `
+      <div class="sk-sec"><div class="sk-sec-lbl">Symbiosis &amp; Coordinated Resources</div>${{symHtml}}${{resHtml}}</div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Coordination Branches &amp; Tools</div>${{brHtml}}</div>
+      <div class="sk-sec"><div class="sk-sec-lbl">Evaluation (${{_escHtml(ev.status)}}) &amp; Archive</div>
+        <div style="font-size:11.5px;color:#4A413D;line-height:1.45">
+          <b>Studies Needed:</b> ${{(ev.studies_needed || []).map(_escHtml).join(' · ')}}<br>
+          <b>Lessons Learned:</b> ${{(ar.lessons_learned || []).map(_escHtml).join(' · ')}}
+        </div>
+      </div>`;
+  }}
+
+  body.innerHTML = `
+    <div class="sk-sec"><div class="sk-sec-lbl">Definition</div><div style="font-size:12.5px;line-height:1.5;color:var(--nest-ink)">${{_escHtml(raw.definition)}}</div></div>
+    <div class="sk-sec"><div class="sk-sec-lbl">Triggers &amp; Action (${{_escHtml(act.type || 'Guidance')}})</div>
+      <ul style="margin:0 0 8px 16px;padding:0;font-size:11.5px;color:#4A413D">${{triggersHtml}}</ul>
+      <div style="padding:8px 10px;background:${{ec.bg}};border:1px solid ${{ec.bd}};border-radius:8px;font-size:12px;color:#231E1C"><b>${{_escHtml(act.type || 'Action')}}:</b> ${{_escHtml(act.message)}}</div>
+    </div>
+    ${{anatomyHtml}}`;
+
+  document.getElementById('sk-drawer-backdrop').classList.add('open');
+}}
+
+function closeSkillInspector() {{
+  const bd = document.getElementById('sk-drawer-backdrop');
+  if (bd) bd.classList.remove('open');
+}}
+
+function downloadSingleSkill(uid) {{
+  const s = NEST_STAGE_C_SKILLS.find(x => x.uid === uid);
+  if (!s) return;
+  _triggerJsonDownload(s.filename || `${{uid}}.json`, s.raw || s);
+}}
+
+function exportFilteredSkillsPack() {{
+  const list = _lastFilteredSkills.length ? _lastFilteredSkills : getFilteredSkills();
+  const payload = {{
+    plot: {json.dumps(plot_title)},
+    count: list.length,
+    skills: list.map(s => ({{ project_rank: s.project_rank, project_title: s.project_title, ...s.raw }}))
+  }};
+  _triggerJsonDownload('nest_stage_c_skills_pack.json', payload);
+}}
+
 renderProjectCards();
+renderTab2EngineReasoning();
+renderSkillsTab();
 </script>
 </body>
 </html>

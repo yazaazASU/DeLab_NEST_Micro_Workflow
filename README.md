@@ -40,7 +40,8 @@ python build_nest_dashboard.py --run-dir "Outputs/<PLOT_NAME>" --plot-title "<PL
 
 ## Repository Structure
 
-- `run_nest_pipeline.py` — End-to-end orchestrator (`Stage A → Agent Seed Gate → Stage B → DEM Gate → Pre-Render Gate → Dashboard → Render Pack`).
+- `run_nest_pipeline.py` — End-to-end orchestrator (`Stage A → RAG Context Brief → Agent Seed Gate → Stage B → DEM Gate → Pre-Render Gate → Dashboard → Render Pack`). Pass `--no-rag` to disable RAG retrieval.
+- `nest_rag_client.py` & `NEST-Portable-RAG-v3/` — Dual-channel multilingual (EN + AR) E5 vector search over 145 architectural books and Egyptian building codes (`codes/*` + `ref/*`), automatically enriching `agent_site_context.md`, `stage_b_projects.json`, `NEST_Executive_Report.md`, and `nest_dashboard.html`.
 - `run_3_engines.py` & `heatmap_engine.py` — Stage A `.gpkg` + 10 m raster built-up fusion, 50 m × 50 m force scoring, and `stage_a_summary.json`.
 - `dashboard_3engines_view.py` — Synchronized 4-panel **3-Engine Analysis Maps** view (*Crystals, Cells, Corals, Combined Result*).
 - `terrain_intelligence.py` & `raster_ground_truth.py` — Copernicus DEM relief gate & 10 m WorldCover/GHSL raster ground-truth reader.
