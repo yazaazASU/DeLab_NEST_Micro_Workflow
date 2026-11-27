@@ -20,11 +20,13 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from shapely.affinity import rotate as shp_rotate, scale as shp_scale, translate as shp_translate
-from shapely.geometry import Polygon, box, mapping, shape
+from shapely.geometry import Point, Polygon, box, mapping, shape
 from shapely.ops import unary_union
 
 from heatmap_engine import LocalProjection
@@ -179,7 +181,7 @@ def _compute_financials(seed: dict, built_gfa_m2: float, site_m2: float) -> tupl
     return fin, econ
 
 
-def build_project_from_seed(seed: dict, stage_a: dict) -> dict:
+def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None) -> dict:
     rank = int(seed["rank"])
     cands = stage_a.get("candidate_pool") or []
     cand = next((c for c in cands if int(c.get("site_rank", -1)) == int(seed.get("candidate_rank", rank))), None)
@@ -245,6 +247,43 @@ def build_project_from_seed(seed: dict, stage_a: dict) -> dict:
 
     b_pt = buildable_m.representative_point()
     bx0, by0 = b_pt.x, b_pt.y
+
+    # Steer footprints into the least-built open quadrant via RasterBundle (if available)
+    if raster_bundle is not None and (raster_bundle.worldcover is not None or raster_bundle.ghs_built_10m is not None or raster_bundle.ghs_built is not None):
+        try:
+            minx, miny, maxx, maxy = buildable_m.bounds
+            gx = np.linspace(minx + (maxx - minx) * 0.15, maxx - (maxx - minx) * 0.15, 5)
+            gy = np.linspace(miny + (maxy - miny) * 0.15, maxy - (maxy - miny) * 0.15, 5)
+            cand_pts = [(float(px), float(py)) for py in gy for px in gx if buildable_m.contains(Point(px, py))]
+            if cand_pts:
+                best_pt = cand_pts[0]
+                best_score = 999.0
+                for px, py in cand_pts:
+                    offs = [(-45, -45), (0, -45), (45, -45), (-45, 0), (0, 0), (45, 0), (-45, 45), (0, 45), (45, 45)]
+                    lls = [proj.geom_to_lonlat(Point(px + dx, py + dy)) for dx, dy in offs]
+                    _, bm = raster_bundle.sample_water_built_masks(
+                        np.array([p.x for p in lls], dtype=np.float64),
+                        np.array([p.y for p in lls], dtype=np.float64),
+                    )
+                    b_frac = float(np.mean(bm)) if bm is not None and len(bm) > 0 else 0.0
+                    if b_frac < best_score:
+                        best_score = b_frac
+                        best_pt = (px, py)
+                bx0, by0 = best_pt
+
+            # Also carve 10m raster built-up cells out of buildable_m when plenty of open land remains
+            b_ll = proj.geom_to_lonlat(buildable_m).bounds
+            rb_polys = raster_bundle.built_polygons_in_window(b_ll[0], b_ll[1], b_ll[2], b_ll[3], proj)
+            if rb_polys:
+                unbuilt_m = _ensure_poly(buildable_m.difference(unary_union(rb_polys).buffer(4.0)))
+                if not unbuilt_m.is_empty and unbuilt_m.area >= max(20000.0, buildable_m.area * 0.25):
+                    buildable_m = unbuilt_m
+                    if not buildable_m.contains(Point(bx0, by0)):
+                        rp = buildable_m.representative_point()
+                        bx0, by0 = rp.x, rp.y
+        except Exception:
+            pass
+
     rad_angle = math.radians(bearing)
     ux, uy = math.cos(rad_angle), math.sin(rad_angle)
 
@@ -373,6 +412,11 @@ def audit_portfolio_diversity(projects: list[dict]) -> list[str]:
     regs = [p.get("concept_register", "").lower() for p in projects]
     if len(set(regs)) < min(len(regs), 4):
         warnings.append(f"Low concept_register diversity across portfolio: {regs}")
+    for p in projects:
+        rk = p.get("rank", "?")
+        gfa_val = int(re.sub(r"[^\d]", "", str(p.get("built_gfa", "0"))) or 0)
+        if gfa_val > 35000:
+            warnings.append(f"Site #{rk} ({p.get('title')}) has inflated built_gfa={gfa_val:,} m² (>35,000 m²); calibrate to 8,000–22,000 m² unless major civic hub.")
     return warnings
 
 
@@ -918,8 +962,16 @@ def main():
             "Stage B requires bespoke site_1_seed.json..site_5_seed.json authored from intermediates/stage_a_agent_brief.md."
         )
 
+    rb = None
+    if args.data_dir and ((args.data_dir / "dataset-inventory.json").exists() or (args.data_dir / "rasters").exists()):
+        try:
+            from raster_ground_truth import RasterBundle
+            rb = RasterBundle(args.data_dir)
+        except Exception:
+            rb = None
+
     seeds.sort(key=lambda s: int(s["rank"]))
-    projects = [build_project_from_seed(s, stage_a) for s in seeds]
+    projects = [build_project_from_seed(s, stage_a, raster_bundle=rb) for s in seeds]
 
     div_warnings = audit_portfolio_diversity(projects)
     for w in div_warnings:

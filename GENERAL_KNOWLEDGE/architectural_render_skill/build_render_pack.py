@@ -312,10 +312,13 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
         else "human-threshold low-oblique perspective (~10–25°, lens chosen to fit the threshold depth)"
     )
 
-    journey_items = exp.get("journey") or []
-    hero_moments_str = " | ".join(
-        _clean_prompt_text(f"{m.get('moment', '')}: {m.get('detail', '')}") for m in journey_items[:2] if isinstance(m, dict)
+    is_inland_dry = ("dry inland" in hydro.lower()) and not bool(project.get("is_water"))
+    no_sea_guard = (
+        " Strictly NO ocean, sea, beach, or coastal shoreline visible anywhere in foreground or distant horizon."
+        if is_inland_dry
+        else ""
     )
+
     area_ha = project.get("area_m2", 250000) / 10000.0
     feddans = project.get("area_feddans", round(area_ha * 2.3804, 1))
     side_m = int(round(math.sqrt(max(10000.0, float(project.get("area_m2", 250000))))))
@@ -328,35 +331,34 @@ Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 cra
 
 3. TECTONIC & MATERIAL CRAFT ({title}):
 - Architectural Language: {arch_lang}
-- Site-Wide Dispersal: {aerial_comp} — buildings are widely separated across the full ~{side_m} m x {side_m} m interior by 150–300 m of restored native landscape, shaded trails, and public plazas.
+- Site-Wide Dispersal: {aerial_comp} — buildings are placed in the open sandy/scrub clearings across the ~{side_m} m x {side_m} m polygon, separated by restored arid native landscape, shaded paths, and public plazas.
 - Materials & Scale: {materials_pal}; keep all buildings realistically scaled against the surrounding 2-story rural brick houses and agricultural plots.
 
 4. GIS SITE REALITY & NEGATIVE GUARDRAILS:
-- Strict Polygon Containment: Place ALL new architecture and landscaping strictly INSIDE the red dashed polygon of `{sat_filename}`; leave every rural brick house, road, canal, and field OUTSIDE the polygon untouched.
+- Strict Polygon & Fabric Preservation: Place ALL new architecture strictly INSIDE the red dashed polygon of `{sat_filename}` on open unbuilt ground; preserve existing rural brick houses/compounds both outside and along the edges of the polygon untouched, and keep arid ground natural (do NOT turn the site into a lush green park or resort lawn).
 - Region ({region_cfg['region']}): {region_cfg['topography']}. {hydro} {fabric}
 - Native Flora: {region_cfg['flora']}
-- Forbidden: {region_cfg['forbidden']}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
+- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
 
-    hero_prompt = f"""1. OPTICAL & COMPOSITION (CLOSE HERO EXPERIENCE):
-Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, {hero_cam} with clear foreground (path/steps/planting), midground (hero threshold & soffits), and flat distant horizon.
+    hero_prompt = f"""1. OPTICAL & COMPOSITION (CLOSE HERO EXPERIENCE — ARRIVAL THRESHOLD):
+Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, {hero_cam} framing the **primary architectural arrival threshold** (foreground path/steps, midground structural soffit/colonnade, and calm distant horizon). Do NOT cram multiple workshops or activities into this single frame.
 
 2. LIGHT, SHADOW & ATMOSPHERE:
-{lighting_mood} — rich interplay of directional light, deep shadow reveals, warm interior-to-exterior glow, and sensory mist or water reflections where warranted.
+{lighting_mood} — single consistent time-of-day lighting (never mix sunset and night stars in the same frame), deep shadow reveals, and tactile surface grain.
 
 3. TECTONIC & MATERIAL TACTILITY ({title}):
 - Hero Space in Focus: {hero_scene}
-- Architectural Language & Materials: {arch_lang}. {materials_pal}, crisp structural joints, weathered textures, and candid human figures walking through the space for true scale.
-- Sensory Moments Felt Here: {hero_moments_str or _clean_prompt_text(concept)}
+- Architectural Language & Materials: {arch_lang}. {materials_pal}, crisp structural joints, weathered textures, and a few candid visitors walking through the threshold for scale.
 
 4. SITE REALITY & NEGATIVE GUARDRAILS:
 - Anchored in the flat terrain and native flora of `{sat_filename}` ({region_cfg['region']}): {region_cfg['topography']}. {region_cfg['flora']}
-- Forbidden: {region_cfg['forbidden']}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO cramped multi-building collage."""
+- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO theme-park multi-activity collage."""
 
     return aerial_prompt, hero_prompt
 
 
-def build_moment_prompts(p: dict, region_cfg: dict, sat_name: str) -> list[tuple[int, str, str]]:
-    """Build one Gemini-ready camera & lighting prompt per experience_arc.journey moment."""
+def build_moment_prompts(p: dict, region_cfg: dict, sat_name: str, no_sea_guard: str = "") -> list[tuple[int, str, str]]:
+    """Build one Gemini/Codex-ready camera & lighting prompt per experience_arc.journey moment with distinct vantage points."""
     exp = p.get("experience_arc") or {}
     journey = exp.get("journey") or []
     if not journey:
@@ -365,26 +367,36 @@ def build_moment_prompts(p: dict, region_cfg: dict, sat_name: str) -> list[tuple
     gesture = ts.get("gesture_line", "") or exp.get("core_idea", "")
     atmo = exp.get("atmosphere", "") or "Warm directional sunlight with crisp architectural shadow relief."
     register = p.get("concept_register", "Regional stone & timber")
+    vantage_cycle = [
+        "35 mm eye-level interior colonnade / shaded threshold looking obliquely into the space (distinct from the exterior hero shot)",
+        "28 mm wide-angle inside the shaded workshop or courtyard looking across active craft tables",
+        "50 mm medium-telephoto human-scale framing along the water/garden/terrace edge with crisp foreground texture",
+        "24 mm low-oblique from an elevated terrace or stepped walkway looking across native arid planting",
+        "35 mm intimate evening/dusk framing inside a sheltered courtyard lit by warm lanterns",
+    ]
     out = []
     for idx, m in enumerate(journey, start=1):
         m_title = str(m.get("moment") or m.get("title") or f"Moment {idx}").strip()
         m_detail = str(m.get("detail") or m.get("desc") or "").strip()
         low_t = m_title.lower()
-        if any(k in low_t for k in ("night", "midnight", "star", "lantern", "dusk", "twilight", "evening")):
-            light_cue = "Blue-hour twilight / warm lantern glow against deep indigo sky, subtle interior illumination spilling onto stone and water."
+        if any(k in low_t for k in ("night", "midnight", "star")):
+            light_cue = "True dark-sky night with warm interior/lantern pools only (NO daytime sunlight or sunset horizon)."
+        elif any(k in low_t for k in ("dusk", "twilight", "evening", "lantern")):
+            light_cue = "Soft blue-hour twilight with warm lantern glow spilling onto stone and timber (NO bright midday sun or Milky Way sky)."
         elif any(k in low_t for k in ("sunrise", "dawn", "morning", "breakfast")):
             light_cue = "Low golden morning sun casting long cool shadows across textured walls and native planting."
         elif any(k in low_t for k in ("sunset", "golden")):
-            light_cue = "Warm amber sunset grazing across limestone, timber louvers, and water reflections."
+            light_cue = "Warm amber sunset grazing across stone, timber louvers, and shadows (NO night stars)."
         else:
-            light_cue = "Crisp midday desert sun filtered through deep architectural overhangs, pergolas, and courtyard shade."
+            light_cue = "Crisp midday sun filtered through deep architectural overhangs, pergolas, and courtyard shade."
+        vantage = vantage_cycle[(idx - 1) % len(vantage_cycle)]
 
-        prompt = f"""Continue in the same {p['title']} site chat — keep the exact same architectural massing, roof geometry, and weathered material palette ({register}: {region_cfg.get('materials', 'local stone, rammed earth, desert-aggregate concrete, and weathered timber')}) established in the aerial and hero renders above.
+        prompt = f"""Continue in the same {p['title']} site thread — keep the exact same architectural massing, roof geometry, and weathered material palette ({register}: {region_cfg.get('materials', 'local stone, rammed earth, desert-aggregate concrete, and weathered timber')}) established in the aerial and hero renders above.
 
-- Camera & Framing: Eye-level human perspective (~5–15° pitch, 28–35 mm rectilinear lens), 16:9 widescreen, candid people in motion for true scale.
-- Moment #{idx} ({m_title}): {m_detail}
+- Camera & Vantage (Distinct from Hero & Other Moments): {vantage}, 16:9 widescreen, candid people in motion for true scale.
+- Single Scene Focus — Moment #{idx} ({m_title}): {m_detail} Focus ONLY on this single activity and room/court (do NOT pack unrelated activities into the background).
 - Lighting & Atmosphere: {light_cue} Mood: {atmo}
-- Site Guardrails ({region_cfg['region']}): {region_cfg['flora']} {region_cfg['forbidden']} Strictly NO tilt-shift blur, NO text/watermarks."""
+- Site Guardrails ({region_cfg['region']}): {region_cfg['flora']} {region_cfg['forbidden']}{no_sea_guard} Strictly NO tilt-shift blur, NO text/watermarks."""
         out.append((idx, m_title, prompt))
     return out
 
@@ -432,7 +444,13 @@ def main():
         region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
         hydro, fabric = summarize_cardinal_context(p, wat_pts, bld_pts)
         aerial_prompt, hero_prompt = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
-        moment_prompts = build_moment_prompts(p, region_cfg, sat_name)
+        is_inland_dry = ("dry inland" in hydro.lower()) and not bool(p.get("is_water"))
+        no_sea_guard = (
+            " Strictly NO ocean, sea, beach, or coastal shoreline visible anywhere in foreground or distant horizon."
+            if is_inland_dry
+            else ""
+        )
+        moment_prompts = build_moment_prompts(p, region_cfg, sat_name, no_sea_guard=no_sea_guard)
 
         chat_group = f"site_{rank}"
         render_jobs.append({
