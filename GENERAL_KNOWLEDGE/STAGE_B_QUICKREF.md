@@ -14,7 +14,8 @@
    - Each site gets a unique **`idiom`** (`courtyard`, `terrace`, `cantilever`, `clustered_compound`, `bridge`).
    - Each site gets a unique **`concept_register`** (`Limestone & Wind-Tower`, `Earth & Rammed Mass`, `Timber & Tensile Shade`, `Steel & Solar Canopy`, `Vaulted Brick & Courtyard`).
    - Each site gets a unique **`primary_material`** and **`program_anchor`** (never repeat the same building/program pairing twice, and never use banned RFP clichés like `Hub`, `Precinct`, `Campus`, `Innovation`, `Pavilion`).
-   - Target footprint coverage: **Tier 1 `18%–25%`** (`60k–120k m²` GFA) or **Precinct `28%–35%`** across `50–70 feddans`.
+   - Target realistic GFA: **`8,000–22,000 m²` total** (`2,500–8,000 m²` per volume for craft, cultural, or eco-hospitality clusters; up to `35,000 m²` only for major civic/mixed-use hubs) across `50–70 feddans`.
+   - Each building's `interior_zones` (`{name, role, area_m2}`) must list **6–10 realistic rooms** (`150–800 m²` typical) plus explicit **`Circulation & Tare` / `BOH & MEP`** rows (`15%–30%` of volume GFA); `stage_b_builder.py` exports `space_program.json` & `space_program.csv`.
 
 ### Phase 2 — 5 Parallel Subagents → `stage_b_builder.py` → `run_nest_pipeline.py`
 - Spawn **5 parallel `self` subagents** (`site_1_seed.json`..`site_5_seed.json` in `intermediates/seeds/`).

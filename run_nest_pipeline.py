@@ -119,7 +119,7 @@ def validate_stage_b_geometry(run_dir: Path, data_dir: Path | None, strict: bool
                             f"Site #{rk} ({title}) pier '{fp.get('label')}' does not reach WorldCover water or Preserve buffer"
                         )
 
-        # 3. Interior-zone GFA reconciliation
+        # 3. Interior-zone GFA reconciliation & Circulation/BOH tare check
         for v in (p.get("massing_rationale") or {}).get("volumes") or []:
             iz = v.get("interior_zones") or []
             if iz and v.get("area_m2"):
@@ -129,6 +129,12 @@ def validate_stage_b_geometry(run_dir: Path, data_dir: Path | None, strict: bool
                     actual = sum(int(z.get("area_m2", 0)) for z in iz)
                     if abs(actual - target) > max(50, target * 0.02):
                         errors.append(f"Site #{rk} '{v.get('name')}' interior sum {actual} != {target} m²")
+                    has_tare = any(
+                        any(k in str(z.get("role", "")).lower() for k in ("tare", "circulation", "boh", "mep", "service", "core"))
+                        for z in iz
+                    )
+                    if target >= 1000 and not has_tare:
+                        warnings.append(f"Site #{rk} '{v.get('name')}' ({target:,} m²) missing Circulation & Tare / BOH & MEP row")
 
     print(f"[Pre-Render Gate] Checked {len(projects)} projects -> {len(errors)} errors, {len(warnings)} warnings")
     for e in errors:
@@ -218,6 +224,7 @@ def main():
             "",
             "## Compact Seed Schema (`intermediates/seeds/site_<N>_seed.json`)",
             "Required keys: `rank`, `candidate_rank`, `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `bar|courtyard|crescent|l_shape|pier`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
+            "- **Room-by-Room Space Program (`interior_zones`):** Give each building **6–10 realistic rooms** (`150–800 m²` for typical rooms, avoiding `>1,200 m²` single rooms) using `{name, role, area_m2}` **plus explicit `Circulation & Tare` / `BOH & MEP` rows** (`15%–30%` of building `area_m2`) so `NSF / GSF` is realistic and reconciles to `space_program.json` & `space_program.csv`.",
             "",
             "---",
             "",

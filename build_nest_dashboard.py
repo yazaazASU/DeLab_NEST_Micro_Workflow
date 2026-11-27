@@ -1074,10 +1074,22 @@ function renderProjectCards() {{
       const cards = items.map(({{ v, vi }}) => {{
         const gfaVal = parseNumber(v.area_m2, 0);
         const pct = gfaVal > 0 ? Math.max(Math.round((gfaVal / maxGfa) * 100), 18) : 32;
+        const nsfVal = v.nsf_m2 != null ? `${{Number(v.nsf_m2).toLocaleString()}} m² NSF` : '';
+        const tareVal = v.tare_m2 ? `${{Number(v.tare_m2).toLocaleString()}} m² Tare` : '';
+        const effStr = (v.nsf_gsf_pct != null && v.tare_m2) ? ` · ${{v.nsf_gsf_pct}}% NSF/GSF` : '';
+        const spRows = (v.interior_zones || []).map(z => {{
+          const isT = /tare|circulation|boh|mep|service|core/i.test(z.role || '');
+          return `<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 6px;border-radius:6px;background:${{isT ? '#FFF5E5' : '#FAF7F5'}};font-size:11px">` +
+            `<span>${{z.name}} <span style="color:#7a6f6a">(${{z.role || 'Program'}})</span></span>` +
+            `<b style="white-space:nowrap">${{Number(z.area_m2 || 0).toLocaleString()}} m²</b></div>`;
+        }}).join('');
         return `<div class="mass-bar-item" onclick="focus3Way(${{p.rank}}, 'footprints', ${{vi}}, this)" title="Project Component">` +
-          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Component'}} · ${{v.hours || 'Day-to-Dusk'}}</span></div>` +
+          `<div class="mb-top"><span class="mb-name">${{v.name}}</span><span class="mb-stat">${{v.area_m2 || 'Component'}} GSF${{effStr}} · ${{v.height_floors || 'Day-to-Dusk'}}</span></div>` +
           `<div class="mb-track"><div class="mb-fill" style="width:${{pct}}%"></div></div>` +
-          `<div class="mb-desc">${{v.use || v.shape_reason || ''}}</div></div>`;
+          `<div class="mb-desc">${{v.use || v.shape_reason || ''}}</div>` +
+          (nsfVal ? `<div style="font-size:10.5px;color:#625753;margin-top:4px"><b>Net vs Tare:</b> ${{nsfVal}}${{tareVal ? ' · ' + tareVal : ''}}</div>` : '') +
+          (spRows ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px;margin-top:6px">${{spRows}}</div>` : '') +
+          `</div>`;
       }}).join('');
       return `<div style="margin-bottom:10px"><div style="font-size:10.5px;font-weight:800;text-transform:uppercase;color:#A3473A;margin-bottom:4px">${{role}} (${{items.length}})</div>${{cards}}</div>`;
     }}).join('');
