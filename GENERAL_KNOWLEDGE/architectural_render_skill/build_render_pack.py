@@ -254,7 +254,50 @@ def summarize_cardinal_context(project: dict, wat_pts: list, bld_pts: list) -> t
     return hydro, fabric
 
 
-def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: str, sat_filename: str) -> str:
+_IDIOM_SCULPTURAL_FORMS = {
+    "courtyard": "sculptural monolithic walls with deep-cut light-slots, folded/parabolic thin-shell oculus roofs, and dramatic cantilevered shade planes",
+    "terrace": "bold stepped monolithic strata and carved earthen/stone light-canyons with sharp shadow geometry",
+    "cantilever": "razor-thin cantilevered structural trusses, floating solar-blade canopies, and dramatic suspended observation decks",
+    "clustered_compound": "faceted crystalline/monolithic volumes arranged in dynamic diagonal clusters with deep-recessed apertures and sculptural shade fins",
+    "bridge": "expressive long-span structural diagrid or parabolic arch spanning cleanly across terrain/water edges with minimal ground touch",
+}
+
+
+def resolve_form_references(site_dir: Path, project: dict) -> tuple[list[str], str]:
+    """Find local `site_<N>/refs/*` or `<ROOT>/style_refs/<idiom>/*` form reference images and build an open-web fallback query."""
+    import shutil
+
+    idiom = str(project.get("idiom") or "courtyard").lower().strip()
+    reg = str(project.get("concept_register") or "sculptural desert architecture").strip()
+    exts = {".jpg", ".jpeg", ".png", ".webp"}
+
+    refs_dir = site_dir / "refs"
+    local_refs = sorted([p for p in refs_dir.iterdir() if p.is_file() and p.suffix.lower() in exts]) if refs_dir.exists() else []
+    if not local_refs:
+        root_refs = Path(__file__).resolve().parents[2] / "style_refs"
+        matched: list[Path] = []
+        if root_refs.exists():
+            idiom_dir = root_refs / idiom
+            if idiom_dir.is_dir():
+                matched.extend(sorted([p for p in idiom_dir.iterdir() if p.is_file() and p.suffix.lower() in exts])[:2])
+            if not matched:
+                matched.extend(sorted([p for p in root_refs.iterdir() if p.is_file() and p.suffix.lower() in exts and idiom in p.stem.lower()])[:2])
+            if not matched:
+                matched.extend(sorted([p for p in root_refs.iterdir() if p.is_file() and p.suffix.lower() in exts])[:1])
+        if matched:
+            refs_dir.mkdir(parents=True, exist_ok=True)
+            for src in matched:
+                dst = refs_dir / src.name
+                shutil.copy2(src, dst)
+                local_refs.append(dst)
+
+    rel_paths = [f"site_{project['rank']}/refs/{p.name}" for p in local_refs]
+    form_cue = _IDIOM_SCULPTURAL_FORMS.get(idiom, _IDIOM_SCULPTURAL_FORMS["courtyard"])
+    search_q = f"contemporary sculptural {idiom} architecture {reg} {form_cue.split(',')[0]} ArchDaily"
+    return rel_paths, search_q
+
+
+def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: str, sat_filename: str, ref_paths: list[str] | None = None) -> tuple[str, str]:
     rank = project["rank"]
     title = project["title"]
     concept = project.get("concept", "")
@@ -318,6 +361,15 @@ def build_site_prompt_text(project: dict, region_cfg: dict, hydro: str, fabric: 
         if is_inland_dry
         else ""
     )
+    idiom = str(project.get("idiom") or "courtyard").lower().strip()
+    sculptural_form = _IDIOM_SCULPTURAL_FORMS.get(idiom, _IDIOM_SCULPTURAL_FORMS["courtyard"])
+    ref_role_line = (
+        f"- Multi-Image Reference Roles: Image 1 (`{sat_filename}`) strictly locks site polygon, scale, roads, and flat ground. "
+        f"Image 2+ (`{', '.join(ref_paths)}`) strictly guides bold sculptural silhouette, roof geometry, and structural drama — NEVER copy Image 2's landscape, trees, or greenery."
+        if ref_paths
+        else ""
+    )
+    anti_box_guard = " Strictly NO generic rectangular boxes, NO repetitive standard resort villas, NO flat-roofed strip malls."
 
     area_ha = project.get("area_m2", 250000) / 10000.0
     feddans = project.get("area_feddans", round(area_ha * 2.3804, 1))
@@ -329,16 +381,17 @@ Medium-format architectural aerial photograph (ArchDaily / Dezeen / MIR / D5 cra
 2. LIGHT, SHADOW & ATMOSPHERE:
 {lighting_mood} — natural atmospheric depth toward the horizon, crisp shadow reveals beneath roof overhangs and cantilevers.
 
-3. TECTONIC & MATERIAL CRAFT ({title}):
-- Architectural Language: {arch_lang}
+3. TECTONIC & SCULPTURAL FORM ({title}):
+- Architectural Language & Bold Silhouette: {arch_lang}. Expressive {sculptural_form}.
 - Site-Wide Dispersal: {aerial_comp} — buildings are placed in the open sandy/scrub clearings across the ~{side_m} m x {side_m} m polygon, separated by restored arid native landscape, shaded paths, and public plazas.
 - Materials & Scale: {materials_pal}; keep all buildings realistically scaled against the surrounding 2-story rural brick houses and agricultural plots.
 
 4. GIS SITE REALITY & NEGATIVE GUARDRAILS:
+{ref_role_line}
 - Strict Polygon & Fabric Preservation: Place ALL new architecture strictly INSIDE the red dashed polygon of `{sat_filename}` on open unbuilt ground; preserve existing rural brick houses/compounds both outside and along the edges of the polygon untouched, and keep arid ground natural (do NOT turn the site into a lush green park or resort lawn).
 - Region ({region_cfg['region']}): {region_cfg['topography']}. {hydro} {fabric}
 - Native Flora: {region_cfg['flora']}
-- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
+- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard}{anti_box_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO oversized mega-blocks."""
 
     hero_prompt = f"""1. OPTICAL & COMPOSITION (CLOSE HERO EXPERIENCE — ARRIVAL THRESHOLD):
 Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft), 16:9 widescreen, {hero_cam} framing the **primary architectural arrival threshold** (foreground path/steps, midground structural soffit/colonnade, and calm distant horizon). Do NOT cram multiple workshops or activities into this single frame.
@@ -346,13 +399,14 @@ Editorial architectural visualization (ArchDaily / Dezeen / Rendair / D5 craft),
 2. LIGHT, SHADOW & ATMOSPHERE:
 {lighting_mood} — single consistent time-of-day lighting (never mix sunset and night stars in the same frame), deep shadow reveals, and tactile surface grain.
 
-3. TECTONIC & MATERIAL TACTILITY ({title}):
+3. TECTONIC & SCULPTURAL FORM ({title}):
 - Hero Space in Focus: {hero_scene}
-- Architectural Language & Materials: {arch_lang}. {materials_pal}, crisp structural joints, weathered textures, and a few candid visitors walking through the threshold for scale.
+- Architectural Language & Bold Silhouette: {arch_lang}. Expressive {sculptural_form}. {materials_pal}, crisp structural joints, weathered textures, and a few candid visitors walking through the threshold for scale.
 
 4. SITE REALITY & NEGATIVE GUARDRAILS:
+{ref_role_line}
 - Anchored in the flat terrain and native flora of `{sat_filename}` ({region_cfg['region']}): {region_cfg['topography']}. {region_cfg['flora']}
-- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO theme-park multi-activity collage."""
+- Forbidden: {region_cfg['forbidden']}{no_sea_guard}{tower_guard}{anti_box_guard} Strictly NO tilt-shift blur, NO text/watermarks, NO theme-park multi-activity collage."""
 
     return aerial_prompt, hero_prompt
 
@@ -443,7 +497,8 @@ def main():
 
         region_cfg = infer_region_defaults(run_dir.name, p["title"], float(p.get("lat", 0.0)), float(p.get("lon", 0.0)))
         hydro, fabric = summarize_cardinal_context(p, wat_pts, bld_pts)
-        aerial_prompt, hero_prompt = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name)
+        ref_paths, form_query = resolve_form_references(site_dir, p)
+        aerial_prompt, hero_prompt = build_site_prompt_text(p, region_cfg, hydro, fabric, sat_name, ref_paths=ref_paths)
         is_inland_dry = ("dry inland" in hydro.lower()) and not bool(p.get("is_water"))
         no_sea_guard = (
             " Strictly NO ocean, sea, beach, or coastal shoreline visible anywhere in foreground or distant horizon."
@@ -453,13 +508,18 @@ def main():
         moment_prompts = build_moment_prompts(p, region_cfg, sat_name, no_sea_guard=no_sea_guard)
 
         chat_group = f"site_{rank}"
+        aerial_attachments = [f"renders/render_pack/site_{rank}/{sat_name}"] + [f"renders/render_pack/{rp}" for rp in ref_paths]
+        hero_attachments = [f"renders/render_pack/{rp}" for rp in ref_paths] if ref_paths else []
         render_jobs.append({
             "job_id": f"site_{rank}_aerial",
             "site_rank": rank,
             "site_title": p["title"],
             "chat_group": chat_group,
             "job_type": "aerial",
-            "attach_image": f"renders/render_pack/site_{rank}/{sat_name}",
+            "attach_image": aerial_attachments[0],
+            "attach_images": aerial_attachments,
+            "form_ref_search_query": form_query,
+            "needs_form_ref": len(ref_paths) == 0,
             "output_file": f"renders/site_{rank}.jpg",
             "prompt": aerial_prompt,
         })
@@ -469,7 +529,10 @@ def main():
             "site_title": p["title"],
             "chat_group": chat_group,
             "job_type": "hero",
-            "attach_image": None,
+            "attach_image": hero_attachments[0] if hero_attachments else None,
+            "attach_images": hero_attachments,
+            "form_ref_search_query": form_query,
+            "needs_form_ref": len(ref_paths) == 0,
             "output_file": f"renders/site_{rank}_hero.jpg",
             "prompt": hero_prompt,
         })
@@ -527,11 +590,13 @@ This `render_pack/` includes **`render_jobs.json`** ({len(render_jobs)} total jo
 
 ## Execution Rules
 1. **One Image Thread / Context Per `chat_group` (`site_1`..`site_{len(projects)}`):** Keep all renders for a single site (`aerial`, `hero`, and `moment_1..N`) in one continuous generation context so they share the exact same architecture, massing, and materials.
-2. **Iterate `render_jobs.json` in order:**
+2. **Sculptural Form References (`attach_images`):**
+   - Each `aerial` / `hero` job lists `attach_images` (`satellite_lock.png` + any staged `site_<N>/refs/*` form reference from `style_refs/`).
+   - If `needs_form_ref` is `true`, search open architectural photography (Wikimedia Commons / ArchDaily / Dezeen — avoid login-walled sites) using `form_ref_search_query`, save 1 striking sculptural form image to `site_<N>/refs/ref_form.jpg`, and attach it alongside `satellite_lock.png` (locking **Image 1** to site/scale/terrain and **Image 2** strictly to sculptural building form).
+3. **Iterate `render_jobs.json` in order:**
    - Skip any job whose `output_file` (relative to the plot's run directory, e.g. `renders/site_1.jpg`) already exists on disk.
-   - When `attach_image` is set (the `aerial` job of each `chat_group`), pass `site_<N>/satellite_lock.png` as the visual reference alongside `prompt`.
    - For `hero` and `moment` jobs in the same `chat_group`, generate in the **same site context** (carrying over the architecture from `aerial`/`hero`) and save each image to `output_file` (`16:9` widescreen).
-3. **Rebuild Dashboard:** After saving images, run:
+4. **Rebuild Dashboard:** After saving images, run:
    `python build_nest_dashboard.py --run-dir "{run_dir}" --plot-title "{run_dir.name}"`
 """
     (pack_dir / "AGENT_INSTRUCTIONS.md").write_text(agent_instructions, encoding="utf-8")
