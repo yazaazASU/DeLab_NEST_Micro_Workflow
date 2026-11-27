@@ -221,10 +221,23 @@ def main():
             "4. **Portfolio Diversity (Zero Repetition):** Across Sites #1–#5, assign **5 unique idioms** (`courtyard`, `terrace`, `cantilever`, `clustered_compound`, `bridge`) and **5 unique registers** (`Limestone & Wind-Tower`, `Earth & Rammed Mass`, `Timber & Tensile Shade`, `Steel & Solar Canopy`, `Vaulted Brick & Courtyard`).",
             "5. **Realistic GFA Scale:** Target **`8,000–22,000 m²` total built GFA** (`2,500–8,000 m²` per volume) for craft, cultural, or eco-hospitality clusters; reserve `25,000–35,000 m²` only for major civic/mixed-use hubs.",
             "6. **Strict GIS Honesty:** NEVER invent coastal/waterfront proximity (e.g., '48 m from water' or sea views) when `Water / Nature Dist > 300 m`.",
+            "7. **Signature Spatial Diagram:** Pair grounded daily human life with **one unmistakable architectural gesture / footprint move** per site (use `ring`, `crescent`, `stepped_terrace`, `spine`, `fan`, `courtyard`, `l_shape`, `pier`, or `bar` in `volumes[].archetype` so the site plan reads as a bold spatial diagram).",
             "",
             "## Compact Seed Schema (`intermediates/seeds/site_<N>_seed.json`)",
-            "Required keys: `rank`, `candidate_rank`, `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `bar|courtyard|crescent|l_shape|pier`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
+            "Required keys: `rank`, `candidate_rank`, `title`, `subtitle`, `nature_hero`, `strategy`, `tier`, `idiom`, `precedent`, `concept_register`, `is_water`, `target_feddans`, `site_bearing_deg`, `orientation`, `shape_logic`, `activities` (concrete human activities — include everyday regional utility alongside cultural/craft life), `thesis_summary` (`hook`, `gesture_line`, `why_here`), `thesis_detailed`, `engine_trace`, `nature_to_bldg`, `bldg_to_nature`, `experience_arc` (`core_idea`, `visit_mode`, `atmosphere`, `journey` of **4–6** `{moment, detail}` chapters across morning-to-night), `volumes` (2–4 distinct buildings with `name`, `use`, `area_m2`, `floors`, `archetype` in `ring|crescent|stepped_terrace|spine|fan|courtyard|l_shape|pier|bar`, `bridge_or_pile_allowed`, `shape_reason`, `interior_zones`), `landscape_zones` (meaningful ecological/civic zones summing to `share_pct = 100`).",
             "- **Room-by-Room Space Program (`interior_zones`):** Give each building **6–10 realistic rooms** (`150–800 m²` for typical rooms, avoiding `>1,200 m²` single rooms) using `{name, role, area_m2}` **plus explicit `Circulation & Tare` / `BOH & MEP` rows** (`15%–30%` of building `area_m2`) so `NSF / GSF` is realistic and reconciles to `space_program.json` & `space_program.csv`.",
+        ]
+        typ_json = ROOT / "GENERAL_KNOWLEDGE" / "NEST_Typologies_and_User_Scenarios.json"
+        if typ_json.exists():
+            try:
+                cs_qs = json.loads(typ_json.read_text(encoding="utf-8")).get("commercial_screening_questions") or []
+                if cs_qs:
+                    ctx_lines.append("- **Commercial Viability Screening (`commercial_screening` dict):** Answer these 7 screening questions as explicit unvalidated commercial hypotheses:")
+                    for csq in cs_qs:
+                        ctx_lines.append(f"  - `{csq}`")
+            except Exception:
+                pass
+        ctx_lines += [
             "",
             "---",
             "",

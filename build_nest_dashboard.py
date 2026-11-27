@@ -127,9 +127,10 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .cards-stack {{ max-width: 1380px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }}
 .proj-card {{ background: #FFFFFF; border: 1px solid var(--nest-line); border-radius: 18px; overflow: hidden; box-shadow: 0 10px 28px rgba(48,43,42,0.07); }}
 
-/* Top Split Visual Stage (Live 3D WebGL + Live Leaflet Satellite Map) */
-.card-visuals {{ display: grid; grid-template-columns: 1fr; border-bottom: 1px solid var(--nest-line); }}
-.render-wrap {{ position: relative; background: #F3EFEA; height: 480px; overflow: hidden; }}
+/* Top Split Visual Stage (Render / Aerial + Live Tri-Layer Leaflet Satellite Map) */
+.card-visuals {{ display: grid; grid-template-columns: 1.25fr 1fr; border-bottom: 1px solid var(--nest-line); }}
+@media (max-width: 960px) {{ .card-visuals {{ grid-template-columns: 1fr; }} }}
+.render-wrap {{ position: relative; background: #F3EFEA; height: 440px; overflow: hidden; }}
 .webgl-stage {{ width: 100%; height: 100%; cursor: grab; display: block; }}
 .webgl-stage:active {{ cursor: grabbing; }}
 .render-wrap img.static-media {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 3; }}
@@ -146,7 +147,7 @@ html, body {{ height: 100%; margin: 0; font-family: 'Funnel Display', 'Segoe UI'
 .webgl-hud .hud-t {{ font-weight: 800; font-size: 12.5px; margin: 1px 0 2px; }}
 .webgl-hud .hud-d {{ font-size: 11px; color: var(--nest-muted); line-height: 1.35; }}
 
-.mini-map-wrap {{ position: relative; height: 420px; border-left: 1px solid var(--nest-line); }}
+.mini-map-wrap {{ position: relative; height: 440px; border-left: 1px solid var(--nest-line); }}
 .mini-map {{ width: 100%; height: 100%; }}
 .map-legend-pill {{ position: absolute; bottom: 44px; left: 10px; z-index: 800; background: rgba(255,250,247,0.94); border: 1px solid var(--nest-line); border-radius: 9px; padding: 4px 10px; font-size: 10.5px; display: flex; gap: 9px; flex-wrap: wrap; color: var(--nest-ink); font-weight: 600; }}
 .map-meta-bar {{ position: absolute; bottom: 8px; left: 10px; right: 10px; z-index: 800; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }}
@@ -1178,7 +1179,14 @@ function renderProjectCards() {{
             ${{p.has_editorial_render ? `<button type="button" class="media-tbtn active" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.render}}', this)">Whole-Site Aerial</button>` : ''}}
             ${{p.has_hero_render ? `<button type="button" class="media-tbtn" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.hero_render}}', this)">Hero Experience</button>` : ''}}
             <button type="button" class="media-tbtn ${{p.has_editorial_render ? '' : 'active'}}" onclick="swapCardMedia(${{p.rank}}, 'img', '${{p.satellite_lock}}', this)">Satellite</button>
-            <button type="button" class="media-tbtn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
+          </div>
+        </div>
+        <div class="mini-map-wrap">
+          <div id="mini-map-${{p.rank}}" class="mini-map"></div>
+          <div class="map-legend-pill"><span><b style="color:#FF614C">▭</b> Site Boundary</span><span><b style="color:#2563EB">■</b> Footprints</span><span><b style="color:#0D9488">■</b> Landscape Zones</span></div>
+          <div class="map-meta-bar">
+            <span class="map-coord-pill">${{Number(p.lat).toFixed(4)}}, ${{Number(p.lon).toFixed(4)}} · ${{p.area_feddans}} fed.</span>
+            <button type="button" class="jump-map-btn" onclick="jumpTo3EngineMap(${{p.rank}})">3-Engine Map →</button>
           </div>
         </div>
       </div>
@@ -1290,6 +1298,7 @@ function renderProjectCards() {{
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap">${{partnerPills}}</div>
               </div>
+              ${{(p.commercial_screening && p.commercial_screening.length) ? `<div style="margin-top:10px;padding:9px 11px;background:#FFFAF7;border:1px solid var(--nest-line);border-radius:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span class="mk" style="color:var(--nest-edge)">Commercial Viability Screening</span><span style="font-size:10px;color:#775014;background:#FFF5E5;padding:2px 7px;border-radius:999px;font-weight:700">Unvalidated Hypotheses</span></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:5px">${{p.commercial_screening.map((cs, csi) => `<div style="font-size:11px;line-height:1.35;background:#fff;border:1px solid var(--nest-line);border-radius:7px;padding:5px 7px"><b>${{csi + 1}}. ${{cs.question}}</b><br><span style="color:#625753">${{cs.answer}}</span></div>`).join('')}}</div></div>` : ''}}
               <div class="action-bar">
                 <a class="btn-coral" href="${{p.render_prompt_path}}" target="_blank">Render Pack Prompt ↗</a>
                 <a class="btn-outline" href="${{p.satellite_lock}}" target="_blank">Satellite Lock (.png) ↗</a>

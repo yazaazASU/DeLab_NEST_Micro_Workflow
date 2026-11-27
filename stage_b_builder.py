@@ -104,7 +104,31 @@ def _slice_polygon_by_shares(site_m: Polygon, shares: list[float], bearing_deg: 
 def _make_archetype_footprint(cx: float, cy: float, area_m2: float, archetype: str, bearing_deg: float) -> Polygon:
     arch = (archetype or "bar").lower()
     side = math.sqrt(max(area_m2, 100.0))
-    if arch in ("crescent", "arc"):
+    if arch in ("ring", "oculus_ring", "circular_ring"):
+        r_out = side * 0.85
+        r_in = side * 0.50
+        raw = Point(0, 0).buffer(r_out, resolution=32).difference(Point(0, 0).buffer(r_in, resolution=32))
+    elif arch in ("stepped_terrace", "amphitheater", "horseshoe"):
+        r_out = side * 1.05
+        r_in = side * 0.45
+        ring = Point(0, 0).buffer(r_out, resolution=32).difference(Point(0, 0).buffer(r_in, resolution=32))
+        raw = ring.intersection(box(-r_out * 1.1, 0.0, r_out * 1.1, r_out * 1.1))
+    elif arch in ("fan", "spiral", "radial"):
+        pts = [(0.0, 0.0)]
+        r_base = side * 1.35
+        for k in range(13):
+            ang = math.radians(-55.0 + k * (110.0 / 12.0))
+            r_k = r_base * (0.78 + 0.22 * (k / 12.0))
+            pts.append((r_k * math.cos(ang), r_k * math.sin(ang)))
+        raw = Polygon(pts).difference(Point(0, 0).buffer(side * 0.28, resolution=16))
+    elif arch in ("spine", "bridge_span"):
+        w, d = side * 2.9, max(12.0, side * 0.34)
+        raw = unary_union([
+            box(-w / 2, -d / 2, w / 2, d / 2),
+            box(-w * 0.45, -d * 1.1, -w * 0.22, d * 1.1),
+            box(w * 0.22, -d * 1.1, w * 0.45, d * 1.1),
+        ])
+    elif arch in ("crescent", "arc"):
         w, d = side * 1.85, side * 0.54
         raw = box(-w / 2, -d / 2, w / 2, d / 2).buffer(d * 0.25)
         notch = box(-w * 0.24, -d * 0.65, w * 0.24, -d * 0.05)
@@ -132,6 +156,18 @@ def _make_archetype_footprint(cx: float, cy: float, area_m2: float, archetype: s
 def _is_tare_role(role: str) -> bool:
     r = str(role or "").lower()
     return any(k in r for k in ("tare", "circulation", "boh", "mep", "service", "core"))
+
+
+def _load_commercial_screening_questions() -> list[str]:
+    """Read commercial_screening_questions dynamically from GENERAL_KNOWLEDGE/NEST_Typologies_and_User_Scenarios.json."""
+    p = Path(__file__).resolve().parent / "GENERAL_KNOWLEDGE" / "NEST_Typologies_and_User_Scenarios.json"
+    if not p.exists():
+        return []
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        return [str(q) for q in (data.get("commercial_screening_questions") or []) if str(q).strip()]
+    except Exception:
+        return []
 
 
 def _reconcile_interior_zones(iz_list: list[dict], target_area: int) -> list[dict]:
@@ -407,6 +443,22 @@ def build_project_from_seed(seed: dict, stage_a: dict, raster_bundle: Any = None
         "landscape_elements": seed.get("landscape_elements", []),
         "fin": fin,
         "econ_evidence": econ,
+        "commercial_screening": [
+            {
+                "question": q,
+                "answer": (
+                    (seed.get("commercial_screening") or {}).get(q)
+                    if isinstance(seed.get("commercial_screening"), dict)
+                    else (
+                        seed["commercial_screening"][qi].get("answer")
+                        if isinstance(seed.get("commercial_screening"), list) and qi < len(seed["commercial_screening"]) and isinstance(seed["commercial_screening"][qi], dict)
+                        else None
+                    )
+                ) or "Pending local market screening",
+                "status": "Unvalidated commercial hypothesis",
+            }
+            for qi, q in enumerate(_load_commercial_screening_questions())
+        ],
         "hypotheses": seed.get("hypotheses", []),
         "geojson": mapping(proj.geom_to_lonlat(site_m)),
         "footprints": footprints,
@@ -1124,6 +1176,11 @@ def main():
             f"- **CapEx:** `{fin.get('capex', '—')}` ({fin.get('capex_split', '—')}) · **Revenue:** `{fin.get('rev', '—')}` · **IRR:** `{fin.get('irr', '—')}` · **Payback:** `{fin.get('payback', '—')}`",
             f"- **Scenarios:** {fin.get('scenarios', '—')}",
         ]
+        cs_items = p.get("commercial_screening") or []
+        if cs_items:
+            lines += ["", "### Commercial Viability Screening *(Unvalidated Hypotheses)*"]
+            for csi, cs in enumerate(cs_items, 1):
+                lines.append(f"{csi}. **{cs['question']}** — {cs['answer']}")
     rep_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[Stage B Builder] Wrote Evidence-First report -> {rep_path}")
 
