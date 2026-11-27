@@ -18,13 +18,16 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from shapely.affinity import rotate as shp_rotate, scale as shp_scale, translate as shp_translate
-from shapely.geometry import Polygon, box, mapping, shape
+from shapely.geometry import Point, Polygon, box, mapping, shape
 from shapely.ops import unary_union
 
 from heatmap_engine import LocalProjection
@@ -124,6 +127,11 @@ def _make_archetype_footprint(cx: float, cy: float, area_m2: float, archetype: s
     scaled = shp_scale(raw, xfact=s, yfact=s, origin=(0, 0))
     rotated = shp_rotate(scaled, bearing_deg, origin=(0, 0))
     return _ensure_poly(shp_translate(rotated, xoff=cx, yoff=cy))
+
+
+def _is_tare_role(role: str) -> bool:
+    r = str(role or "").lower()
+    return any(k in r for k in ("tare", "circulation", "boh", "mep", "service", "core"))
 
 
 def _reconcile_interior_zones(iz_list: list[dict], target_area: int) -> list[dict]:
@@ -285,13 +293,21 @@ def build_project_from_seed(seed: dict, stage_a: dict) -> dict:
             "bridge_or_pile_allowed": is_bridge,
             "geom": mapping(proj.geom_to_lonlat(fp_m)),
         })
+        iz_reconciled = _reconcile_interior_zones(vs.get("interior_zones") or [], v_gfa)
+        tare_m2 = sum(int(z.get("area_m2", 0)) for z in iz_reconciled if _is_tare_role(z.get("role", "")))
+        nsf_m2 = max(0, v_gfa - tare_m2)
+        nsf_pct = round((nsf_m2 / max(1, v_gfa)) * 100.0, 1)
         volumes_out.append({
             "name": vs["name"],
             "use": vs.get("use", ""),
             "area_m2": f"{v_gfa:,} m²",
+            "gsf_m2": v_gfa,
+            "nsf_m2": nsf_m2,
+            "tare_m2": tare_m2,
+            "nsf_gsf_pct": nsf_pct,
             "height_floors": vs.get("height_floors", f"{floors} {'floor' if floors == 1 else 'floors'} · {floors * 4.5:.1f} m"),
             "shape_reason": vs.get("shape_reason", ""),
-            "interior_zones": _reconcile_interior_zones(vs.get("interior_zones") or [], v_gfa),
+            "interior_zones": iz_reconciled,
         })
 
     fin, econ = _compute_financials(seed, total_gfa_m2, site_area_m2)
@@ -373,6 +389,21 @@ def audit_portfolio_diversity(projects: list[dict]) -> list[str]:
     regs = [p.get("concept_register", "").lower() for p in projects]
     if len(set(regs)) < min(len(regs), 4):
         warnings.append(f"Low concept_register diversity across portfolio: {regs}")
+    for p in projects:
+        rk = p.get("rank", "?")
+        gfa_val = int(re.sub(r"[^\d]", "", str(p.get("built_gfa", "0"))) or 0)
+        if gfa_val > 35000:
+            warnings.append(f"Site #{rk} ({p.get('title')}) has inflated built_gfa={gfa_val:,} m² (>35,000 m²); calibrate to 8,000–22,000 m² unless major civic hub.")
+        for v in (p.get("massing_rationale") or {}).get("volumes") or []:
+            v_gsf = int(v.get("gsf_m2") or re.sub(r"[^\d]", "", str(v.get("area_m2", "0"))) or 0)
+            iz = v.get("interior_zones") or []
+            has_tare = any(_is_tare_role(z.get("role", "")) for z in iz)
+            if v_gsf >= 1000 and not has_tare:
+                warnings.append(f"Site #{rk} '{v.get('name')}' ({v_gsf:,} m²) has no Circulation & Tare / BOH & MEP row.")
+            for z in iz:
+                za = int(z.get("area_m2", 0))
+                if not _is_tare_role(z.get("role", "")) and za > 1200:
+                    warnings.append(f"Site #{rk} '{v.get('name')}' room '{z.get('name')}' is {za:,} m² (>1,200 m²); split into realistic rooms.")
     return warnings
 
 
@@ -929,8 +960,67 @@ def main():
     out_path.write_text(json.dumps(projects, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"[Stage B Builder] Built {len(projects)} reconciled projects -> {out_path}")
 
-    rep_path = args.run_dir / "NEST_Executive_Report.md"
+    # Export standalone space_program.json & space_program.csv
     plot_lbl = stage_a.get("plot_label", args.run_dir.name)
+    sp_projects = []
+    sp_csv_rows = []
+    for p in projects:
+        vols = (p.get("massing_rationale") or {}).get("volumes") or []
+        p_gsf = sum(int(v.get("gsf_m2") or re.sub(r"[^\d]", "", str(v.get("area_m2", "0"))) or 0) for v in vols)
+        p_tare = sum(int(v.get("tare_m2", 0)) for v in vols)
+        p_nsf = max(0, p_gsf - p_tare)
+        sp_projects.append({
+            "rank": p["rank"],
+            "title": p["title"],
+            "area_feddans": p.get("area_feddans"),
+            "total_gsf_m2": p_gsf,
+            "total_nsf_m2": p_nsf,
+            "total_tare_m2": p_tare,
+            "nsf_gsf_pct": round((p_nsf / max(1, p_gsf)) * 100.0, 1),
+            "buildings": [
+                {
+                    "name": v.get("name"),
+                    "use": v.get("use", ""),
+                    "height_floors": v.get("height_floors", ""),
+                    "gsf_m2": int(v.get("gsf_m2") or 0),
+                    "nsf_m2": int(v.get("nsf_m2") or 0),
+                    "tare_m2": int(v.get("tare_m2") or 0),
+                    "nsf_gsf_pct": v.get("nsf_gsf_pct", 100.0),
+                    "rooms": v.get("interior_zones") or [],
+                }
+                for v in vols
+            ],
+        })
+        for v in vols:
+            v_gsf = int(v.get("gsf_m2") or re.sub(r"[^\d]", "", str(v.get("area_m2", "0"))) or 0)
+            v_nsf = int(v.get("nsf_m2", v_gsf))
+            v_tare = int(v.get("tare_m2", 0))
+            for z in v.get("interior_zones") or []:
+                sp_csv_rows.append({
+                    "plot": plot_lbl,
+                    "site_rank": p["rank"],
+                    "project_title": p["title"],
+                    "building": v.get("name", ""),
+                    "building_gsf_m2": v_gsf,
+                    "building_nsf_m2": v_nsf,
+                    "building_tare_m2": v_tare,
+                    "nsf_gsf_pct": v.get("nsf_gsf_pct", 100.0),
+                    "room_name": z.get("name", ""),
+                    "role": z.get("role", ""),
+                    "is_tare": _is_tare_role(z.get("role", "")),
+                    "area_m2": int(z.get("area_m2", 0)),
+                })
+    sp_json_path = args.run_dir / "space_program.json"
+    sp_json_path.write_text(json.dumps({"plot": plot_lbl, "projects": sp_projects}, indent=2, ensure_ascii=False), encoding="utf-8")
+    sp_csv_path = args.run_dir / "space_program.csv"
+    if sp_csv_rows:
+        with open(sp_csv_path, "w", newline="", encoding="utf-8-sig") as f:
+            writer = csv.DictWriter(f, fieldnames=list(sp_csv_rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(sp_csv_rows)
+    print(f"[Stage B Builder] Exported space program -> {sp_json_path.name} & {sp_csv_path.name} ({len(sp_csv_rows)} room rows)")
+
+    rep_path = args.run_dir / "NEST_Executive_Report.md"
     lines = [
         f"# NEST Executive Report — {plot_lbl}",
         "",
