@@ -22,6 +22,7 @@
 - Each subagent writes **only ~3 KB of design & narrative** (zero raw GeoJSON coordinates, zero area/IRR arithmetic).
 - Run `python stage_b_builder.py --run-dir <out_dir> --seeds-dir <out_dir>/intermediates/seeds` to generate `stage_b_projects.json` with `100.0%` landscape area reconciliation, `0` Preserve encroachments, and exact `fin` math.
 - Write `NEST_Executive_Report.md` comparing the 5 sites, then run `python run_nest_pipeline.py --data-dir <gis_dir> --out-dir <out_dir> --skip-stage-a`.
+- **Mandatory Default Render Handoff:** Never auto-call `image-generator`. After `build_render_pack.py` generates `<out_dir>/renders/render_pack/CHATGPT_RENDER_PROMPT.md`, immediately present the user with the satellite lock upload checklist (`site_1/satellite_lock.png`..`site_<K>/satellite_lock.png`) and the **single-shot copy-paste ChatGPT prompt** directly in chat.
 
 ---
 

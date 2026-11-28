@@ -421,6 +421,7 @@ def main():
     run_step(rp_cmd, "Satellite-Locked Render Pack")
 
     print(f"\n[NEST Pipeline Complete] Outputs ready -> {out_dir}")
+    print(f"[ChatGPT Render Handoff] Prompt the user with: {out_dir / 'renders' / 'render_pack' / 'CHATGPT_RENDER_PROMPT.md'}")
 
 
 if __name__ == "__main__":

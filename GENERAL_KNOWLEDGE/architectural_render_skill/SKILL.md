@@ -1,25 +1,24 @@
 ---
 name: architectural-conceptual-render
 description: >-
-  Generate photorealistic editorial aerial architectural conceptual renders
-  (ArchDaily / Dezeen / MIR / Luxigon quality) directly via the image-generator
-  subagent from text briefs, sketches, massing screenshots, satellite site crops,
-  or moodboards—with strict GIS/site-reality landscape grounding and a
-  consolidated multi-prompt fallback when image-generator usage is exhausted.
+  Build a satellite-locked architectural render pack and hand the user a single-shot
+  copy-paste ChatGPT batch prompt to generate photorealistic editorial aerial & hero
+  architectural renders (ArchDaily / Dezeen / MIR / Luxigon quality) with strict
+  GIS/site-reality landscape grounding. Never auto-invokes image-generator unless
+  explicitly requested by the user.
 ---
 
 # Architectural Conceptual Render
 
-Produces photorealistic, editorial-grade **aerial architectural conceptual renders** directly through the `image-generator` subagent—showing the whole project, massing strategy, roofscape, authentic site/landscape integration, and overall architectural idea.
+Produces satellite-locked **render packs** and a **single-shot copy-paste ChatGPT batch prompt** by default—so the user can generate photorealistic, editorial-grade **aerial & close hero architectural conceptual renders** directly in ChatGPT while preserving authentic topography, hydrology, massing strategy, roofscape, and surrounding fabric.
 
 > **Project-Files Location:** This skill runs directly out of `GENERAL_KNOWLEDGE/architectural_render_skill/` (mirrored in `.agents/skills/architectural-conceptual-render/` for automatic agent discovery).
 
 **Core Principles:**
-- **Engine**: `image-generator` subagent by default. Deliver image files directly—do **not** save standalone prompt `.txt`/`.md` files **unless** `image-generator` runs out of usage/quota (see **Step 4B: Quota/Usage Fallback**).
+- **Default Engine (ChatGPT Handoff — Zero Auto `image-generator` Calls)**: Always generate the render pack first (`renders/render_pack/` via `build_render_pack.py`), then **prompt the user in chat with ONE single-shot copy-paste ChatGPT batch prompt** (`CHATGPT_RENDER_PROMPT.md`) plus the exact list of `site_<N>/satellite_lock.png` files to attach. Do **not** invoke the built-in `image-generator` subagent automatically—only use `image-generator` if the user explicitly asks for in-app generation.
 - **Aesthetic**: Photorealistic architectural editorial only (*ArchDaily / Dezeen / MIR / Luxigon* quality)—restrained composition, authentic materials, natural atmosphere, zero CGI clichés.
-- **Site-Reality Honesty (Zero Landscape Hallucinations)**: Every render **must** match the real topography, hydrology, vegetation density, and surrounding urban/rural fabric of the actual GIS site. Never invent lakes, turquoise ponds, waterfalls, cliffs, mountains, or lush European parkland on flat alluvial plains or arid desert sites.
-- **Default View**: Elevated aerial architectural perspective that clearly reads the entire project, massing hierarchy, and site parti.
-- **Image-to-Render Fidelity**: Balanced conceptual translation—preserve the overall massing idea, real satellite context, footprint logic, and site organization from input visuals while freely refining facade articulation, roof details, and landscape geometry.
+- **Site-Reality Honesty (Zero Landscape Hallucinations)**: Every render prompt **must** match the real topography, hydrology, vegetation density, and surrounding urban/rural fabric of the actual GIS site. Never invent lakes, turquoise ponds, waterfalls, cliffs, mountains, or lush European parkland on flat alluvial plains or arid desert sites.
+- **Default Views**: 2 shots per site — Whole-Site Aerial (`renders/site_<N>.jpg`, ~40–45°) locked to `site_<N>/satellite_lock.png` + Close Hero Experience (`renders/site_<N>_hero.jpg`) carrying over the exact same architecture and materials.
 
 ---
 
@@ -28,61 +27,50 @@ Produces photorealistic, editorial-grade **aerial architectural conceptual rende
 ### Step 1: Inspect Any Visual & GIS Inputs
 Before writing a single word of the prompt, inspect all available visual and geographic context:
 - **User visuals** (sketches, massing/viewport screenshots, site plans, site photos, moodboards): inspect with `read_file`.
-- **GIS / Satellite Site Context** (for NEST / site-based runs): read `*_site_context.md` and, whenever possible, capture/export a clean **satellite image crop** of the exact site boundary + immediate surroundings to pass to `image-generator` as a spatial/landscape anchor.
+- **GIS / Satellite Site Context** (for NEST / site-based runs): read `*_site_context.md` and run `build_render_pack.py` to export clean `16:9` **satellite lock crops** (`site_<N>/satellite_lock.png`) for every site.
 - **Regional Knowledge Grounding (`EGYPT_KNOWLEDGE/`)**: for Egyptian plots, look up the plot's governorate and nearest special place in `EGYPT_KNOWLEDGE/egypt_index.json` + its regional `.md` atlas to pull authentic local stone/earth hues, native vegetation, prevailing wind/mist cues, and regional lighting—while strictly obeying the Site-Reality Honesty rule above (never invent landforms or water absent from the satellite crop).
 
-### Step 2: Structured Intake Checklist (Required Before Generating)
-Lock in 5 items before generating (for autonomous NEST runs, self-answer all 5 from `*_site_context.md`, GIS layers, and the architectural program; for interactive runs, use `ask_question` for any missing items):
+### Step 2: Structured Intake Checklist (Required Before Prompting)
+Lock in 5 items (for autonomous NEST runs, self-answer all 5 from `*_site_context.md`, GIS layers, and `stage_b_projects.json`; for interactive single-project runs, use `ask_question` for any missing items):
 
 1. **Site Reality Lock (Mandatory GIS/Context Grounding)**:
-   - **True Topography**: Exact relief (e.g., *strictly flat Nile alluvial plain, 0–2% slope* vs *arid gravel wadi bed* vs *rocky escarpment*).
-   - **True Hydrology**: Exact real water edges (e.g., *Nile River along northeast edge only* or *bone-dry ephemeral desert wadi — zero standing or flowing water*).
-   - **Cardinal Surrounding Fabric**: What actually borders the site on N/S/E/W (e.g., *dense 3–5 story Upper Egypt brick/concrete urban blocks to the west, flat rectangular farmland to the south/east*).
+   - **True Topography**: Exact relief (e.g., *strictly flat Nile alluvial plain, 0–2% slope* vs *arid gravel wadi bed* vs *rocky ridge*).
+   - **True Hydrology**: Exact real water edges (e.g., *Nile River along northeast edge only* or *bone-dry seasonal desert wadi — zero standing water*).
+   - **Cardinal Surrounding Fabric**: What actually borders the site on N/S/E/W (e.g., *dense 3–5 story brick/concrete urban blocks to the west, flat rectangular farmland to the south/east*).
    - **Explicit Forbidden Landscape Features**: Concrete negative list of features that **must not appear** (e.g., *no hills, no cliffs, no mountains, no interior ponds/lagoons/lakes, no waterfalls, no lush tropical/European lawns*).
-2. **Material Palette & Architectural Character**: Primary envelope materials (e.g., board-formed concrete, stacked local Sinai/Assiut limestone, rammed earth, oxidized bronze, warm plaster, low-iron glazing) and overall formal language.
-3. **Time of Day / Lighting Mode** *(Default: Overcast / Soft Diffused Daylight)*:
-   - `Overcast / Soft Diffused Daylight` *(Default — best for reading pure form and material honesty)*
-   - `Golden Hour` *(warm low-angle sunlight, long sculptural shadows)*
-   - `Blue Hour / Dusk` *(deep cool twilight sky contrasting with warm glowing interiors)*
-   - `Harsh Desert / Mediterranean Sun` *(crisp high-contrast architectural shadows, bright atmospheric haze)*
-   - `Rainy / Misty Atmosphere` *(damp reflective paving, soft atmospheric depth)*
-4. **Aerial Camera Angle & Framing** *(Default: Classic Hero Aerial ~40–45°)*:
+2. **Material Palette & Architectural Character**: Primary envelope materials (e.g., board-formed concrete, stacked local Egyptian limestone, rammed earth, oxidized bronze, warm plaster, low-iron glazing) and overall formal language.
+3. **Time of Day / Lighting Mode** *(Default for NEST Render Pack: Golden Hour late-afternoon sunlight; for standalone interactive runs: Overcast / Soft Diffused Daylight or user choice)*.
+4. **Aerial Camera Angle & Framing** *(Default: Classic Hero Aerial ~40–45° + Close Hero Experience)*:
    - `Classic Hero Aerial (~40–45°)` *(Default — balanced massing height + site footprint readability)*
-   - `Low Oblique Aerial (~25–35°)` *(emphasizes facade elevation, silhouette, and horizon while still showing the full complex)*
-   - `High Context Aerial (~55–65°)` *(emphasizes masterplan geometry, roofscape, and urban/landscape integration)*
-   - `Custom / Other` *(e.g., eye-level or courtyard perspective only if explicitly requested)*
-5. **De-Metaphorized Architectural Translation**: Strip poetic project titles of landscape trigger words before prompting (e.g., translate *"Cooling-Hill"* → *"stepped earth-bermed architectural plinth on a dead-flat plain"*; *"Oasis"* → *"shaded courtyard with sparse native date palms and dry stone paving"*; *"Wadi Hydro-Citadel"* → *"dry stepped limestone flash-flood retention terraces in an arid gravel wadi"*).
+   - `Low Oblique Aerial (~25–35°)`
+   - `High Context Aerial (~55–65°)`
+5. **De-Metaphorized Architectural Translation**: Strip poetic project titles of landscape trigger words before prompting (e.g., translate *"Cooling-Hill"* → *"stepped earth-bermed plinth on a dead-flat plain"*; *"Oasis"* → *"shaded courtyard with sparse native date palms and dry stone paving"*).
 
-### Step 3: Compose the Architectural Brief for `image-generator`
-Before invoking `image-generator`, read [editorial-prompt-craft.md](./references/editorial-prompt-craft.md) and assemble a tightly engineered editorial brief containing:
-1. **Site Reality Lock (Lead with Geography First)**: Exact topography, hydrology, cardinal context, regional flora, and explicit **FORBIDDEN** landscape features.
-2. **Visual Satellite / Reference Anchor** *(when available)*: Pass the satellite site crop or massing screenshot path to `image-generator` with explicit instructions to match the real ground edges (riverbank, roads, flat terrain, adjacent urban/agricultural blocks).
-3. **De-Metaphorized Massing & Site Parti**: Clear literal description of the whole project footprint, primary/secondary volumes, roofscape, and two-way nature integration mechanisms.
-4. **Camera, Lens, Materials, Lighting & Entourage**: Real drone/helicopter photography framing (`16:9`, deep `f/8`–`f/11` focus, never tilt-shift blur), tactile weathered materials, realistic regional vegetation density, subtle scaled entourage, and strict anti-cliché guardrails.
+### Step 3: Generate the Self-Contained Render Pack (DEFAULT)
+For NEST runs, run:
+```bash
+python GENERAL_KNOWLEDGE/architectural_render_skill/build_render_pack.py --run-dir <run_output_dir>
+```
+This builds `<run_output_dir>/renders/render_pack/` (+ `renders/render_pack.zip`) containing:
+- `site_<1..K>/satellite_lock.png` (`16:9` Esri World Imagery crop + dashed site boundary + North arrow)
+- `site_<1..K>/prompt.md` (individual aerial + hero prompt brief per site)
+- `render_jobs.json` (structured 2-shot-per-site job queue)
+- **`CHATGPT_RENDER_PROMPT.md`** (**Default deliverable**: single-shot ChatGPT batch prompt + upload checklist)
+- `AGENT_INSTRUCTIONS.md`
 
-### Step 4A: Generate & Save to Workspace
-Invoke the `image-generator` subagent with the complete brief and instruct it to save (or copy/move the output) to:
-- Standard runs: `outputs/renders/<project-slug>/<YYYYMMDD_HHMMSS>_<view-slug>.png`
-- NEST autonomous runs: `<run_output_dir>/renders/site_<1..5>.jpg`
-- Default aspect ratio: `16:9` widescreen.
+For standalone (non-NEST) render requests, read [editorial-prompt-craft.md](./references/editorial-prompt-craft.md) and compose the equivalent single-shot ChatGPT prompt directly.
 
-### Step 4B: Image-Generator Usage / Quota Fallback (Mandatory Consolidated Prompt)
-If `image-generator` returns a **usage limit, quota exhaustion, rate-limit, billing, or service unavailability error** (on either the first image or partway through a multi-site batch):
-1. **Do NOT retry in a loop** and do **NOT** fail silently or leave the user without prompts.
-2. **Immediately compile ONE single, copy-paste-ready master prompt block** that contains **every required image prompt** (all remaining ungenerated images, or all 5 sites if none succeeded), structured cleanly so the user can paste it into any external image-generation service (Midjourney, Flux, Ideogram, Gemini, ChatGPT, etc.):
-   - Include a brief header listing the total image count, target filenames (e.g., `renders/site_1.jpg` .. `renders/site_5.jpg`), and required aspect ratio (`16:9 widescreen`).
-   - For each image, provide a self-contained, production-ready prompt block containing: **Project Label & Target Filename**, **Site Reality Lock (Topography, Hydrology, Cardinal Context, Forbidden Features)**, **Literal Architectural Massing & Materials**, **Camera & Lighting**, and **Anti-Cliché Negative Constraints**.
-3. **Deliver it in two places**:
-   - Save the consolidated file to `<run_output_dir>/renders/ALL_IMAGE_PROMPTS_FALLBACK.md` (or `outputs/renders/ALL_IMAGE_PROMPTS_FALLBACK.md`).
-   - Present the **entire consolidated prompt in ONE single fenced code block** directly in your response to the user so they can copy it in one click.
+### Step 4: Prompt the User with the Single-Shot ChatGPT Batch Prompt (DEFAULT)
+Immediately after generating the render pack, **always** present the ChatGPT handoff directly in your response:
+1. List the exact satellite lock images to upload to ChatGPT in one batch (`site_1/satellite_lock.png` .. `site_K/satellite_lock.png`) with clickable `file://` paths to `<run_output_dir>/renders/render_pack/`.
+2. Paste the **entire single-shot batch prompt** from `CHATGPT_RENDER_PROMPT.md` inside **ONE single copy-paste fenced code block** so the user can copy it in one click, paste it into ChatGPT alongside the attached satellite locks, and let ChatGPT generate all renders sequentially (`Job 1` → `Job 2K`).
+3. Tell the user the exact save paths (`<run_output_dir>/renders/site_<N>.jpg` and `site_<N>_hero.jpg`) and the 1-line dashboard rebuild command (`python build_nest_dashboard.py --run-dir "<run_dir>" --plot-title "<plot_title>"`).
 
-### Step 5: Automated Visual Quality Control (1 Auto-Fix Pass Max)
-Once `image-generator` returns a saved image path, **always** inspect the generated image with `read_file` and evaluate it against all 6 critical checks in [qc-checklist.md](./references/qc-checklist.md)—including **Check #6: Geographic, Topographic & Hydrological Fidelity** (comparing the render against the real site context / satellite map):
-- **Pass**: All 6 critical checks pass → present or embed the render.
-- **Major Flaw Detected** (e.g., hallucinated pond/lake/waterfall, invented hills/cliffs on a flat plain, wrong climate vegetation, missing major river/urban edge, miniature tilt-shift blur, clipped massing, oversaturated HDR CGI look, or gibberish text):
-  - Perform **at most 1 automatic fix pass** by re-invoking `image-generator` with targeted corrections stating the exact geographic or architectural defect to remove/fix.
-  - Re-inspect with `read_file` and save the improved output.
-  - *(If the fix pass hits a quota/usage error, invoke Step 4B immediately.)*
+### Step 5: Optional In-App `image-generator` Mode (Explicit User Request Only)
+Only if the user **explicitly asks** to run the built-in `image-generator` instead of ChatGPT:
+1. Invoke `image-generator` following `render_jobs.json` and save to each job's `output_file`.
+2. Inspect each result via `read_file` against all 6 checks in [qc-checklist.md](./references/qc-checklist.md) (max 1 auto-fix pass).
+3. If `image-generator` hits any quota/usage limit, stop immediately and return to **Step 4** (deliver `CHATGPT_RENDER_PROMPT.md` in one fenced code block).
 
-### Step 6: Present & Offer Targeted Refinements
-Present the final render(s) with clickable `file://` links and a brief 2–3 bullet architectural & site-fidelity summary, then offer concise next-step iteration options (lighting mode, aerial elevation/orbit angle, material palette, or secondary perspective).
+### Step 6: Optional Post-ChatGPT Visual QC
+If the user saves ChatGPT's renders to `renders/site_<N>.jpg` & `renders/site_<N>_hero.jpg` and asks for verification, inspect each render side-by-side with `site_<N>/satellite_lock.png` using [qc-checklist.md](./references/qc-checklist.md) and flag any geographic or architectural drift with a targeted one-line ChatGPT fix prompt.

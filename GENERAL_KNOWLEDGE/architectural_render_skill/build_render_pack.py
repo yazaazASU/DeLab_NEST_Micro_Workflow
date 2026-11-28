@@ -466,23 +466,68 @@ def main():
         json.dumps(render_jobs, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
-    agent_instructions = f"""# Render Execution Instructions (Codex / ChatGPT)
+    # Build the DEFAULT Single-Shot ChatGPT Batch Render Prompt (2 renders per site: aerial + hero)
+    sat_files_plain = ", ".join(f"site_{p['rank']}/satellite_lock.png" for p in projects)
+    sat_files_md = ", ".join(f"`site_{p['rank']}/satellite_lock.png`" for p in projects)
+    chatgpt_lines = [
+        "You are an award-winning architectural visualization photographer (ArchDaily / Dezeen / MIR / Luxigon quality).",
+        f"I have attached {len(projects)} satellite site-reference images (one per site): {sat_files_plain}.",
+        f"Generate ALL {len(render_jobs)} photorealistic 16:9 widescreen editorial architectural renders sequentially, ONE IMAGE AT A TIME from Job 1 through Job {len(render_jobs)} ({len(projects)} sites x 2 shots: Whole-Site Aerial + Close Hero Experience), without skipping any shot or merging two sites.",
+        "",
+        "GLOBAL RULES FOR ALL IMAGES:",
+        "- Keep each site's two shots (Aerial + Hero) visually consistent in architecture, massing, materials, and climate—treat the Hero shot as a close-up inside/beside the exact building you just rendered in the Aerial shot.",
+        "- Strictly lock each site's Aerial shot to its matching attached `site_<N>/satellite_lock.png`: match the exact red dashed boundary scale, topography, water/coast/river edge, roads, and neighboring urban/agricultural fabric (Top of satellite image = North).",
+        "- Never invent hills, cliffs, mountains, turquoise ponds, lagoons, waterfalls, or European lawns where the satellite image shows flat terrain or arid desert.",
+        "- Shoot every image with realistic photographic depth, natural light, zero tilt-shift miniature blur, zero HDR oversaturation, and zero text/labels/logos.",
+        "- Label each generated image clearly with its Job number and target filename so I can save them directly.",
+        "",
+    ]
+    for idx, job in enumerate(render_jobs, start=1):
+        ref_note = f"Reference: {job['attach_image']}" if job.get("attach_image") else f"Reference: carry over exact architecture from site_{job['site_rank']}_aerial"
+        chatgpt_lines.extend([
+            f"=== JOB {idx} of {len(render_jobs)} | Site #{job['site_rank']} ({job['job_type'].upper()}) | {ref_note} | Save as: {job['output_file']} ===",
+            f"Project: {job['site_title']}",
+            job["prompt"],
+            "",
+        ])
 
-This `render_pack/` includes **`render_jobs.json`** ({len(render_jobs)} total jobs across `{len(projects)}` sites: 1 aerial + 1 hero per site) for autonomous execution using your built-in image generation.
+    chatgpt_prompt_body = "\n".join(chatgpt_lines).strip()
+    chatgpt_md = f"""# ChatGPT Single-Shot Render Prompt — {run_dir.name}
 
-## Execution Rules
-1. **One Image Thread / Context Per `chat_group` (`site_1`..`site_{len(projects)}`):** Keep both renders for a single site (`aerial` and `hero`) in one continuous generation context so they share the exact same architecture, massing, and materials.
-2. **Satellite Site Lock (`attach_images`):** Each `aerial` job attaches `site_<N>/satellite_lock.png` to lock the red dashed site polygon, scale, roads, and surrounding terrain (do not attach external precedent photos).
-3. **Iterate `render_jobs.json` in order:**
-   - Skip any job whose `output_file` (relative to the plot's run directory, e.g. `renders/site_1.jpg`) already exists on disk.
-   - For each `hero` job in the same `chat_group`, generate in the **same site context** (carrying over the architecture from `aerial`) and save each image to `output_file` (`16:9` widescreen).
-4. **Rebuild Dashboard:** After saving images, run:
+> **Default NEST Render Workflow (2 Renders Per Site — {len(render_jobs)} Total Shots):**
+> 1. Open ChatGPT (with Image Generation enabled) and **attach all {len(projects)} satellite lock images** from this folder in one message:
+>    {sat_files_md}
+> 2. **Copy-paste the entire prompt block below** into the same ChatGPT message and send.
+> 3. Save the generated `16:9` renders to `{run_dir.name}/renders/` using each job's `Save as:` filename (`site_<N>.jpg` and `site_<N>_hero.jpg`), then rebuild the dashboard:
+>    ```bash
+>    python build_nest_dashboard.py --run-dir "{run_dir}" --plot-title "{run_dir.name}"
+>    ```
+
+```text
+{chatgpt_prompt_body}
+```
+"""
+    (pack_dir / "CHATGPT_RENDER_PROMPT.md").write_text(chatgpt_md, encoding="utf-8")
+
+    agent_instructions = f"""# Render Execution Instructions — Default Render Pack + ChatGPT Handoff
+
+This `render_pack/` includes **`CHATGPT_RENDER_PROMPT.md`** (default single-shot ChatGPT batch prompt) and **`render_jobs.json`** ({len(render_jobs)} total jobs across `{len(projects)}` sites: 1 aerial + 1 hero per site).
+
+## Default Workflow (Zero Auto `image-generator` Calls)
+1. **Do NOT invoke built-in `image-generator` automatically** (only use it if the user explicitly asks for in-app generation).
+2. **Immediately prompt the user in chat with the ChatGPT Handoff:**
+   - Read `CHATGPT_RENDER_PROMPT.md` in this folder.
+   - Give the user the exact list of satellite lock images to upload in one batch: {sat_files_md} (located in `{pack_dir}`).
+   - Paste the **entire single-shot ChatGPT prompt** in **one copy-paste fenced code block** directly in your final response.
+   - Remind the user to save ChatGPT's returned `16:9` images to `{run_dir.name}/renders/site_<N>.jpg` (aerial) and `{run_dir.name}/renders/site_<N>_hero.jpg` (hero).
+3. **Rebuild Dashboard After Saving Renders:**
    `python build_nest_dashboard.py --run-dir "{run_dir}" --plot-title "{run_dir.name}"`
 """
     (pack_dir / "AGENT_INSTRUCTIONS.md").write_text(agent_instructions, encoding="utf-8")
     (run_dir / "renders" / "README.md").write_text(
         f"# Renders Entry Point — {run_dir.name}\n\n"
-        f"- **Job Queue:** `render_pack/render_jobs.json` ({len(render_jobs)} jobs)\n"
+        f"- **Default ChatGPT Prompt (Single-Shot Batch):** `render_pack/CHATGPT_RENDER_PROMPT.md`\n"
+        f"- **Job Queue:** `render_pack/render_jobs.json` ({len(render_jobs)} jobs: aerial + hero per site)\n"
         f"- **Instructions:** `render_pack/AGENT_INSTRUCTIONS.md`\n"
         f"- **When Done, Rebuild Dashboard:**\n"
         f"  ```bash\n"
@@ -498,6 +543,7 @@ This `render_pack/` includes **`render_jobs.json`** ({len(render_jobs)} total jo
             if fp.is_file():
                 zf.write(fp, fp.relative_to(pack_dir).as_posix())
     print(f"Render pack complete -> {pack_dir} (+ {zip_path.name})")
+    print(f"ChatGPT single-shot prompt ready -> {pack_dir / 'CHATGPT_RENDER_PROMPT.md'}")
 
 
 if __name__ == "__main__":
